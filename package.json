@@ -1,6 +1,6 @@
 {
   "name": "react-sweet-state",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "State management for React build on top of Context",
   "keywords": [
     "React",
