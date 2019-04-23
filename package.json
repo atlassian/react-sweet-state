@@ -1,11 +1,12 @@
 {
   "name": "react-sweet-state",
   "version": "1.0.0",
-  "description": "State management for React build on top of Context",
+  "description": "Global + local state combining the best of Redux and Context API",
   "keywords": [
     "React",
     "React Context",
-    "state management"
+    "state management",
+    "Redux"
   ],
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",
