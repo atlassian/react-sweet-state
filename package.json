@@ -1,0 +1,76 @@
+{
+  "name": "react-sweet-state",
+  "version": "1.0.0",
+  "description": "State management for React build on top of Context",
+  "keywords": [
+    "React",
+    "React Context",
+    "state management"
+  ],
+  "main": "lib/cjs/index.js",
+  "module": "lib/esm/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://git@github.com/atlassian/react-sweet-state.git"
+  },
+  "author": "Alberto Gasparin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/atlassian/react-sweet-state/issues"
+  },
+  "homepage": "https://github.com/atlassian/react-sweet-state#readme",
+  "scripts": {
+    "clean:build": "rm -rf ./lib",
+    "build:cjs": "babel src/ -d lib/cjs --ignore **/__tests__ --presets @babel/env",
+    "build:esm": "babel src/ -d lib/esm --ignore **/__tests__",
+    "build:flow": "echo lib/cjs lib/esm | xargs -n 1 cp src/index.js.flow",
+    "build": "npm run clean:build -s && npm run build:cjs -s && npm run build:esm -s && npm run build:flow -s",
+    "test": "jest",
+    "flow": "flow --max-warnings=0",
+    "lint": "eslint ./src",
+    "preversion": "npm run lint -s && npm run flow -s && npm run test -s",
+    "prepack": "npm run preversion -s && npm run build -s",
+    "docs": "docsify serve docs",
+    "start": "webpack-dev-server",
+    "perf:start": "webpack-dev-server --config ./webpack.config.perf.js"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "prop-types": "^15.0.0",
+    "react": "^16.4.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.4.0",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/plugin-proposal-export-namespace-from": "^7.2.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/plugin-syntax-import-meta": "^7.2.0",
+    "@babel/plugin-transform-runtime": "^7.4.0",
+    "@babel/preset-env": "^7.4.1",
+    "@babel/preset-flow": "^7.0.0",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/runtime": "~7.4.0",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^24.1.0",
+    "babel-loader": "^8.0.5",
+    "docsify-cli": "~4.3.0",
+    "enzyme": "~3.9.0",
+    "enzyme-adapter-react-16": "^1.11.2",
+    "eslint": "^5.15.2",
+    "eslint-plugin-flowtype": "^3.4.2",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-react": "^7.12.4",
+    "eslint-plugin-react-hooks": "^1.5.1",
+    "flow-bin": "^0.97.0",
+    "flow-copy-source": "^2.0.3",
+    "jest": "^24.5.0",
+    "prettier": "^1.16.4",
+    "prop-types": "~15.7.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.1.14"
+  }
+}

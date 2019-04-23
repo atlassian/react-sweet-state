@@ -1,0 +1,20 @@
+
+# Ignore dev files
+.vscode
+.circleci
+.editorconfig
+.eslintrc.js
+*.config.js
+*.setup.js
+
+# Ignore source files
+src
+
+# Ignore examples
+examples
+docs
+
+# Ignore tests
+**/__tests__
+tests
+coverage

@@ -1,0 +1,149 @@
+// @flow
+/* eslint-disable no-redeclare */
+
+import type { Node } from 'react';
+
+/**
+ * ST: Full store state
+ * PI: Picked store state (or result)
+ * AC: Store actions
+ */
+
+type SetState<ST> = ($Shape<ST>) => void;
+type GetState<ST> = () => $ReadOnly<ST>;
+type StoreUnsubscribe = () => void;
+
+type RenderPropComponent<S, A> = ($ReadOnly<S>, $Exact<A>) => Node;
+
+export type Store<ST, AC> = {|
+  key: string[],
+  initialState: ST,
+  actions: AC,
+|};
+
+export type StoreState<ST> = {|
+  getState: GetState<ST>,
+  setState: ST => void,
+  key: string[],
+  subscribe: (listener: () => void) => StoreUnsubscribe,
+  mutator: SetState<ST>,
+|};
+
+export type Action<ST, PR = *, AC = *> = (
+  {|
+    setState: SetState<ST>,
+    getState: GetState<ST>,
+    actions: AC,
+    dispatch: (actionThunk: Action<ST, PR, AC>) => *,
+  |},
+  containerProps: PR
+) => *;
+
+export type StoreInstance<ST, AC> = {
+  store: StoreState<ST>,
+  actions: AC,
+};
+
+declare export class Registry {
+  configure: ({
+    initialStates?: { [key: string]: Object },
+  }) => void;
+  stores: Map<string, StoreInstance<any, any>>;
+  initStore: <ST, AC>(Store<ST, AC>, key: string) => StoreInstance<ST, AC>;
+  getStore: <ST, AC>(Store<ST, AC>, scopeId: string) => StoreInstance<ST, AC>;
+  deleteStore: <ST, AC>(Store<ST, AC>, scopeId: string) => void;
+}
+
+declare export var defaultRegistry: Registry;
+
+type MiddlewareResult = any;
+export type Middleware = (
+  store: StoreState<any>
+) => (next: (fn: any) => MiddlewareResult) => (fn: () => *) => MiddlewareResult;
+
+declare export var defaults: {
+  devtools: boolean,
+  middlewares: Set<Middleware>,
+  mutator: <ST>(prevState: ST, partialState: $Shape<ST>) => ST,
+};
+
+type ContainerComponent<PR> = React$ComponentType<{|
+  scope?: string,
+  isGlobal?: boolean,
+  children: Node,
+  ...PR,
+|}>;
+
+type SubscriberComponent<ST, AC, PR> = React$ComponentType<{|
+  children: RenderPropComponent<ST, AC>,
+  ...PR,
+|}>;
+
+declare export function createStore<ST, AC>({|
+  initialState: ST,
+  actions: AC,
+  name?: string,
+|}): Store<ST, AC>;
+
+declare export function createContainer<ST, AC, PR>(
+  store: Store<ST, AC>,
+  options?: {|
+    onInit?: () => Action<ST, PR, AC>,
+    onUpdate?: () => Action<ST, PR, AC>,
+    displayName?: string,
+  |}
+): ContainerComponent<PR>;
+
+declare export function createSubscriber<ST, AC>(
+  store: Store<ST, AC>,
+  options?: {|
+    displayName?: string,
+  |}
+): SubscriberComponent<ST, AC, {||}>;
+
+// Does not work as Flow complains cannot select between null and fn()
+// declare export function createSubscriber<ST, AC>(
+//   store: Store<ST, AC>,
+//   options: {|
+//     selector: null,
+//     displayName?: string,
+//   |}
+// ): SubscriberComponent<{||}, AC, {||}>;
+
+// Old Flow not able to refine between with/without selector props
+// declare export function createSubscriber<ST, AC, SE>(
+//   store: Store<ST, AC>,
+//   options: {|
+//     selector: (state: ST) => SE,
+//     displayName?: string,
+//   |}
+// ): SubscriberComponent<SE, AC, {||}>;
+
+declare export function createSubscriber<ST, AC, SE, PR>(
+  store: Store<ST, AC>,
+  options: {|
+    selector: null | ((state: ST, props: PR) => SE),
+    displayName?: string,
+  |}
+): SubscriberComponent<SE, AC, PR>;
+
+declare export function createHook<ST, AC>(
+  store: Store<ST, AC>
+): () => [ST, AC];
+
+// declare export function createHook<SE, AC>(
+//   Container: ContainerType<any>,
+//   selector: (state: any) => SE
+// ): () => [SE, AC];
+
+// declare export function createHook<AC>(
+//   Container: ContainerType<any>,
+//   selector: null
+// ): () => [{}, AC];
+
+declare export function createHook<ST, AC, SE, PR>(
+  store: Store<ST, AC>,
+  options: {|
+    selector: null | ((state: ST, props: PR) => SE),
+  |}
+): (props?: PR) => [SE, AC];

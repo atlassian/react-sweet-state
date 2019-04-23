@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>
+      react-sweet-state - State management for React
+    </title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta
+      name="description"
+      content="State management for React build on top of immer and Context (optional)"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css" />
+    <style type="text/css">
+      :root {
+        --theme-color: #ff6600;
+      }
+      .markdown-section > div:first-child {
+        position: relative;
+        float: right;
+        z-index: 2;
+      }
+      .markdown-section > div:first-child p {
+        margin: 0.5em 0 0;
+      }
+      .markdown-section > div:first-child + * {
+        margin-top: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <script src="//unpkg.com/docsify-edit-on-github@1.0.1/index.js"></script>
+    <script>
+      window.$docsify = {
+        name: 'react-sweet-state',
+        repo: 'https://atlassian@github.com/atlassian/react-sweet-state',
+        loadSidebar: true,
+        plugins: [
+          EditOnGithubPlugin.create(
+            'https://github.com/atlassian/react-sweet-state/tree/master/docs/'
+          ),
+        ],
+      };
+    </script>
+    <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
+  </body>
+</html>
