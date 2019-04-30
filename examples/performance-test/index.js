@@ -2,6 +2,8 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
+import '@babel/polyfill';
+
 import { TreeRpc } from './views/tree-rpc';
 import { TreeHooks } from './views/tree-hooks';
 

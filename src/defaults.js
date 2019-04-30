@@ -3,8 +3,16 @@ const defaultMutator = (prevState, partialState) => {
   return Object.assign({}, prevState, partialState);
 };
 
-export default {
+let middlewares;
+
+const defaults = {
   devtools: false,
-  middlewares: new Set(),
+  get middlewares() {
+    // lazy init to support IE11 + babel polyfill imported after
+    if (!middlewares) middlewares = new Set();
+    return middlewares;
+  },
   mutator: defaultMutator,
 };
+
+export default defaults;
