@@ -17,8 +17,8 @@ const DEFAULT_SELECTOR = state => state;
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
-export function createHook(Store, { selector } = {}) {
-  return function(props) {
+export function createHook<ARG = any>(Store, { selector } = {} as any) {
+  return function(props?: ARG) {
     // instead of using "useContext" we get the context value with
     // a custom implementation so our components do not render on ctx change
     const ctx = readContext();
@@ -38,7 +38,7 @@ export function createHook(Store, { selector } = {}) {
     // We store update function into a ref so when called has fresh state
     // React setState in useEffect provides a stale state unless we re-subscribe
     // https://github.com/facebook/react/issues/14042
-    const onUpdateRef = useRef();
+    const onUpdateRef = useRef<any>();
     onUpdateRef.current = (updState = prevState, forceUpdate) => {
       const nextState = stateSelector(updState, props);
       if (!shallowEqual(nextState, currentState) || forceUpdate) {

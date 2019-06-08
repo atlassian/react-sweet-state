@@ -5,7 +5,7 @@ import withDevtools from '../devtools';
 import defaults from '../../defaults';
 
 defaults.devtools = true;
-window.__REDUX_DEVTOOLS_EXTENSION__ = {
+(window as any).__REDUX_DEVTOOLS_EXTENSION__ = {
   connect: jest.fn(),
   send: jest.fn(),
 };
@@ -21,7 +21,9 @@ describe('withDevtools', () => {
 
   beforeEach(() => {
     createStoreMock = jest.fn().mockReturnValue({ ...storeStateMock });
-    window.__REDUX_DEVTOOLS_EXTENSION__.connect.mockReturnValue(devToolsMock);
+    (window as any).__REDUX_DEVTOOLS_EXTENSION__.connect.mockReturnValue(
+      devToolsMock
+    );
   });
 
   it('should return an enhanced store object', () => {
@@ -49,7 +51,9 @@ describe('withDevtools', () => {
     const store = withDevtools(createStoreMock)();
     store.mutator({ count: 1 });
 
-    expect(window.__REDUX_DEVTOOLS_EXTENSION__.connect).toHaveBeenCalled();
+    expect(
+      (window as any).__REDUX_DEVTOOLS_EXTENSION__.connect
+    ).toHaveBeenCalled();
     expect(devToolsMock.init).toHaveBeenCalledWith({ count: 0 });
     expect(devToolsMock.subscribe).toHaveBeenCalled();
   });

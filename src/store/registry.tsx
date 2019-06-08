@@ -6,6 +6,7 @@ export const GLOBAL_SCOPE = '__global__';
 export class StoreRegistry {
   stores = new Map();
   initialStates = {};
+  defaultScope = GLOBAL_SCOPE;
 
   constructor(defaultScope = GLOBAL_SCOPE) {
     this.defaultScope = defaultScope;

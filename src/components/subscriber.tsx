@@ -1,11 +1,23 @@
-import { Component } from 'react';
+import { Component, ReactNode } from 'react';
 import PropTypes from 'prop-types';
 
 import { readContext } from '../context';
 import memoize from '../utils/memoize';
 import shallowEqual from '../utils/shallow-equal';
 
-export default class Subscriber extends Component {
+type Props<ST, AC, PR> = {
+  children: (ST, AC) => ReactNode;
+} & PR;
+
+type State = {
+  storeStateValue: any;
+  getStoreStateValue: any;
+};
+
+export default class Subscriber<ST, AC, PR = {}> extends Component<
+  Props<ST, AC, PR>,
+  State
+> {
   static propTypes = {
     children: PropTypes.func.isRequired,
   };
@@ -23,7 +35,9 @@ export default class Subscriber extends Component {
 
   store = null;
   subscription = null;
-  selector = this.constructor.selector && memoize(this.constructor.selector);
+  selector =
+    (this.constructor as typeof Subscriber).selector &&
+    memoize((this.constructor as typeof Subscriber).selector);
 
   constructor(props) {
     super(props);
@@ -77,7 +91,7 @@ export default class Subscriber extends Component {
   };
 
   getStoreFromContext() {
-    const { storeType } = this.constructor;
+    const { storeType } = this.constructor as typeof Subscriber;
     // We use React context just to get the stores registry
     // then we rely on our internal pub/sub to get updates
     // because context API doesn't have builtin selectors (yet).
@@ -100,7 +114,7 @@ export default class Subscriber extends Component {
     }
   }
 
-  onUpdate = (updState, forceUpdate) => {
+  onUpdate = (updState?: any, forceUpdate?: boolean) => {
     // Ensure component is still mounted and has a store attached
     if (!this.store) return;
     const prevStoreStateValue = this.state.storeStateValue;

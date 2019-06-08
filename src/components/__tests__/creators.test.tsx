@@ -13,7 +13,7 @@ jest.mock('../../utils/hash', () => ({
 
 describe('creators', () => {
   beforeEach(() => {
-    hash.mockReturnValue('mockedHash');
+    (hash as jest.Mock).mockReturnValue('mockedHash');
   });
 
   describe('createSubscriber', () => {

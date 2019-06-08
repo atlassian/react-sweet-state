@@ -39,7 +39,7 @@ describe('bindAction', () => {
     const result = bindAction(storeStateMock, action, 'myAction');
     result();
 
-    expect(storeStateMock.mutator.actionName).toEqual('myAction');
+    expect((storeStateMock.mutator as any).actionName).toEqual('myAction');
   });
 
   it('should expose action name to devtools on dispatch call', () => {
@@ -49,7 +49,9 @@ describe('bindAction', () => {
     const result = bindAction(storeStateMock, action, 'myAction2');
     result();
 
-    expect(storeStateMock.mutator.actionName).toEqual('myAction2.dispatch');
+    expect((storeStateMock.mutator as any).actionName).toEqual(
+      'myAction2.dispatch'
+    );
   });
 });
 

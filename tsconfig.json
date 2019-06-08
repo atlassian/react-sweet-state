@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "es2015",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    // "noImplicitAny": true,
+    "preserveConstEnums": true,
+    "jsx": "preserve",
+    "noEmit": true
+  },
+  "include": ["src/**/*"]
+}

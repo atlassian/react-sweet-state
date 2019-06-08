@@ -1,11 +1,25 @@
-import React, { Component } from 'react';
+import React, { Component, ReactNode } from 'react';
 import PropTypes from 'prop-types';
 
 import { Provider, readContext } from '../context';
 import { StoreRegistry, bindAction, bindActions } from '../store';
 import shallowEqual from '../utils/shallow-equal';
 
-export default class Container extends Component {
+type Props<PR> = {
+  children?: ReactNode;
+  scope?: string;
+  isGlobal?: boolean;
+} & PR;
+
+type State = {
+  api: any;
+  bindContainerActions: any;
+  triggerContainerAction: any;
+  scope: string;
+  scopedActions: any;
+};
+
+export default class Container<PR = {}> extends Component<Props<PR>, State> {
   static propTypes = {
     children: PropTypes.node,
     scope: PropTypes.string,
@@ -31,6 +45,11 @@ export default class Container extends Component {
     return nextState;
   }
 
+  registry = null;
+  onInit = null;
+  onUpdate = null;
+  actionProps = null;
+
   constructor(props) {
     super(props);
     const ctx = readContext();
@@ -47,11 +66,12 @@ export default class Container extends Component {
       bindContainerActions: this.bindContainerActions,
       triggerContainerAction: this.triggerContainerAction,
       scope: props.scope,
+      scopedActions: null,
     };
 
     // this is needed for compat with React<16.5
     // as gDSFP in not called before first render
-    this.state.scopedActions = this.bindContainerActions(props.scope);
+    (this.state as any).scopedActions = this.bindContainerActions(props.scope);
     this.triggerContainerAction(props);
   }
 
@@ -70,7 +90,7 @@ export default class Container extends Component {
   }
 
   bindContainerActions = scope => {
-    const { storeType, hooks } = this.constructor;
+    const { storeType, hooks } = this.constructor as typeof Container;
     const { api } = this.state;
     // we explicitly pass scope as it might be changed
     const { storeState } = api.getStore(storeType, scope);
@@ -124,7 +144,7 @@ export default class Container extends Component {
   }
 
   getScopedStore(Store, scopeId = this.props.scope) {
-    const { storeType } = this.constructor;
+    const { storeType } = this.constructor as typeof Container;
     if (Store !== storeType) {
       return null;
     }
@@ -138,7 +158,7 @@ export default class Container extends Component {
   }
 
   triggerScopeChange(prevScopeId) {
-    const { storeType } = this.constructor;
+    const { storeType } = this.constructor as typeof Container;
     const { storeState } = this.getScopedStore(storeType, prevScopeId);
     // When called, subscribers that have already re-rendered with the new
     // scope are no longer subscribed to the old one, so we "force update"
@@ -150,7 +170,7 @@ export default class Container extends Component {
   }
 
   deleteScopedStore(scopeId = this.props.scope) {
-    const { storeType } = this.constructor;
+    const { storeType } = this.constructor as typeof Container;
     const { storeState } = this.getScopedStore(storeType, scopeId);
     if (!storeState.listeners().length) {
       this.getRegistry().deleteStore(storeType, scopeId);

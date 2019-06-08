@@ -43,16 +43,17 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(j|t)sx?$/,
         loader: 'babel-loader',
-        options: {
-          presets: [['@babel/preset-env', { targets: { chrome: '60' } }]],
-        },
+        // options: {
+        //   presets: [['@babel/preset-env', { targets: { chrome: '60' } }]],
+        // },
       },
     ],
   },
 
   resolve: {
+    extensions: ['.js', '.tsx', '.json'],
     alias: {
       'react-sweet-state': resolve(__dirname, './src'),
     },

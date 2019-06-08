@@ -29,7 +29,10 @@ function createStoreState(key, initialState) {
       return listeners;
     },
   };
-  storeState.mutator = applyMiddleware(storeState, defaults.middlewares);
+  (storeState as any).mutator = applyMiddleware(
+    storeState,
+    defaults.middlewares
+  );
   return storeState;
 }
 

@@ -31,7 +31,7 @@ const setup = (props = {}) => {
   const getElement = () => <Subscriber {...props}>{children}</Subscriber>;
   const getMount = () => {
     const component = mount(getElement());
-    return { component, instance: component.instance() };
+    return { component, instance: component.instance() as typeof Subscriber };
   };
   return {
     getElement,
@@ -42,9 +42,9 @@ const setup = (props = {}) => {
 
 describe('Subscriber', () => {
   beforeEach(() => {
-    Subscriber = class extends SubscriberComponent {};
+    Subscriber = class extends SubscriberComponent<any, any> {};
     Subscriber.storeType = StoreMock;
-    defaultRegistry.getStore.mockReturnValue({
+    (defaultRegistry.getStore as jest.Mock).mockReturnValue({
       storeState: storeStateMock,
       actions: StoreMock.actions,
     });
@@ -106,10 +106,7 @@ describe('Subscriber', () => {
     // simulate store change -> parent re-render -> yield listener update
     storeStateMock.getState.mockReturnValue({ count: 1 });
     wrapper.setProps({ foo: 1 });
-    wrapper
-      .find(Subscriber)
-      .instance()
-      .onUpdate();
+    (wrapper.find(Subscriber).instance() as typeof Subscriber).onUpdate();
 
     expect(storeStateMock.getState).toHaveBeenCalledTimes(4);
     expect(children).toHaveBeenCalledTimes(2);

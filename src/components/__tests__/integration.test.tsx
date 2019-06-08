@@ -35,7 +35,7 @@ describe('Integration', () => {
   });
 
   afterEach(() => {
-    React.useEffect.mockRestore();
+    (React.useEffect as jest.Mock).mockRestore();
   });
 
   it('should get closer storeState with scope id if matching', () => {
@@ -118,15 +118,15 @@ describe('Integration', () => {
   });
 
   it('should update all subscribers on scope change', async () => {
-    const Container = createContainer(Store, {
+    const Container = createContainer<any, any, any>(Store, {
       onInit: () => ({ actions }, { v }) => actions.load(v),
     });
     const Subscriber = createSubscriber(Store);
-    const useHook = createHook(Store);
+    const useHook = createHook<any>(Store);
 
     const children1 = jest.fn(() => null);
     const children2 = jest.fn(() => null);
-    const children3 = jest.fn(() => null);
+    const children3 = jest.fn((...args: any) => null);
     const children4 = jest.fn(() => null);
 
     const IsolatedSubscriber = React.memo(() => (
@@ -145,7 +145,7 @@ describe('Integration', () => {
       }
     }
 
-    class App extends Component {
+    class App extends Component<any> {
       static propTypes = {
         scopeId: PropTypes.string,
       };

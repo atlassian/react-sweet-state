@@ -26,7 +26,7 @@ describe('Hook', () => {
     decrease: expect.any(Function),
   };
 
-  const setup = (props = {}, selector) => {
+  const setup = (props = {}, selector = undefined) => {
     const childrenFn = jest.fn().mockReturnValue(null);
     const useHook = createHook(StoreMock, { selector });
     const Subscriber = ({ children, ...p }) => {
@@ -45,7 +45,7 @@ describe('Hook', () => {
   };
 
   beforeEach(() => {
-    defaultRegistry.getStore.mockReturnValue({
+    (defaultRegistry.getStore as jest.Mock).mockReturnValue({
       storeState: storeStateMock,
       actions: StoreMock.actions,
     });

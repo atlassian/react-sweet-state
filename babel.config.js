@@ -4,10 +4,15 @@ module.exports = {
   presets: [
     [
       '@babel/preset-env',
-      { targets: { ie: '11' }, modules: false, exclude: ['transform-typeof-symbol'] },
+      {
+        targets: { ie: '11' },
+        modules: false,
+        exclude: ['transform-typeof-symbol'],
+      },
     ],
     '@babel/preset-react',
     '@babel/preset-flow',
+    '@babel/preset-typescript',
   ],
   plugins: [
     ['@babel/plugin-proposal-class-properties'],
@@ -21,4 +26,21 @@ module.exports = {
       plugins: ['@babel/plugin-transform-runtime'],
     },
   },
+  // overrides: [
+  //   {
+  //     test: ['./src/**/*.tsx'],
+  //     presets: [
+  //       [
+  //         '@babel/preset-env',
+  //         {
+  //           targets: { ie: '11' },
+  //           modules: false,
+  //           exclude: ['transform-typeof-symbol'],
+  //         },
+  //       ],
+  //       '@babel/preset-react',
+  //       '@babel/preset-typescript',
+  //     ],
+  //   },
+  // ],
 };

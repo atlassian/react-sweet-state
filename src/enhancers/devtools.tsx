@@ -1,7 +1,7 @@
 import defaults from '../defaults';
 
 const connectDevTools = storeState => {
-  const devTools = window.__REDUX_DEVTOOLS_EXTENSION__.connect({
+  const devTools = (window as any).__REDUX_DEVTOOLS_EXTENSION__.connect({
     name: `Store ${storeState.key}`,
     serialize: true,
   });
@@ -37,7 +37,11 @@ const connectDevTools = storeState => {
 const withDevtools = createStoreState => (...args) => {
   const storeState = createStoreState(...args);
 
-  if (defaults.devtools && window && window.__REDUX_DEVTOOLS_EXTENSION__) {
+  if (
+    defaults.devtools &&
+    window &&
+    (window as any).__REDUX_DEVTOOLS_EXTENSION__
+  ) {
     const origMutator = storeState.mutator;
     let devTools;
     const devtoolMutator = arg => {

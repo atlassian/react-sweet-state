@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { createContext } from 'react';
 
 import { defaultRegistry } from './store';
 
-const { Provider, Consumer } = React.createContext({
+const { Provider, Consumer } = createContext({
   globalRegistry: defaultRegistry,
   getStore: defaultRegistry.getStore,
 });
@@ -13,12 +13,14 @@ const { Provider, Consumer } = React.createContext({
 const readContext = () => {
   const {
     // React < 16.8
-    ReactCurrentOwner: { currentDispatcher } = {},
+    ReactCurrentOwner: { currentDispatcher } = {} as any,
     // React >= 16.8+
-    ReactCurrentDispatcher: { current } = {},
-  } = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+    ReactCurrentDispatcher: { current } = {} as any,
+  } = (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
   const dispatcher = current || currentDispatcher;
-  return dispatcher ? dispatcher.readContext(Consumer) : Consumer._currentValue;
+  return dispatcher
+    ? dispatcher.readContext(Consumer)
+    : (Consumer as any)._currentValue;
 };
 
 export { Provider, Consumer, readContext };

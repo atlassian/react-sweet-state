@@ -30,7 +30,7 @@ const Store = createStore({
   initialState: StoreMock.initialState,
   actions: StoreMock.actions,
 });
-const Container = createContainer(Store, {
+const Container = createContainer<any, any, any>(Store, {
   onInit: () => mockOnContainerInitInner,
   onUpdate: () => mockOnContainerUpdateInner,
 });
@@ -41,8 +41,8 @@ describe('Container', () => {
       storeState: storeStateMock,
       actions: StoreMock.actions,
     };
-    defaultRegistry.getStore.mockReturnValue(getStoreReturn);
-    StoreRegistry.mockImplementation(() => mockRegistry);
+    (defaultRegistry.getStore as jest.Mock).mockReturnValue(getStoreReturn);
+    (StoreRegistry as jest.Mock).mockImplementation(() => mockRegistry);
     mockRegistry.getStore.mockReturnValue(getStoreReturn);
     storeStateMock.getState.mockReturnValue(StoreMock.initialState);
   });
@@ -84,7 +84,9 @@ describe('Container', () => {
         Subscriber.storeType,
         's1'
       );
-      expect(wrapper.instance().registry.getStore).not.toHaveBeenCalled();
+      expect(
+        (wrapper.instance() as any).registry.getStore
+      ).not.toHaveBeenCalled();
     });
 
     it('should get closer storeState with scope id if matching', () => {
@@ -114,10 +116,9 @@ describe('Container', () => {
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
       const wrapper = mount(<Container>{children}</Container>);
-      expect(wrapper.instance().registry.getStore).toHaveBeenCalledWith(
-        Subscriber.storeType,
-        undefined
-      );
+      expect(
+        (wrapper.instance() as any).registry.getStore
+      ).toHaveBeenCalledWith(Subscriber.storeType, undefined);
       expect(defaultRegistry.getStore).not.toHaveBeenCalled();
     });
 
@@ -129,7 +130,9 @@ describe('Container', () => {
         Subscriber.storeType,
         undefined
       );
-      expect(wrapper.instance().registry.getStore).not.toHaveBeenCalled();
+      expect(
+        (wrapper.instance() as any).registry.getStore
+      ).not.toHaveBeenCalled();
     });
 
     it('should cleanup from global on unmount if no more listeners', () => {
