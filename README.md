@@ -30,7 +30,7 @@ import { createStore, createSubscriber } from 'react-sweet-state';
 
 const Store = createStore({
   // value of the store on initialisation
-  initialState = {
+  initialState : {
     count: 0,
   },
   // actions that trigger store mutation
