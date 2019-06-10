@@ -9,11 +9,11 @@ Taking the good parts of Redux and React Context to build a flexible, scalable a
 
 ## Philosophy
 
-sweet-state is heavily inspired by Redux, the main difference is the lack of reducers. Instead of React Provider and Consumer, we have `Container` and `Subscriber`, connected to the same instance of a Store (defined as actions and initial state) and make it's state (or part of it) and the actions bound to the instance available via render-prop API.
+sweet-state is heavily inspired by Redux, the main difference is the lack of reducers. Instead of React Provider and Consumer, it provides `Container` and `Subscriber`, connected to the same instance of a Store (defined as actions and initial state), making its state (or part of it) and actions available via render-prop or hooks APIs.
 
-Each `Subscriber` is responsible to get the instantiated Store (creating a new one with `initialState` if necessary). That makes sharing state across you project extremely easy.
+Each `Subscriber`, or `Hook`, is responsible to get the instantiated Store (creating a new one with `initialState` if necessary), allowing sharing state across you project extremely easy.
 
-Similar to Redux thunk, actions receive a set of arguments to get and mutate the state. The default `setState` implementation is similar to React `setState`, called with an object that will be shallow merged with the current state. But you are free to replace that with something different, even like `immer` for instance.
+Similar to Redux thunks, actions receive a set of arguments to get and mutate the state. The default `setState` implementation is similar to React `setState`, accepting an object that will be shallow merged with the current state. However you are free to replace the built in `setState` logic with custom, like `immer` for instance.
 
 ## Basic usage
 
@@ -26,11 +26,11 @@ yarn add react-sweet-state
 #### Creating a Subscriber
 
 ```js
-import { createStore, createSubscriber } from 'react-sweet-state';
+import { createStore, createSubscriber, createHook } from 'react-sweet-state';
 
 const Store = createStore({
   // value of the store on initialisation
-  initialState : {
+  initialState: {
     count: 0,
   },
   // actions that trigger store mutation
@@ -44,9 +44,11 @@ const Store = createStore({
   },
   // optional, mostly used for easy debugging
   name: 'counter',
-})
+});
 
 const CounterSubscriber = createSubscriber(Store);
+// or
+const useCounter = createHook(Store);
 ```
 
 ```js
@@ -58,10 +60,10 @@ const App = () => (
     <h1>My counter</h1>
     <CounterSubscriber>
       {/* Store state is the first argument and actions are the second one */}
-      {({ count }, { increment }) => (
+      {(state, actions) => (
         <div>
-          {count}
-          <button onClick={increment}>+</button>
+          {state.count}
+          <button onClick={actions.increment}>+</button>
         </div>
       )}
     </CounterSubscriber>
@@ -71,7 +73,8 @@ const App = () => (
 
 ## Documentation
 
-[check the docs folder](docs/README.md).
+[Check the docs website](https://atlassian.github.io/react-sweet-state/)  
+[or the docs folder](docs/README.md).
 
 ## Examples
 

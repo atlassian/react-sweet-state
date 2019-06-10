@@ -90,25 +90,35 @@ export const useTodosCount = createHook<*, *, *, empty>(Store, {
   selector: getTodosCountSelector,
 });
 
-const getFilteredTodosSelector = (state, props) => ({
+type TodosFilteredProps = {| isDone: boolean |};
+
+const getFilteredTodosSelector = (state: State, props: TodosFilteredProps) => ({
   data: state.order
     .map(v => state.byId[v])
     .filter(t => t.isDone === props.isDone),
   loading: state.loading,
 });
 
+type FilteredTodosState = $Call<
+  typeof getFilteredTodosSelector,
+  State,
+  TodosFilteredProps
+>;
+
 export const TodosFilteredSubscriber = createSubscriber<
-  *,
-  *,
-  *,
-  {| isDone: boolean |}
+  State,
+  Actions,
+  FilteredTodosState,
+  TodosFilteredProps
 >(Store, {
   selector: getFilteredTodosSelector,
 });
 
-export const useTodosFiltered = createHook<*, *, *, {| isDone: boolean |}>(
-  Store,
-  {
-    selector: getFilteredTodosSelector,
-  }
-);
+export const useTodosFiltered = createHook<
+  State,
+  Actions,
+  FilteredTodosState,
+  TodosFilteredProps
+>(Store, {
+  selector: getFilteredTodosSelector,
+});

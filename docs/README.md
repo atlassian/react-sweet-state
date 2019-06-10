@@ -9,11 +9,11 @@ yarn add react-sweet-state
 ```
 
 ```js
-import { createStore, createSubscriber } from 'react-sweet-state';
+import { createStore, createSubscriber, createHook } from 'react-sweet-state';
 
 const Store = createStore({
   // value of the store on initialisation
-  initialState = {
+  initialState: {
     count: 0,
   },
   // actions that trigger store mutation
@@ -27,9 +27,11 @@ const Store = createStore({
   },
   // optional, mostly used for easy debugging
   name: 'counter',
-})
+});
 
 const CounterSubscriber = createSubscriber(Store);
+// or
+const useCounter = createHook(Store);
 
 const App = () => (
   <div>
