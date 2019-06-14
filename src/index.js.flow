@@ -15,11 +15,8 @@ type SetState<ST> = ($Shape<ST>) => void;
 type GetState<ST> = () => $ReadOnly<ST>;
 type StoreUnsubscribe = () => void;
 
-type RenderPropComponent<S, A> = (
-  $ReadOnly<S>,
-  $Exact<BoundActions<A>>
-) => Node;
-type HookReturnValue<S, A> = [$ReadOnly<S>, $Exact<BoundActions<A>>];
+type RenderPropComponent<S, A> = (S, $Exact<BoundActions<A>>) => Node;
+type HookReturnValue<S, A> = [S, $Exact<BoundActions<A>>];
 
 export type Store<ST, AC> = {|
   key: string[],
@@ -152,8 +149,8 @@ declare export function createHook<ST, AC>(
 //   store: Store<ST, AC>,
 //   options: {|
 //     selector: null,
-//   |}
-// ): () => HookReturnValue<undefined, AC>;
+//   |},
+// ): () => HookReturnValue<void, AC>;
 
 declare export function createHook<ST, AC, SE, PR>(
   store: Store<ST, AC>,

@@ -64,18 +64,16 @@ const actions = {
   setTitle: (title: string): Action<State, void, typeof actions> => ({
     actions: acs,
   }) => {
-    // $ExpectError action should be correctly typed
+    // TODO: action should be correctly typed (not supported for no arg fn)
     const v0 = acs.decrement(1);
     // $ExpectError action should be correctly typed
-    const v1 = acs.increment();
+    acs.increment();
     // $ExpectError action should be correctly typed
     acs.increment('1');
     // $ExpectError action should be correctly typed
     acs.decrement().then();
     // $ExpectError result should be correctly typed
     v0.split('');
-    // $ExpectError result should be correctly typed
-    v1 + 1;
 
     // Correct
     acs.decrement();
@@ -119,11 +117,6 @@ Test = (
   <TypeSubscriber>{(__, { increment }) => increment()}</TypeSubscriber>
 );
 
-Test = (
-  // $ExpectError State should be read only
-  <TypeSubscriber>{state => (state.count = 1)}</TypeSubscriber>
-);
-
 // Correct
 Test = <TypeSubscriber>{({ count }) => count + 0}</TypeSubscriber>;
 Test = <TypeSubscriber>{(__, { increment }) => increment(1)}</TypeSubscriber>;
@@ -159,7 +152,7 @@ Test = (
 );
 
 // Correct
-Test = <TypeSelector>{([, { increment }]) => increment(1)}</TypeSelector>;
+Test = <TypeSelector>{(state, { increment }) => increment(1)}</TypeSelector>;
 
 TypeSelector = createSubscriber<State, Actions, _, SelectorProps>(TypeStore, {
   selector: (state, props: SelectorProps) => ({ baz: 1, min: props.min }),
@@ -201,9 +194,6 @@ Test[1].increment();
 Test[1].increment('1');
 
 Test[1].decrement().then(v => v);
-
-// $ExpectError State should be read only
-Test[0].count = 1;
 
 // Correct
 Test[0].count + 0;
