@@ -28,4 +28,5 @@
 
 * **Recipes**
 
-  - [Composition](recipes/composition.md)
+  - [Flow types](./recipes/flow.md)
+  - [Composition](./recipes/composition.md)

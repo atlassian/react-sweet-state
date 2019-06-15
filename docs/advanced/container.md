@@ -1,6 +1,6 @@
 ## Containers
 
-By default, you are allowed to have a single Store instance, and they all live in a single global registry. However in large, complex applications you might want to have multiple instances of the same Store type. That's where `Container` component comes into play: it allows you to have multiple global instances of the same Store type (so still available app-wide) or even local only instances (only accessible to children Subscribers/hooks).
+By default, you are allowed to have a single Store instance, and they all live in a single global registry. However in large, complex applications you might want to have multiple instances of the same Store type. That's where `Container` component comes into play: it allows you to have multiple instances of the same Store type either globally (so still available app-wide) or just locally (only accessible to children Subscribers/hooks).
 
 ```js
 // components/counter.js
@@ -62,9 +62,81 @@ The power of `Container` is that you can expand or reduce the scope at will, wit
 
 Containers enable a couple of additional properties:
 
-- If two Container of the same time have the same `scope` they will share the same data
-- Store instances created by Containers without `isGlobal` are automatically cleared once the last Container accessing that Store is unmounted
-- Props provided to containers are passed to Store actions as second parameter [see actions API](../api/actions.md)
-- Containers can have a `onInit` and `onUpdate` methods to trigger actions and update the state on Container props change
+#### Scoped data sharing
+
+If two `Container` of the same type have the same `scope` they will share the same data, regardless where they are in the tree.
+
+```js
+import { CounterContainer, CounterSubscriber } from 'components/counter';
+
+const App = () => (
+  <Fragment>
+    <CounterContainer scope={'counter-1'}>
+      <CounterSubscriber>
+        {({ count }) => count /* if this is 2 */}
+      </CounterSubscriber>
+    </CounterContainer>
+
+    <CounterContainer scope={'counter-1'}>
+      <CounterSubscriber>
+        {({ count }) => count /* this will be 2 too */}
+      </CounterSubscriber>
+    </CounterContainer>
+  </Fragment>
+);
+```
+
+#### Container props are available in actions
+
+Props provided to containers are passed to Store actions as a secondary parameter [see actions API](../api/actions.md).
+That makes extreamely easy passing dynamic configuration options to actions.
+
+```js
+const Store = createStore({
+  initialState: { count: 0 },
+  actions: {
+    increment: () => ({ setState }, { multiplier = 1 }) => {
+      const currentCount = getState().count * multiplier;
+      setState({ count: currentCount + 1 });
+    },
+  },
+});
+
+const App = () => (
+  <CounterContainer scope={'counter-1'} multiplier={2}>
+    <CounterSubscriber>
+      {({ count }) => count /* this will be an odd number */}
+    </CounterSubscriber>
+  </CounterContainer>
+);
+```
+
+NOTE: Remember though that those props will be available **only** to Subscribers/hooks that are children of the `Container` that receives them, regardless of the Container being global/scoped.
+
+#### Container can trigger actions
+
+`Container` options have a `onInit` and `onUpdate` keys, to trigger actions and update the state on its props change. The methods' shape is the same as all other actions.
+
+```js
+const CounterContainer = createContainer(Store, {
+  onInit: () => ({ setState }, { initialCount }) => {
+    setState({ count: initialCount });
+  },
+});
+
+const App = () => (
+  <CounterContainer scope={'counter-1'} initialCount={10}>
+    <CounterSubscriber>
+      {({ count }) => count /* this starts from 10 */}
+    </CounterSubscriber>
+  </CounterContainer>
+);
+```
+
+#### Scoped data cleanup
+
+Store instances created by `Container`s without `isGlobal` are automatically cleared once the last Container accessing that Store is unmounted.
+
+---
 
 For more details about Containers see the [Containers API](../api/container.md)

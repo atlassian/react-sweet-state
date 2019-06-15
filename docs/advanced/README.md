@@ -1,8 +1,8 @@
 ## Advanced
 
-- [Actions patterns](./advanced/actions.md)
-- [Selectors](./advanced/selector.md)
-- [Containers](./advanced/container.md)
-- [Devtools](./advanced/devtools.md)
-- [State rehydration](./advanced/rehydration.md)
-- [Middlewares](./advanced/middlewares.md)
+- [Actions patterns](./actions.md)
+- [Selectors](./selector.md)
+- [Containers](./container.md)
+- [Devtools](./devtools.md)
+- [State rehydration](./rehydration.md)
+- [Middlewares](./middlewares.md)

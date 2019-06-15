@@ -1,6 +1,22 @@
 ## Composition
 
-sweet-state supports render props composition via 3rd party libs:
+Hooks allow composition naturally, without rendering additional components:
+
+```js
+// ...
+import { useUserState } from './state-conatiners/user';
+import { useProjectState } from './state-conatiners/projects';
+
+const UserProject = () => {
+  const [userState, userActions] = useUserState();
+  const [projectState, projectActions] = useProjectState();
+  /* now we can useEffect to trigger userActions.load()
+    and when user data is returned call projectActions.load(userState.data.id) */
+  return; /* ... */
+};
+```
+
+If you are looking for a way to avoid render-props components hell, you can have composition via 3rd party libs, like `react-composer`:
 
 ```js
 import Composer from "react-composer";

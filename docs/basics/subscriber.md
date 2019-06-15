@@ -43,4 +43,6 @@ const App = () => (
 );
 ```
 
-For more details about Subscribers see the [Subscribers API](../api/subscribers.md) or how to create [selector subscribers](../advanced/selector.md).
+--
+
+For more details about Subscribers see the [Subscribers API](../api/subscriber.md) or how to create [selector subscribers](../advanced/selector.md).

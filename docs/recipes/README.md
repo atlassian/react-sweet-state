@@ -1,3 +1,4 @@
 ## Recipes
 
-- [Composition](./recipes/composition.md)
+- [Flow types](./flow.md)
+- [Composition](./composition.md)
