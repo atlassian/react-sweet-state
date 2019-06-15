@@ -5,6 +5,7 @@ import {
   createStore,
   createContainer,
   createSubscriber,
+  createHook,
   type Action,
 } from '..';
 
@@ -18,7 +19,10 @@ let Test;
 let TypeStore;
 let TypeContainer;
 let TypeSubscriber;
+let typeHook;
 let TypeSelector;
+
+type SelectorProps = {| min: number |};
 
 const actions = {
   // setState tests
@@ -35,6 +39,7 @@ const actions = {
     setState({
       count: 2,
     });
+    return '';
   },
 
   // GetState tests
@@ -47,6 +52,36 @@ const actions = {
 
     // correct
     const { count } = state;
+
+    return count;
+  },
+
+  fetch: (): Action<State> => async (): Promise<string> => {
+    return '';
+  },
+
+  // Actions tests
+  setTitle: (title: string): Action<State, void, typeof actions> => ({
+    actions: acs,
+  }) => {
+    // TODO: action should be correctly typed (not supported for no arg fn)
+    const v0 = acs.decrement(1);
+    // $ExpectError action should be correctly typed
+    acs.increment();
+    // $ExpectError action should be correctly typed
+    acs.increment('1');
+    // $ExpectError action should be correctly typed
+    acs.decrement().then();
+    // $ExpectError result should be correctly typed
+    v0.split('');
+
+    // Correct
+    acs.decrement();
+    acs.increment(1);
+    acs.fetch().then(v => v + 1);
+    acs.fetch().then(v => v.split(''));
+    v0 + 1;
+    return title;
   },
 };
 
@@ -67,11 +102,10 @@ TypeStore = createStore<State, Actions>({
 });
 
 /**
- * createComponents types tests
+ * createSubscriber types tests
  */
-TypeContainer = createContainer<*, *, {| url?: string |}>(TypeStore);
 
-TypeSubscriber = createSubscriber<*, *>(TypeStore);
+TypeSubscriber = createSubscriber<State, Actions>(TypeStore);
 
 Test = (
   // $ExpectError Child arg shape should be state + actions
@@ -83,11 +117,6 @@ Test = (
   <TypeSubscriber>{(__, { increment }) => increment()}</TypeSubscriber>
 );
 
-Test = (
-  // $ExpectError State should be read only
-  <TypeSubscriber>{state => (state.count = 1)}</TypeSubscriber>
-);
-
 // Correct
 Test = <TypeSubscriber>{({ count }) => count + 0}</TypeSubscriber>;
 Test = <TypeSubscriber>{(__, { increment }) => increment(1)}</TypeSubscriber>;
@@ -95,7 +124,7 @@ Test = <TypeSubscriber>{(__, { increment }) => increment(1)}</TypeSubscriber>;
 /**
  * createSubscriber with selector types tests
  */
-TypeSelector = createSubscriber<*, *, _, void>(TypeStore, {
+TypeSelector = createSubscriber<State, Actions, _, void>(TypeStore, {
   selector: state => ({ baz: 1 }),
 });
 
@@ -113,7 +142,7 @@ Test = (
 Test = <TypeSelector>{({ baz }) => baz}</TypeSelector>;
 Test = <TypeSelector>{(__, { increment }) => increment(1)}</TypeSelector>;
 
-TypeSelector = createSubscriber<*, *, {||}, {||}>(TypeStore, {
+TypeSelector = createSubscriber<State, Actions, void, void>(TypeStore, {
   selector: null,
 });
 
@@ -123,11 +152,9 @@ Test = (
 );
 
 // Correct
-Test = <TypeSelector>{([, { increment }]) => increment(1)}</TypeSelector>;
+Test = <TypeSelector>{(state, { increment }) => increment(1)}</TypeSelector>;
 
-type SelectorProps = {| min: number |};
-
-TypeSelector = createSubscriber<*, *, _, SelectorProps>(TypeStore, {
+TypeSelector = createSubscriber<State, Actions, _, SelectorProps>(TypeStore, {
   selector: (state, props: SelectorProps) => ({ baz: 1, min: props.min }),
 });
 
@@ -150,8 +177,83 @@ Test = (
 Test = <TypeSelector min={2}>{({ baz, min }) => baz + min}</TypeSelector>;
 
 /**
+ * createHook types tests
+ */
+
+typeHook = createHook<State, Actions>(TypeStore);
+
+Test = typeHook();
+
+// $ExpectError Array index 0 should be state
+Test[0].foo;
+
+// $ExpectError Array index 1 should be actions
+Test[1].increment();
+
+// $ExpectError Array index 1 should be actions
+Test[1].increment('1');
+
+Test[1].decrement().then(v => v);
+
+// Correct
+Test[0].count + 0;
+Test[1].increment(1);
+Test[1].decrement();
+Test[1].fetch().then(v => v);
+
+/**
+ * createHook with selector types tests
+ */
+typeHook = createHook<State, Actions, _, void>(TypeStore, {
+  selector: state => ({ baz: 1 }),
+});
+
+Test = typeHook();
+
+// $ExpectError Array index 0 shape should be selector output
+Test[0].count;
+
+// $ExpectError Should not accept props
+Test = typeHook({ min: 3 });
+
+// Correct
+Test[0].baz;
+Test[1].increment(1);
+
+typeHook = createHook<State, Actions, void, void>(TypeStore, {
+  selector: null,
+});
+
+Test = typeHook();
+
+// $ExpectError Array 0 shape should be undefined
+Test[0].count;
+
+// Correct
+Test[1].increment(1);
+
+typeHook = createHook<State, Actions, _, SelectorProps>(TypeStore, {
+  selector: (state, props: SelectorProps) => ({ baz: 1, min: props.min }),
+});
+
+// TODO: Should require props
+Test = typeHook();
+
+// $ExpectError Should require correct prop types
+Test = typeHook({ min: '2' });
+
+Test = typeHook({ min: 2 });
+// $ExpectError Should have correct selector types
+Test[0].min.split('');
+
+// Correct
+Test[0].min + Test[0].baz;
+
+/**
  * Container types tests
  */
+TypeContainer = createContainer<State, Actions, {| url?: string |}>(TypeStore);
+
 Test = (
   // $ExpectError Container is not a render-prop
   <TypeContainer>{({ count }) => count}</TypeContainer>

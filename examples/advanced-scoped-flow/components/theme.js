@@ -39,17 +39,20 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-export const ThemeContainer = createContainer<*, *, ContainerProps>(Store, {
-  onInit: () => ({ getState, dispatch }) => {
-    // this gets currently called also when component remounts
-    // so it is important to check state status and apply default only on first mount
-    const { color } = getState();
-    if (!color) {
-      dispatch(actions.change());
-    }
-  },
-});
+export const ThemeContainer = createContainer<State, Actions, ContainerProps>(
+  Store,
+  {
+    onInit: () => ({ getState, dispatch }) => {
+      // this gets currently called also when component remounts
+      // so it is important to check state status and apply default only on first mount
+      const { color } = getState();
+      if (!color) {
+        dispatch(actions.change());
+      }
+    },
+  }
+);
 
-export const ThemeSubscriber = createSubscriber<*, *>(Store);
+export const ThemeSubscriber = createSubscriber<State, Actions>(Store);
 
 export const useTheme = createHook<State, Actions>(Store);

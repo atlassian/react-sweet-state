@@ -23,12 +23,15 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-export const TodoContainer = createContainer<*, *, ContainerProps>(Store, {
-  onUpdate: () => ({ dispatch }, { selectedUser }) => {
-    if (selectedUser) dispatch(actions.load(selectedUser));
-  },
-});
+export const TodoContainer = createContainer<State, Actions, ContainerProps>(
+  Store,
+  {
+    onUpdate: () => ({ dispatch }, { selectedUser }) => {
+      if (selectedUser) dispatch(actions.load(selectedUser));
+    },
+  }
+);
 
-export const TodoSubscriber = createSubscriber<*, *>(Store);
+export const TodoSubscriber = createSubscriber<State, Actions>(Store);
 
 export const useTodo = createHook<State, Actions>(Store);

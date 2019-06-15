@@ -55,12 +55,23 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-export const FormContainer = createContainer<*, *, ContainerProps>(Store, {
-  onUpdate: () => ({ setState }, { remoteUsers }) => {
-    setState({ toUsers: remoteUsers });
-  },
-});
+export const FormContainer = createContainer<State, Actions, ContainerProps>(
+  Store,
+  {
+    onUpdate: () => ({ setState }, { remoteUsers }) => {
+      setState({ toUsers: remoteUsers });
+    },
+  }
+);
 
-export const FormSubscriber = createSubscriber<*, *>(Store);
+export const FormSubscriber = createSubscriber<State, Actions>(Store);
 
 export const useForm = createHook<State, Actions>(Store);
+
+export const FormActions = createSubscriber<State, Actions, void, void>(Store, {
+  selector: null,
+});
+
+export const useFormActions = createHook<State, Actions, void, void>(Store, {
+  selector: null,
+});

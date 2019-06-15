@@ -33,6 +33,6 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-export const MessagesSubscriber = createSubscriber<*, *>(Store);
+export const MessagesSubscriber = createSubscriber<State, Actions>(Store);
 
 export const useMessages = createHook<State, Actions>(Store);

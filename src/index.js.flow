@@ -5,15 +5,18 @@ import type { Node } from 'react';
 
 /**
  * ST: Full store state
- * PI: Picked store state (or result)
  * AC: Store actions
+ * SE: Selector output
+ * PR: Component props
+ * CPR: Container props
  */
 
 type SetState<ST> = ($Shape<ST>) => void;
 type GetState<ST> = () => $ReadOnly<ST>;
 type StoreUnsubscribe = () => void;
 
-type RenderPropComponent<S, A> = ($ReadOnly<S>, $Exact<A>) => Node;
+type RenderPropComponent<S, A> = (S, $Exact<BoundActions<A>>) => Node;
+type HookReturnValue<S, A> = [S, $Exact<BoundActions<A>>];
 
 export type Store<ST, AC> = {|
   key: string[],
@@ -29,15 +32,27 @@ export type StoreState<ST> = {|
   mutator: SetState<ST>,
 |};
 
-export type Action<ST, PR = *, AC = *> = (
+export type Action<ST, CPR = *, AC = *> = (
   {|
     setState: SetState<ST>,
     getState: GetState<ST>,
-    actions: AC,
-    dispatch: (actionThunk: Action<ST, PR, AC>) => *,
+    actions: BoundActions<AC>,
+    dispatch: (actionThunk: Action<ST, CPR, AC>) => *,
   |},
-  containerProps: PR
+  containerProps: CPR
 ) => *;
+
+// prettier-ignore
+type BoundAction<F> =
+  (<A, B, C, D, E>(a: A, b: B, c: C, d: D, e: E) => $Call<$Call<F, A, B, C, D, E>, *, *>) &
+  (<A, B, C, D>(a: A, b: B, c: C, d: D) => $Call<$Call<F, A, B, C, D>, *, *>) &
+  (<A, B, C>(a: A, b: B, c: C) => $Call<$Call<F, A, B, C>, *, *>) &
+  (<A, B>(a: A, b: B) => $Call<$Call<F, A, B>, *, *>) &
+  (<A>(a: A) => $Call<$Call<F, A>, *, *>) &
+  (() => $Call<$Call<F>, *, *>);
+
+type MapBoundAction = <F>(F) => BoundAction<F>;
+type BoundActions<AC> = $ObjMap<AC, MapBoundAction>;
 
 export type StoreInstance<ST, AC> = {
   store: StoreState<ST>,
@@ -85,14 +100,18 @@ declare export function createStore<ST, AC>({|
   name?: string,
 |}): Store<ST, AC>;
 
-declare export function createContainer<ST, AC, PR>(
+declare export function createContainer<ST, AC, CPR>(
   store: Store<ST, AC>,
   options?: {|
-    onInit?: () => Action<ST, PR, AC>,
-    onUpdate?: () => Action<ST, PR, AC>,
+    onInit?: () => Action<ST, CPR, AC>,
+    onUpdate?: () => Action<ST, CPR, AC>,
     displayName?: string,
   |}
-): ContainerComponent<PR>;
+): ContainerComponent<CPR>;
+
+/**
+ * createSubscriber
+ */
 
 declare export function createSubscriber<ST, AC>(
   store: Store<ST, AC>,
@@ -101,23 +120,14 @@ declare export function createSubscriber<ST, AC>(
   |}
 ): SubscriberComponent<ST, AC, {||}>;
 
-// Does not work as Flow complains cannot select between null and fn()
+// Flow does not support null properly to refine override :(
 // declare export function createSubscriber<ST, AC>(
 //   store: Store<ST, AC>,
 //   options: {|
 //     selector: null,
 //     displayName?: string,
 //   |}
-// ): SubscriberComponent<{||}, AC, {||}>;
-
-// Old Flow not able to refine between with/without selector props
-// declare export function createSubscriber<ST, AC, SE>(
-//   store: Store<ST, AC>,
-//   options: {|
-//     selector: (state: ST) => SE,
-//     displayName?: string,
-//   |}
-// ): SubscriberComponent<SE, AC, {||}>;
+// ): SubscriberComponent<undefined, AC, {||}>;
 
 declare export function createSubscriber<ST, AC, SE, PR>(
   store: Store<ST, AC>,
@@ -127,23 +137,24 @@ declare export function createSubscriber<ST, AC, SE, PR>(
   |}
 ): SubscriberComponent<SE, AC, PR>;
 
+/**
+ * createHook
+ */
 declare export function createHook<ST, AC>(
   store: Store<ST, AC>
-): () => [ST, AC];
+): () => HookReturnValue<ST, AC>;
 
-// declare export function createHook<SE, AC>(
-//   Container: ContainerType<any>,
-//   selector: (state: any) => SE
-// ): () => [SE, AC];
-
-// declare export function createHook<AC>(
-//   Container: ContainerType<any>,
-//   selector: null
-// ): () => [{}, AC];
+// Flow does not support null properly to refine override :(
+// declare export function createHook<ST, AC>(
+//   store: Store<ST, AC>,
+//   options: {|
+//     selector: null,
+//   |},
+// ): () => HookReturnValue<void, AC>;
 
 declare export function createHook<ST, AC, SE, PR>(
   store: Store<ST, AC>,
   options: {|
     selector: null | ((state: ST, props: PR) => SE),
   |}
-): (props?: PR) => [SE, AC];
+): (props?: PR) => HookReturnValue<SE, AC>;
