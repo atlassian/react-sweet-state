@@ -10,6 +10,7 @@ Redux, the good parts:
 - Devtools (and dev experience in general)
 - Middlewares
 - Selectors
+- Performance
 
 Context, the good parts:
 

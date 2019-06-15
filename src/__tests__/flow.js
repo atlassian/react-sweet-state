@@ -151,6 +151,9 @@ Test = (
   <TypeSelector>{({ count }) => count}</TypeSelector>
 );
 
+// $ExpectError Should not accept props
+Test = <TypeSelector myProp>{state => !state}</TypeSelector>;
+
 // Correct
 Test = <TypeSelector>{(state, { increment }) => increment(1)}</TypeSelector>;
 

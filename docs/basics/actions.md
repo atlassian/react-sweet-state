@@ -39,4 +39,6 @@ const App = () => (
 );
 ```
 
+---
+
 For more details about actions see the full [actions API](../api/actions.md) or how to define [advanced action patters](../advanced/actions.md), like async actions.

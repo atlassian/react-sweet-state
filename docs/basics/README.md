@@ -1,6 +1,6 @@
 ## Basics
 
-- [Store](./basics/store.md)
-- [Actions](./basics/actions.md)
-- [Subscribers](./basics/subscriber.md)
-- [Hooks](./basics/hook.md)
+- [Store](./store.md)
+- [Actions](./actions.md)
+- [Subscribers](./subscriber.md)
+- [Hooks](./hook.md)
