@@ -5,7 +5,7 @@ const { resolve, basename } = require('path');
 
 // This function generates configuration for files in the
 // ./src/examples/ folder
-const generateExampleEntries = function() {
+const generateExampleEntries = function () {
   const src = './examples';
 
   // Get all subdirectories in the ./src/apps,
@@ -61,6 +61,7 @@ module.exports = {
   devServer: {
     contentBase: resolve(__dirname, 'examples'),
     publicPath: '/',
+    host: process.env.DEV_SERVER_HOST,
     // hot: true,
   },
 };

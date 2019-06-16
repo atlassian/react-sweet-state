@@ -90,6 +90,11 @@ See sweet-state in action: run `npm run start` and then go and check each folder
 To test your changes you can run the examples (with `npm run start`).
 Also, make sure you run `npm run preversion` before creating you PR so you will double check that linting, types and tests are fine.
 
+### Visual Studio Code Users
+
+If you are using Visual Studio Code, the repo include the necessary configuration to develop inside a container. This way you don't need to install any local dependencies beyond the [Remote Development Extensions](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) and docker. It also enables developing on windows without the need of tweaking scripts for it. 
+
+
 ## Thanks
 
 This library merges ideas from redux, react-redux, redux-thunk, react-copy-write, unstated, bey, react-apollo just to name a few.
