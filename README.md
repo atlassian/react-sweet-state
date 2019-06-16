@@ -1,4 +1,7 @@
-# react-sweet-state
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/84136/59560300-2fca8e80-9053-11e9-8f90-76d9ef281ca6.png" alt="react-sweet-state logo" height="150" />
+</p>
+<h1 align="center">react-sweet-state</h1>
 
 [![npm](https://img.shields.io/npm/v/react-sweet-state.svg)](https://www.npmjs.com/package/react-sweet-state)
 [![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/react-sweet-state.svg)](https://bundlephobia.com/result?p=react-sweet-state)
@@ -6,7 +9,7 @@
 [![CircleCI](https://circleci.com/gh/atlassian/react-sweet-state.svg?style=shield&circle-token=d3c768530427b29f35c0fe378d12fc2696badc1d)](https://circleci.com/gh/atlassian/react-sweet-state)
 [![codecov](https://codecov.io/gh/atlassian/react-sweet-state/branch/master/graph/badge.svg)](https://codecov.io/gh/atlassian/react-sweet-state)
 
-Taking the good parts of Redux and React Context to build a flexible, scalable and easy to use state management solution.
+The good parts of Redux and React Context in a flexible, scalable and easy to use state management solution
 
 ## Philosophy
 

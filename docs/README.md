@@ -1,4 +1,7 @@
-# React-sweet-state
+<h1>
+  <img align="middle" src="https://user-images.githubusercontent.com/84136/59560300-2fca8e80-9053-11e9-8f90-76d9ef281ca6.png" alt="react-sweet-state logo" height="100" />
+  <span>react-sweet-state</span>
+</h1>
 
 Taking the good parts of Redux and React Context to build a flexible, scalable and easy to use state management solution.
 

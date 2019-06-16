@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta
       name="description"
-      content="State management for React build on top of immer and Context (optional)"
+      content="The good parts of Redux and React Context API to build a flexible, scalable and easy to use state management solution"
     />
     <meta
       name="viewport"
@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css" />
     <style type="text/css">
       :root {
-        --theme-color: #ff6600;
+        --theme-color: #dd2e44;
       }
       .markdown-section > div:first-child {
         position: relative;
@@ -30,6 +30,16 @@
       .markdown-section > div:first-child + * {
         margin-top: 0;
       }
+      .markdown-section code,
+      .token.keyword,
+      .token.function {
+        color: var(--theme-color);
+      }
+      .token.boolean,
+      .token.number,
+      .token.string {
+        color: inherit;
+      }
     </style>
   </head>
 
@@ -41,6 +51,7 @@
         name: 'react-sweet-state',
         repo: 'https://atlassian@github.com/atlassian/react-sweet-state',
         loadSidebar: true,
+        themeColor: '#dd2e44',
         plugins: [
           EditOnGithubPlugin.create(
             'https://github.com/atlassian/react-sweet-state/tree/master/docs/'
