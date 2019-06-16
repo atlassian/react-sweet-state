@@ -11,7 +11,7 @@
 
 - **Advanced**
 
-  - [Actions patters](./advanced/actions.md)
+  - [Actions patterns](./advanced/actions.md)
   - [Selectors](./advanced/selector.md)
   - [Containers](./advanced/container.md)
   - [Devtools](./advanced/devtools.md)
