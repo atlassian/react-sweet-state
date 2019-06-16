@@ -13,7 +13,7 @@ The good parts of Redux and React Context in a flexible, scalable and easy to us
 
 ## Philosophy
 
-sweet-state is heavily inspired by Redux, the main difference is the lack of reducers. Instead of React Provider and Consumer, it provides `Container` and `Subscriber`, connected to the same instance of a Store (defined as actions and initial state), making its state (or part of it) and actions available via render-prop or hooks APIs.
+sweet-state is heavily inspired by Redux mixed with Context API concepts. It has render-prop components or hooks, connected to Store instances (defined as actions and initial state), receiving the Store state (or part of it) and the actions as a result.
 
 Each `Subscriber`, or `Hook`, is responsible to get the instantiated Store (creating a new one with `initialState` if necessary), allowing sharing state across you project extremely easy.
 
