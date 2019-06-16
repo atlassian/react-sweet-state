@@ -1,4 +1,7 @@
-# react-sweet-state
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/84136/59560300-2fca8e80-9053-11e9-8f90-76d9ef281ca6.png" alt="react-sweet-state logo" height="150" />
+</p>
+<h1 align="center">react-sweet-state</h1>
 
 [![npm](https://img.shields.io/npm/v/react-sweet-state.svg)](https://www.npmjs.com/package/react-sweet-state)
 [![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/react-sweet-state.svg)](https://bundlephobia.com/result?p=react-sweet-state)
@@ -6,11 +9,11 @@
 [![CircleCI](https://circleci.com/gh/atlassian/react-sweet-state.svg?style=shield&circle-token=d3c768530427b29f35c0fe378d12fc2696badc1d)](https://circleci.com/gh/atlassian/react-sweet-state)
 [![codecov](https://codecov.io/gh/atlassian/react-sweet-state/branch/master/graph/badge.svg)](https://codecov.io/gh/atlassian/react-sweet-state)
 
-Taking the good parts of Redux and React Context to build a flexible, scalable and easy to use state management solution.
+The good parts of Redux and React Context in a flexible, scalable and easy to use state management solution
 
 ## Philosophy
 
-sweet-state is heavily inspired by Redux, the main difference is the lack of reducers. Instead of React Provider and Consumer, it provides `Container` and `Subscriber`, connected to the same instance of a Store (defined as actions and initial state), making its state (or part of it) and actions available via render-prop or hooks APIs.
+sweet-state is heavily inspired by Redux mixed with Context API concepts. It has render-prop components or hooks, connected to Store instances (defined as actions and initial state), receiving the Store state (or part of it) and the actions as a result.
 
 Each `Subscriber`, or `Hook`, is responsible to get the instantiated Store (creating a new one with `initialState` if necessary), allowing sharing state across you project extremely easy.
 
