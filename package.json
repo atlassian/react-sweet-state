@@ -8,6 +8,7 @@
     "state management",
     "Redux"
   ],
+  "types": "./types/index.d.ts",
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",
   "repository": {
@@ -35,7 +36,9 @@
     "start": "webpack-dev-server",
     "perf:start": "webpack-dev-server --config ./webpack.config.perf.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@types/react": "^16.8.20"
+  },
   "peerDependencies": {
     "prop-types": "^15.0.0",
     "react": "^16.4.0"
