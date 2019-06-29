@@ -1,110 +1,157 @@
-declare module "react-sweet-state" {
-  import { ComponentType, ReactNode, ReactElement } from "React";
+declare module 'react-sweet-state' {
+  import { ComponentType, ReactNode, ReactElement } from 'react';
 
-  type StateSetter<TState> = (newState: Partial<TState>) => void;
-  type StateGetter<TState> = () => Readonly<TState>;
+  type SetState<TState> = (newState: Partial<TState>) => void;
+  type GetState<TState> = () => Readonly<TState>;
+  type StoreUnsubscribe = () => void;
 
-  type Mutator<TState> = (state: {
-    setState: StateSetter<TState>;
-    getState: StateGetter<TState>;
-  }) => void;
+  type RenderPropComponent<TState, TActions> = (
+    state: TState,
+    actions: BoundActions<TActions>
+  ) => ReactNode;
+  type HookReturnValue<TState, TActions> = [TState, BoundActions<TActions>];
 
-  type Action<TState> = (...args: any[]) => Mutator<TState>;
-
-  export interface Configuration<
-    TState,
-    TActions extends Record<string, Action<TState>>
-  > {
-    name?: string;
+  export type Store<TState, TActions> = {
+    key: string[];
     initialState: TState;
+    actions: TActions;
+  };
+
+  export type StoreState<TState> = {
+    getState: GetState<TState>;
+    setState: SetState<TState>;
+    key: string[];
+    subscribe: (listener: () => void) => StoreUnsubscribe;
+    mutator: SetState<TState>;
+  };
+
+  export type Action<TState, TContainerProps = void, TActions = any> = (
+    state: {
+      setState: SetState<TState>;
+      getState: GetState<TState>;
+      actions: TActions;
+      dispatch: (actionThunk: Action<TState, TContainerProps, TActions>) => any;
+    },
+    containerProps: TContainerProps
+  ) => any;
+
+  type BoundActions<TActions> = TActions;
+
+  export interface StoreInstance<TState, TActions> {
+    store: StoreState<TState>;
     actions: TActions;
   }
 
-  export interface Store<
+  export class Registry {
+    configure(options: { initialStates?: { [key: string]: Object } }): void;
+    stores: Map<string, StoreInstance<any, any>>;
+    initStore: <TState, TActions>(
+      store: Store<TState, TActions>,
+      key: string
+    ) => StoreInstance<TState, TActions>;
+    getStore: <TState, TActions>(
+      store: Store<TState, TActions>,
+      scopeId: string
+    ) => StoreInstance<TState, TActions>;
+    deleteStore: <TState, TActions>(
+      store: Store<TState, TActions>,
+      scopeId: string
+    ) => void;
+  }
+
+  export var defaultRegistry: Registry;
+
+  type MiddlewareResult = any;
+  export type Middleware = (
+    store: StoreState<any>
+  ) => (
+    next: (fn: any) => MiddlewareResult
+  ) => (fn: () => any) => MiddlewareResult;
+
+  export var defaults: {
+    devtools: boolean;
+    middlewares: any;
+    mutator: <TState>(
+      prevState: TState,
+      partialState: Partial<TState>
+    ) => TState;
+  };
+
+  type ContainerComponent<TProps> = ComponentType<
+    {
+      scope?: string;
+      isGlobal?: boolean;
+    } & TProps
+  >;
+
+  type SubscriberComponent<
     TState,
-    TActions extends Record<string, Action<TState>>
-  > {}
+    TActions,
+    TProps = undefined
+  > = ComponentType<
+    {
+      children: RenderPropComponent<TState, TActions>;
+    } & TProps
+  >;
 
-  type RenderPropComponent<TState, TActions> = (TState, TActions) => ReactNode;
+  /**
+   * createStore
+   */
 
-  type Selector<TState, TSelectedState> = (TState) => TSelectedState;
+  export function createStore<TState, TActions>(config: {
+    initialState: TState;
+    actions: TActions;
+    name?: string;
+  }): Store<TState, TActions>;
 
-  type ContainerAction<TState, TActions, Props> = (
-    state: {
-      setState: StateSetter<TState>;
-      getState: StateGetter<TState>;
-      actions: TActions;
-      dispatch: (actionThunk: ContainerAction<TState, TActions, Props>) => any;
-    },
-    containerProps: Props
-  ) => any;
+  /**
+   * createContainer
+   */
 
-  export function createStore<
-    TState,
-    TActions extends Record<string, Action<TState>>
-  >(config: Configuration<TState, TActions>): Store<TState, TActions>;
+  export function createContainer<TState, TActions, TProps = void>(
+    store: Store<TState, TActions>,
+    options?: {
+      onInit?: () => Action<TState, TProps, TActions>;
+      onUpdate?: () => Action<TState, TProps, TActions>;
+      displayName?: string;
+    }
+  ): ContainerComponent<TProps>;
+
+  /**
+   * createSubscriber
+   */
+
+  type Selector<TState, TProps, TOutput> = (
+    state: TState,
+    props: TProps
+  ) => TOutput;
 
   export function createSubscriber<
     TState,
-    TActions extends Record<string, Action<TState>>
-  >(
-    store: Store<TState, TActions>
-  ): ComponentType<{ children: RenderPropComponent<TState, TActions> }>;
-
-  export function createSubscriber<
-    TState,
-    TActions extends Record<string, Action<TState>>,
-    TSelectedState
-  >(
-    store: Store<TState, TActions>, 
-    options: {
-      selector: Selector<TState, TSelectedState>,
-      displayName?: string,
-    }
-  ): ComponentType<{ children: RenderPropComponent<TSelectedState, TActions> }>;
-
-  export function createHook<
-    TState,
-    TActions extends Record<string, Action<TState>>
-  >(store: Store<TState, TActions>): () => [TState, TActions];
-
-  export function createHook<
-    TState,
-    TActions extends Record<string, Action<TState>>,
-    TSelectedState
-  >(
-    store: Store<TState, TActions>, 
-    options: {
-      selector: Selector<TState, TSelectedState>,
-    }
-  ): () => [TSelectedState, TActions];
-
-  export function createContainer<
-    TState,
-    TActions extends Record<string, Action<TState>>,
-    Props
+    TActions,
+    TSelectedState = TState,
+    TProps = {}
   >(
     store: Store<TState, TActions>,
     options?: {
-      onInit?: ContainerAction<TState, TActions, Props>;
-      onUpdate?: ContainerAction<TState, TActions, Props>;
       displayName?: string;
+      selector?: Selector<TState, TProps, TSelectedState>;
     }
-  ): ComponentType<
-    { scope?: string; isGlobal?: boolean; children: ReactElement } & Props
-  >;
+  ): SubscriberComponent<TSelectedState, TActions, TProps>;
 
-  export function createContainer<
+  /**
+   * createHook
+   */
+
+  export function createHook<
     TState,
-    TActions extends Record<string, Action<TState>>
+    TActions,
+    TSelectedState = TState,
+    TArg = void
   >(
     store: Store<TState, TActions>,
     options?: {
-      onInit?: ContainerAction<TState, TActions, {}>;
-      onUpdate?: () => ContainerAction<TState, TActions, {}>;
-      displayName?: string;
+      selector?: Selector<TState, TArg, TSelectedState>;
     }
-  ): ComponentType<
-    { scope?: string; isGlobal?: boolean; children: ReactElement } & any
-  >;
+  ): (arg?: TArg) => [TSelectedState, TActions];
 }

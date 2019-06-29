@@ -14,6 +14,7 @@ import {
  */
 type State = {| count: number |};
 type Actions = typeof actions;
+type SelectorProps = {| min: number |};
 
 let Test;
 let TypeStore;
@@ -21,8 +22,6 @@ let TypeContainer;
 let TypeSubscriber;
 let typeHook;
 let TypeSelector;
-
-type SelectorProps = {| min: number |};
 
 const actions = {
   // setState tests
@@ -196,6 +195,7 @@ Test[1].increment();
 // $ExpectError Array index 1 should be actions
 Test[1].increment('1');
 
+// TODO
 Test[1].decrement().then(v => v);
 
 // Correct
