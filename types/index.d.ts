@@ -56,8 +56,11 @@ declare module "react-sweet-state" {
     TActions extends Record<string, Action<TState>>,
     TSelectedState
   >(
-    store: Store<TState, TActions>,
-    selector: Selector<TState, TSelectedState>
+    store: Store<TState, TActions>, 
+    options: {
+      selector: Selector<TState, TSelectedState>,
+      displayName?: string,
+    }
   ): ComponentType<{ children: RenderPropComponent<TSelectedState, TActions> }>;
 
   export function createHook<
@@ -70,8 +73,10 @@ declare module "react-sweet-state" {
     TActions extends Record<string, Action<TState>>,
     TSelectedState
   >(
-    store: Store<TState, TActions>,
-    selector: Selector<TState, TSelectedState>
+    store: Store<TState, TActions>, 
+    options: {
+      selector: Selector<TState, TSelectedState>,
+    }
   ): () => [TSelectedState, TActions];
 
   export function createContainer<
@@ -82,7 +87,7 @@ declare module "react-sweet-state" {
     store: Store<TState, TActions>,
     options?: {
       onInit?: ContainerAction<TState, TActions, Props>;
-      onUpdate?: () => ContainerAction<TState, TActions, Props>;
+      onUpdate?: ContainerAction<TState, TActions, Props>;
       displayName?: string;
     }
   ): ComponentType<
