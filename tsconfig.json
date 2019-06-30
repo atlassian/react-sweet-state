@@ -4,7 +4,7 @@
     "module": "es2015",
     "esModuleInterop": true,
     "moduleResolution": "node",
-    // "noImplicitAny": true,
+    "strict": true,
     "preserveConstEnums": true,
     "jsx": "preserve",
     "noEmit": true,

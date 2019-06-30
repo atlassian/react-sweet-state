@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 // import * as ST from '';
 import {
@@ -7,7 +5,7 @@ import {
   createContainer,
   createSubscriber,
   createHook,
-  Action
+  Action,
 } from 'react-sweet-state';
 
 /**
@@ -16,9 +14,8 @@ import {
 type State = { count: number };
 type Actions = typeof actions;
 // workaround for TS2456 (circularly reference)
-interface StateAction extends Action<State, void, Actions> { }
+interface StateAction extends Action<State, void, Actions> {}
 type SelectorProps = { min: number };
-
 
 let Test;
 
@@ -58,9 +55,7 @@ const actions = {
   },
 
   // Actions tests
-  setTitle: (title: string): StateAction => ({
-    actions: acs,
-  }) => {
+  setTitle: (title: string): StateAction => ({ actions: acs }) => {
     // @ts-ignore action should be correctly typed (not supported for no arg fn)
     const v0 = acs.decrement(1);
     // @ts-ignore action should be correctly typed
@@ -85,8 +80,11 @@ const actions = {
 // @ts-ignore Store should be created with a valid argument
 const TypeStore0 = createStore<State, Actions>({ count: 0 });
 
-// @ts-ignore Store should have initialState of type state
-const TypeStore1 = createStore<State, Actions>({ initialState: { bla: 0 }, actions });
+const TypeStore1 = createStore<State, Actions>({
+  // @ts-ignore Store should have initialState of type state
+  initialState: { bla: 0 },
+  actions,
+});
 
 // @ts-ignore Store should have actions
 const TypeStore2 = createStore<State, Actions>({ initialState: { count: 0 } });
@@ -121,9 +119,12 @@ Test = <TypeSubscriber>{(__, { increment }) => increment(1)}</TypeSubscriber>;
 /**
  * createSubscriber with selector types tests
  */
-const TypeSelector = createSubscriber<State, Actions, { baz: number }>(TypeStore, {
-  selector: state => ({ baz: 1 }),
-});
+const TypeSelector = createSubscriber<State, Actions, { baz: number }>(
+  TypeStore,
+  {
+    selector: state => ({ baz: 1 }),
+  }
+);
 
 Test = (
   // @ts-ignore Child arg shape should be pick + actions
@@ -152,11 +153,18 @@ Test = (
 Test = <TypeSelectorNull myProp>{state => !state}</TypeSelectorNull>;
 
 // Correct
-Test = <TypeSelectorNull>{(state, { increment }) => increment(1)}</TypeSelectorNull>;
+Test = (
+  <TypeSelectorNull>{(state, { increment }) => increment(1)}</TypeSelectorNull>
+);
 
-type SelectorState = { baz: number, min: number };
+type SelectorState = { baz: number; min: number };
 
-const TypeSelectorProp = createSubscriber<State, Actions, SelectorState, SelectorProps>(TypeStore, {
+const TypeSelectorProp = createSubscriber<
+  State,
+  Actions,
+  SelectorState,
+  SelectorProps
+>(TypeStore, {
   selector: (state, props) => ({ baz: 1, min: props.min }),
 });
 
@@ -176,7 +184,9 @@ Test = (
 );
 
 // Correct
-Test = <TypeSelectorProp min={2}>{({ baz, min }) => baz + min}</TypeSelectorProp>;
+Test = (
+  <TypeSelectorProp min={2}>{({ baz, min }) => baz + min}</TypeSelectorProp>
+);
 
 /**
  * createHook types tests
@@ -185,6 +195,9 @@ Test = <TypeSelectorProp min={2}>{({ baz, min }) => baz + min}</TypeSelectorProp
 const typeBaseHook = createHook<State, Actions>(TypeStore);
 
 const baseReturn = typeBaseHook();
+
+// @ts-ignore Should not accept arguments
+typeBaseHook({});
 
 // @ts-ignore Array index 0 should be state
 baseReturn[0].foo;
@@ -207,9 +220,10 @@ baseReturn[1].fetch().then(v => v);
 /**
  * createHook with selector types tests
  */
-const typeSelectorHook = createHook<State, Actions, { baz: number }>(TypeStore, {
-  selector: state => ({ baz: 1 }),
-});
+const typeSelectorHook = createHook<State, Actions, { baz: number }>(
+  TypeStore,
+  { selector: state => ({ baz: 1 }) }
+);
 
 const selectorReturn = typeSelectorHook();
 
@@ -220,8 +234,8 @@ selectorReturn[0].count;
 typeSelectorHook({ min: 3 });
 
 // Correct
-typeSelectorHook[0].baz;
-typeSelectorHook[1].increment(1);
+selectorReturn[0].baz;
+selectorReturn[1].increment(1);
 
 const typeNullHook = createHook<State, Actions, void>(TypeStore, {
   selector: null,
@@ -235,11 +249,12 @@ nullReturn[0].count;
 // Correct
 nullReturn[1].increment(1);
 
-const typeArgHook = createHook<State, Actions, SelectorState, SelectorProps>(TypeStore, {
-  selector: (state, props) => ({ baz: 1, min: props.min }),
-});
+const typeArgHook = createHook<State, Actions, SelectorState, SelectorProps>(
+  TypeStore,
+  { selector: (state, props) => ({ baz: 1, min: props.min }) }
+);
 
-// TODO: Should require props
+// @ts-ignore Should require argument
 typeArgHook();
 
 // @ts-ignore Should require correct prop types
@@ -250,12 +265,13 @@ const argReturn = typeArgHook({ min: 2 });
 argReturn[0].min.split('');
 
 // Correct
-argReturn[0].min + Test[0].baz;
+argReturn[0].min + argReturn[0].baz;
 
 /**
  * Container types tests
  */
-const TypeContainer = createContainer<State, Actions, { url?: string }>(TypeStore);
+
+const TypeContainer = createContainer<State, Actions>(TypeStore);
 
 Test = (
   // @ts-ignore Container is not a render-prop
@@ -263,7 +279,7 @@ Test = (
 );
 
 Test = (
-  // @ts-ignore Only allows typed extra props
+  // @ts-ignore Does not accept extra props
   <TypeContainer foo="1">bla</TypeContainer>
 );
 
@@ -271,9 +287,22 @@ Test = (
 Test = <TypeContainer>bla</TypeContainer>;
 Test = <TypeContainer scope="a">bla</TypeContainer>;
 Test = <TypeContainer isGlobal>bla</TypeContainer>;
-Test = (
-  <TypeContainer scope="a" url="">
-    bla
-  </TypeContainer>
+
+const TypePropsContainer = createContainer<State, Actions, { url: string }>(
+  TypeStore
 );
 
+// @ts-ignore Requires typed props
+Test = <TypePropsContainer isGlobal>bla</TypePropsContainer>;
+
+Test = (
+  // @ts-ignore Only allows typed extra props
+  <TypePropsContainer foo="1">bla</TypePropsContainer>
+);
+
+// Correct
+Test = (
+  <TypePropsContainer scope="a" url="">
+    bla
+  </TypePropsContainer>
+);

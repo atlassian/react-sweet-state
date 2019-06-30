@@ -139,7 +139,7 @@ declare module "react-sweet-state" {
   export function createContainer<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>,
-    TProps = void
+    TProps = {}
   >(
     store: Store<TState, TActions>,
     options?: {
@@ -167,7 +167,7 @@ declare module "react-sweet-state" {
     store: Store<TState, TActions>,
     options?: {
       displayName?: string;
-      selector?: Selector<TState, TProps, TSelectedState>;
+      selector?: Selector<TState, TProps, TSelectedState> | null;
     }
   ): SubscriberComponent<
     TSelectedState,
@@ -187,7 +187,9 @@ declare module "react-sweet-state" {
   >(
     store: Store<TState, TActions>,
     options?: {
-      selector?: Selector<TState, TArg, TSelectedState>;
+      selector?: Selector<TState, TArg, TSelectedState> | null;
     }
-  ): (arg?: TArg) => [TSelectedState, BoundActions<TState, TActions>];
+  ): (
+    ...args: TArg extends void ? [] : [TArg]
+  ) => [TSelectedState, BoundActions<TState, TActions>];
 }

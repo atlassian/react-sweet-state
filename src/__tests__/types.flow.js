@@ -255,7 +255,7 @@ Test[0].min + Test[0].baz;
 /**
  * Container types tests
  */
-TypeContainer = createContainer<State, Actions, {| url?: string |}>(TypeStore);
+TypeContainer = createContainer<State, Actions, {||}>(TypeStore);
 
 Test = (
   // $ExpectError Container is not a render-prop
@@ -263,7 +263,7 @@ Test = (
 );
 
 Test = (
-  // $ExpectError Only allows typed extra props
+  // $ExpectError Does not accept extra props
   <TypeContainer foo="1">bla</TypeContainer>
 );
 
@@ -271,8 +271,21 @@ Test = (
 Test = <TypeContainer>bla</TypeContainer>;
 Test = <TypeContainer scope="a">bla</TypeContainer>;
 Test = <TypeContainer isGlobal>bla</TypeContainer>;
+
+const TypePropsContainer = createContainer<State, Actions, {| url: string |}>(
+  TypeStore
+);
+
+// $ExpectError Requires typed props
+Test = <TypePropsContainer isGlobal>bla</TypePropsContainer>;
+
 Test = (
-  <TypeContainer scope="a" url="">
+  // $ExpectError Only allows typed extra props
+  <TypePropsContainer foo="1">bla</TypePropsContainer>
+);
+
+Test = (
+  <TypePropsContainer scope="a" url="">
     bla
-  </TypeContainer>
+  </TypePropsContainer>
 );
