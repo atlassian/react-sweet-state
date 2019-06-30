@@ -1,8 +1,8 @@
 declare module "react-sweet-state" {
   import { ComponentType, ReactNode, ReactElement } from "react";
 
-  type SetState<TState> = (newState: Partial<TState>) => void;
-  type GetState<TState> = () => Readonly<TState>;
+  export type SetState<TState> = (newState: Partial<TState>) => void;
+  export type GetState<TState> = () => Readonly<TState>;
   type StoreUnsubscribe = () => void;
 
   type RenderPropComponent<TState, TActions> = (
@@ -15,7 +15,10 @@ declare module "react-sweet-state" {
     TActions extends Record<string, ActionThunk<TState, TActions>>
   > = [TState, BoundActions<TState, TActions>];
 
-  type ActionThunk<TState, TActions> = (...args: any[]) => Action<TState>;
+  type ActionThunk<
+    TState,
+    TActions extends Record<string, ActionThunk<TState, TActions>>
+  > = (...args: any[]) => Action<TState, TActions>;
 
   export type Store<
     TState,
@@ -34,13 +37,23 @@ declare module "react-sweet-state" {
     mutator: SetState<TState>;
   };
 
-  export type Action<TState, TContainerProps = void, TActions = any> = (
-    state: {
-      setState: SetState<TState>;
-      getState: GetState<TState>;
-      actions: TActions;
-      dispatch: (actionThunk: Action<TState, TContainerProps, TActions>) => any;
-    },
+  export type StateAction<
+    TState,
+    TActions extends Record<string, ActionThunk<TState, TActions>>,
+    TContainerProps = void
+  > = {
+    setState: SetState<TState>;
+    getState: GetState<TState>;
+    actions: BoundActions<TState, TActions>;
+    dispatch: (actionThunk: Action<TState, TActions, TContainerProps>) => any;
+  };
+
+  export type Action<
+    TState,
+    TActions extends Record<string, ActionThunk<TState, TActions>>,
+    TContainerProps = void
+  > = (
+    state: StateAction<TState, TActions, TContainerProps>,
     containerProps: TContainerProps
   ) => any;
 
@@ -143,8 +156,8 @@ declare module "react-sweet-state" {
   >(
     store: Store<TState, TActions>,
     options?: {
-      onInit?: () => Action<TState, TProps, TActions>;
-      onUpdate?: () => Action<TState, TProps, TActions>;
+      onInit?: () => Action<TState, TActions, TProps>;
+      onUpdate?: () => Action<TState, TActions, TProps>;
       displayName?: string;
     }
   ): ContainerComponent<TProps>;

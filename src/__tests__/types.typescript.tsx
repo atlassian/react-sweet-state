@@ -1,43 +1,41 @@
-import React from 'react';
+import React from "react";
 // import * as ST from '';
 import {
   createStore,
   createContainer,
   createSubscriber,
   createHook,
-  Action,
-} from 'react-sweet-state';
+  StateAction
+} from "react-sweet-state";
 
 /**
  * Store types tests
  */
 type State = { count: number };
 type Actions = typeof actions;
-// workaround for TS2456 (circularly reference)
-interface StateAction extends Action<State, void, Actions> {}
 type SelectorProps = { min: number };
 
 let Test;
 
 const actions = {
   // setState tests
-  increment: (n: number): StateAction => ({ setState }) => {
+  increment: (n: number) => ({ setState }: StateAction<State, Actions>) => {
     // @ts-ignore setState should be of type State
-    setState('');
+    setState("");
 
     // @ts-ignore Partial state should be of type State
     setState({ foo: 1 });
 
     // correct
     setState({
-      count: 2,
+      count: 2
     });
 
-    return '';
+    return "";
   },
 
   // GetState tests
-  decrement: (): StateAction => ({ setState, getState }) => {
+  decrement: () => ({ setState, getState }: StateAction<State, Actions>) => {
     const state = getState();
     // @ts-ignore State should be of type State
     const bla = state.bla;
@@ -50,31 +48,33 @@ const actions = {
     return count;
   },
 
-  fetch: (): StateAction => async (): Promise<string> => {
-    return '';
+  fetch: () => async (): Promise<string> => {
+    return "";
   },
 
   // Actions tests
-  setTitle: (title: string): StateAction => ({ actions: acs }) => {
+  setTitle: (title: string) => ({
+    actions: acs
+  }: StateAction<State, Actions>) => {
     // @ts-ignore action should be correctly typed (not supported for no arg fn)
     const v0 = acs.decrement(1);
     // @ts-ignore action should be correctly typed
     acs.increment();
     // @ts-ignore action should be correctly typed
-    acs.increment('1');
+    acs.increment("1");
     // @ts-ignore action should be correctly typed
     acs.decrement().then();
     // @ts-ignore result should be correctly typed
-    v0.split('');
+    v0.split("");
 
     // Correct
     acs.decrement();
     acs.increment(1);
     acs.fetch().then(v => v + 1);
-    acs.fetch().then(v => v.split(''));
+    acs.fetch().then(v => v.split(""));
     v0 + 1;
     return title;
-  },
+  }
 };
 
 // @ts-ignore Store should be created with a valid argument
@@ -83,7 +83,7 @@ const TypeStore0 = createStore<State, Actions>({ count: 0 });
 const TypeStore1 = createStore<State, Actions>({
   // @ts-ignore Store should have initialState of type state
   initialState: { bla: 0 },
-  actions,
+  actions
 });
 
 // @ts-ignore Store should have actions
@@ -93,7 +93,7 @@ const TypeStore2 = createStore<State, Actions>({ initialState: { count: 0 } });
 const TypeStore = createStore<State, Actions>({
   initialState: { count: 0 },
   actions,
-  name: 'Type',
+  name: "Type"
 });
 
 /**
@@ -122,7 +122,7 @@ Test = <TypeSubscriber>{(__, { increment }) => increment(1)}</TypeSubscriber>;
 const TypeSelector = createSubscriber<State, Actions, { baz: number }>(
   TypeStore,
   {
-    selector: state => ({ baz: 1 }),
+    selector: state => ({ baz: 1 })
   }
 );
 
@@ -141,7 +141,7 @@ Test = <TypeSelector>{({ baz }) => baz}</TypeSelector>;
 Test = <TypeSelector>{(__, { increment }) => increment(1)}</TypeSelector>;
 
 const TypeSelectorNull = createSubscriber<State, Actions, void>(TypeStore, {
-  selector: null,
+  selector: null
 });
 
 Test = (
@@ -165,7 +165,7 @@ const TypeSelectorProp = createSubscriber<
   SelectorState,
   SelectorProps
 >(TypeStore, {
-  selector: (state, props) => ({ baz: 1, min: props.min }),
+  selector: (state, props) => ({ baz: 1, min: props.min })
 });
 
 Test = (
@@ -180,7 +180,7 @@ Test = (
 
 Test = (
   // @ts-ignore Should have correct selector types
-  <TypeSelectorProp min={2}>{({ min }) => min.split('')}</TypeSelectorProp>
+  <TypeSelectorProp min={2}>{({ min }) => min.split("")}</TypeSelectorProp>
 );
 
 // Correct
@@ -206,7 +206,7 @@ baseReturn[0].foo;
 baseReturn[1].increment();
 
 // @ts-ignore Array index 1 should be actions
-baseReturn[1].increment('1');
+baseReturn[1].increment("1");
 
 // @ts-ignor
 baseReturn[1].decrement().then(v => v);
@@ -238,7 +238,7 @@ selectorReturn[0].baz;
 selectorReturn[1].increment(1);
 
 const typeNullHook = createHook<State, Actions, void>(TypeStore, {
-  selector: null,
+  selector: null
 });
 
 const nullReturn = typeNullHook();
@@ -258,11 +258,11 @@ const typeArgHook = createHook<State, Actions, SelectorState, SelectorProps>(
 typeArgHook();
 
 // @ts-ignore Should require correct prop types
-typeArgHook({ min: '2' });
+typeArgHook({ min: "2" });
 
 const argReturn = typeArgHook({ min: 2 });
 // @ts-ignore Should have correct selector types
-argReturn[0].min.split('');
+argReturn[0].min.split("");
 
 // Correct
 argReturn[0].min + argReturn[0].baz;
