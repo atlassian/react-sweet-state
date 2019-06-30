@@ -1,5 +1,5 @@
 import React from "react";
-// import * as ST from '';
+
 import {
   createStore,
   createContainer,
@@ -208,7 +208,7 @@ baseReturn[1].increment();
 // @ts-ignore Array index 1 should be actions
 baseReturn[1].increment("1");
 
-// @ts-ignor
+// @ts-ignore Array index 1 return type should be correct
 baseReturn[1].decrement().then(v => v);
 
 // Correct
