@@ -108,7 +108,7 @@ declare module 'react-sweet-state' {
    * createContainer
    */
 
-  export function createContainer<TState, TActions, TProps = void>(
+  export function createContainer<TState, TActions, TProps = {}>(
     store: Store<TState, TActions>,
     options?: {
       onInit?: () => Action<TState, TProps, TActions>;
@@ -135,7 +135,7 @@ declare module 'react-sweet-state' {
     store: Store<TState, TActions>,
     options?: {
       displayName?: string;
-      selector?: Selector<TState, TProps, TSelectedState>;
+      selector?: Selector<TState, TProps, TSelectedState> | null;
     }
   ): SubscriberComponent<TSelectedState, TActions, TProps>;
 
@@ -151,7 +151,7 @@ declare module 'react-sweet-state' {
   >(
     store: Store<TState, TActions>,
     options?: {
-      selector?: Selector<TState, TArg, TSelectedState>;
+      selector?: Selector<TState, TArg, TSelectedState> | null;
     }
-  ): (arg?: TArg) => [TSelectedState, TActions];
+  ): (...args: TArg extends void ? [] : [TArg]) => [TSelectedState, TActions];
 }
