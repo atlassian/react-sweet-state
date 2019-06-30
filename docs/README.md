@@ -44,7 +44,7 @@ const App = () => (
       {(state, actions) => (
         <div>
           {state.count}
-          <button onClick={actions.increment}>Add +1</button>
+          <button onClick={() => actions.increment()}>Add +1</button>
           <button onClick={() => actions.increment(2)}>Add +2</button>
         </div>
       )}
