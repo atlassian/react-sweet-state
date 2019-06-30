@@ -1,5 +1,5 @@
-declare module 'react-sweet-state' {
-  import { ComponentType, ReactNode, ReactElement } from 'react';
+declare module "react-sweet-state" {
+  import { ComponentType, ReactNode, ReactElement } from "react";
 
   type SetState<TState> = (newState: Partial<TState>) => void;
   type GetState<TState> = () => Readonly<TState>;
@@ -7,11 +7,20 @@ declare module 'react-sweet-state' {
 
   type RenderPropComponent<TState, TActions> = (
     state: TState,
-    actions: BoundActions<TActions>
+    actions: TActions
   ) => ReactNode;
-  type HookReturnValue<TState, TActions> = [TState, BoundActions<TActions>];
 
-  export type Store<TState, TActions> = {
+  type HookReturnValue<
+    TState,
+    TActions extends Record<string, ActionThunk<TState, TActions>>
+  > = [TState, BoundActions<TState, TActions>];
+
+  type ActionThunk<TState, TActions> = (...args: any[]) => Action<TState>;
+
+  export type Store<
+    TState,
+    TActions extends Record<string, ActionThunk<TState, TActions>>
+  > = {
     key: string[];
     initialState: TState;
     actions: TActions;
@@ -35,7 +44,14 @@ declare module 'react-sweet-state' {
     containerProps: TContainerProps
   ) => any;
 
-  type BoundActions<TActions> = TActions;
+  type BoundActions<
+    TState,
+    TActions extends Record<string, ActionThunk<TState, TActions>>
+  > = {
+    [K in keyof TActions]: (
+      ...args: Parameters<TActions[K]>
+    ) => ReturnType<ReturnType<TActions[K]>>;
+  };
 
   export interface StoreInstance<TState, TActions> {
     store: StoreState<TState>;
@@ -45,15 +61,24 @@ declare module 'react-sweet-state' {
   export class Registry {
     configure(options: { initialStates?: { [key: string]: Object } }): void;
     stores: Map<string, StoreInstance<any, any>>;
-    initStore: <TState, TActions>(
+    initStore: <
+      TState,
+      TActions extends Record<string, ActionThunk<TState, TActions>>
+    >(
       store: Store<TState, TActions>,
       key: string
     ) => StoreInstance<TState, TActions>;
-    getStore: <TState, TActions>(
+    getStore: <
+      TState,
+      TActions extends Record<string, ActionThunk<TState, TActions>>
+    >(
       store: Store<TState, TActions>,
       scopeId: string
     ) => StoreInstance<TState, TActions>;
-    deleteStore: <TState, TActions>(
+    deleteStore: <
+      TState,
+      TActions extends Record<string, ActionThunk<TState, TActions>>
+    >(
       store: Store<TState, TActions>,
       scopeId: string
     ) => void;
@@ -98,7 +123,10 @@ declare module 'react-sweet-state' {
    * createStore
    */
 
-  export function createStore<TState, TActions>(config: {
+  export function createStore<
+    TState,
+    TActions extends Record<string, ActionThunk<TState, TActions>>
+  >(config: {
     initialState: TState;
     actions: TActions;
     name?: string;
@@ -108,7 +136,11 @@ declare module 'react-sweet-state' {
    * createContainer
    */
 
-  export function createContainer<TState, TActions, TProps = void>(
+  export function createContainer<
+    TState,
+    TActions extends Record<string, ActionThunk<TState, TActions>>,
+    TProps = void
+  >(
     store: Store<TState, TActions>,
     options?: {
       onInit?: () => Action<TState, TProps, TActions>;
@@ -128,7 +160,7 @@ declare module 'react-sweet-state' {
 
   export function createSubscriber<
     TState,
-    TActions,
+    TActions extends Record<string, ActionThunk<TState, TActions>>,
     TSelectedState = TState,
     TProps = {}
   >(
@@ -137,7 +169,11 @@ declare module 'react-sweet-state' {
       displayName?: string;
       selector?: Selector<TState, TProps, TSelectedState>;
     }
-  ): SubscriberComponent<TSelectedState, TActions, TProps>;
+  ): SubscriberComponent<
+    TSelectedState,
+    BoundActions<TState, TActions>,
+    TProps
+  >;
 
   /**
    * createHook
@@ -145,7 +181,7 @@ declare module 'react-sweet-state' {
 
   export function createHook<
     TState,
-    TActions,
+    TActions extends Record<string, ActionThunk<TState, TActions>>,
     TSelectedState = TState,
     TArg = void
   >(
@@ -153,5 +189,5 @@ declare module 'react-sweet-state' {
     options?: {
       selector?: Selector<TState, TArg, TSelectedState>;
     }
-  ): (arg?: TArg) => [TSelectedState, TActions];
+  ): (arg?: TArg) => [TSelectedState, BoundActions<TState, TActions>];
 }
