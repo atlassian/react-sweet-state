@@ -5,7 +5,7 @@ import {
   createContainer,
   createSubscriber,
   createHook,
-  StateAction
+  ActionArgs
 } from "react-sweet-state";
 
 /**
@@ -19,7 +19,7 @@ let Test;
 
 const actions = {
   // setState tests
-  increment: (n: number) => ({ setState }: StateAction<State, Actions>) => {
+  increment: (n: number) => ({ setState }: ActionArgs<State, Actions>) => {
     // @ts-ignore setState should be of type State
     setState("");
 
@@ -35,7 +35,7 @@ const actions = {
   },
 
   // GetState tests
-  decrement: () => ({ setState, getState }: StateAction<State, Actions>) => {
+  decrement: () => ({ setState, getState }: ActionArgs<State, Actions>) => {
     const state = getState();
     // @ts-ignore State should be of type State
     const bla = state.bla;
@@ -55,7 +55,7 @@ const actions = {
   // Actions tests
   setTitle: (title: string) => ({
     actions: acs
-  }: StateAction<State, Actions>) => {
+  }:  ActionArgs<State, Actions>) => {
     // @ts-ignore action should be correctly typed (not supported for no arg fn)
     const v0 = acs.decrement(1);
     // @ts-ignore action should be correctly typed
@@ -306,3 +306,20 @@ Test = (
     bla
   </TypePropsContainer>
 );
+
+
+const inferedStore = createStore({
+  initialState: {
+    counter : 0
+  },
+  actions: {
+    increment: (by: number = 1) => ({getState, setState}) =>{
+      setState({
+        counter : getState().counter + by
+      })
+    },
+    composite : () => ({actions}) => {
+      actions.increment(2);
+    }
+  }
+});

@@ -37,7 +37,7 @@ declare module "react-sweet-state" {
     mutator: SetState<TState>;
   };
 
-  export type StateAction<
+  export type ActionArgs<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>,
     TContainerProps = void
@@ -53,7 +53,7 @@ declare module "react-sweet-state" {
     TActions extends Record<string, ActionThunk<TState, TActions>>,
     TContainerProps = void
   > = (
-    state: StateAction<TState, TActions, TContainerProps>,
+    state: ActionArgs<TState, TActions, TContainerProps>,
     containerProps: TContainerProps
   ) => any;
 
