@@ -10,7 +10,7 @@ export const bindAction = (
   actionFn,
   actionKey,
   getContainerProps = () => {},
-  otherActions = {}
+  boundActions = {}
 ) => {
   // Setting mutator name so we can log action name for better debuggability
   const dispatch = (thunkFn, actionName = `${actionKey}.dispatch`) =>
@@ -20,7 +20,7 @@ export const bindAction = (
           ? namedMutator(storeState, actionName)
           : storeState.mutator,
         getState: storeState.getState,
-        actions: otherActions,
+        actions: boundActions,
         dispatch,
       },
       getContainerProps()
@@ -34,6 +34,6 @@ export const bindActions = (
   getContainerProps = () => ({})
 ) =>
   Object.keys(actions).reduce((acc, k) => {
-    acc[k] = bindAction(storeState, actions[k], k, getContainerProps, actions);
+    acc[k] = bindAction(storeState, actions[k], k, getContainerProps, acc);
     return acc;
   }, {});

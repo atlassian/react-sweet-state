@@ -26,7 +26,10 @@ describe('bindAction', () => {
       {
         setState: expect.any(Function),
         getState: storeStateMock.getState,
-        actions: actionsMock,
+        actions: expect.objectContaining({
+          increase: expect.any(Function),
+          decrease: expect.any(Function),
+        }),
         dispatch: expect.any(Function),
       },
       containerProps
@@ -60,5 +63,16 @@ describe('bindActions', () => {
       increase: expect.any(Function),
       decrease: expect.any(Function),
     });
+  });
+
+  it('should return actions object with actions bound', () => {
+    const state = { data: null };
+    storeStateMock.getState.mockReturnValue(state);
+    actionsMock.increase.mockReturnValue(({ actions }) => actions.decrease());
+    actionsMock.decrease.mockReturnValue(({ getState }) => getState());
+    const result = bindActions(actionsMock, storeStateMock);
+    const output = result.increase();
+
+    expect(output).toEqual(state);
   });
 });
