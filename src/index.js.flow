@@ -11,11 +11,11 @@ import type { Node } from 'react';
  * CPR: Container props
  */
 
-type SetState<ST> = ($Shape<ST>) => void;
+type SetState<ST> = (partialState: $Shape<ST>) => void;
 type GetState<ST> = () => $ReadOnly<ST>;
 type StoreUnsubscribe = () => void;
 
-type RenderPropComponent<S, A> = (S, $Exact<BoundActions<A>>) => Node;
+type RenderPropComponent<S, A> = (state: S, actions: $Exact<BoundActions<A>>) => Node;
 type HookReturnValue<S, A> = [S, $Exact<BoundActions<A>>];
 
 export type Store<ST, AC> = {|
@@ -64,9 +64,9 @@ declare export class Registry {
     initialStates?: { [key: string]: Object },
   }) => void;
   stores: Map<string, StoreInstance<any, any>>;
-  initStore: <ST, AC>(Store<ST, AC>, key: string) => StoreInstance<ST, AC>;
-  getStore: <ST, AC>(Store<ST, AC>, scopeId: string) => StoreInstance<ST, AC>;
-  deleteStore: <ST, AC>(Store<ST, AC>, scopeId: string) => void;
+  initStore: <ST, AC>(store: Store<ST, AC>, key: string) => StoreInstance<ST, AC>;
+  getStore: <ST, AC>(store: Store<ST, AC>, scopeId?: string) => StoreInstance<ST, AC>;
+  deleteStore: <ST, AC>(store: Store<ST, AC>, scopeId?: string) => void;
 }
 
 declare export var defaultRegistry: Registry;
