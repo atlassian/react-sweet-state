@@ -22,7 +22,7 @@ const actions = {
 const Store = createStore({ initialState, actions });
 ```
 
-Optionally you can add a `name` perperty to the `createStore` object above, for easier debugging in Redux Devtools.
+Optionally you can add a `name` property to the `createStore` object above, for easier debugging in Redux Devtools.
 
 ```js
 const Store = createStore({ initialState, actions, name: 'counter' });
