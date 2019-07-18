@@ -15,8 +15,11 @@ type SetState<ST> = (partialState: $Shape<ST>) => void;
 type GetState<ST> = () => $ReadOnly<ST>;
 type StoreUnsubscribe = () => void;
 
-type RenderPropComponent<S, A> = (state: S, actions: $Exact<BoundActions<A>>) => Node;
-type HookReturnValue<S, A> = [S, $Exact<BoundActions<A>>];
+export type RenderPropComponent<S, A> = (
+  state: S,
+  actions: $Exact<BoundActions<A>>,
+) => Node;
+export type HookReturnValue<S, A> = [S, $Exact<BoundActions<A>>];
 
 export type Store<ST, AC> = {|
   key: string[],
@@ -52,7 +55,7 @@ type BoundAction<F> =
   (() => $Call<$Call<F>, *, *>);
 
 type MapBoundAction = <F>(F) => BoundAction<F>;
-type BoundActions<AC> = $ObjMap<AC, MapBoundAction>;
+export type BoundActions<AC> = $ObjMap<AC, MapBoundAction>;
 
 export type StoreInstance<ST, AC> = {
   store: StoreState<ST>,
@@ -82,14 +85,14 @@ declare export var defaults: {
   mutator: <ST>(prevState: ST, partialState: $Shape<ST>) => ST,
 };
 
-type ContainerComponent<PR> = React$ComponentType<{|
+export type ContainerComponent<PR> = React$ComponentType<{|
   scope?: string,
   isGlobal?: boolean,
   children: Node,
   ...PR,
 |}>;
 
-type SubscriberComponent<ST, AC, PR> = React$ComponentType<{|
+export type SubscriberComponent<ST, AC, PR> = React$ComponentType<{|
   children: RenderPropComponent<ST, AC>,
   ...PR,
 |}>;
