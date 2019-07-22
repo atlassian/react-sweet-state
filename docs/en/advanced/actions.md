@@ -9,15 +9,15 @@ const actions = {
   load: () => async ({ setState, getState }, { api }) => {
     if (getState().loading === true) return;
     setState({
-      loading: true,
+      loading: true
     });
 
-    const todos = await api.get('/todos');
+    const todos = await api.get("/todos");
     setState({
       loading: false,
-      data: todos,
+      data: todos
     });
-  },
+  }
 };
 ```
 
@@ -38,4 +38,4 @@ const App = () => (
 
 ---
 
-For more details about actions you can also check the [actions API](../api/actions.md).
+For more details about actions you can also check the [actions API](en/api/actions.md).

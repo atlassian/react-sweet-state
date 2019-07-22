@@ -11,7 +11,7 @@ const actions = {
     containerProps
   ) => {
     // your code here
-  },
+  }
 };
 ```
 
@@ -53,7 +53,7 @@ const actionDefinitions = {
   resetTo: n => ({ setState, actions }) => {
     setState({ count: 0 });
     actions.increment(n);
-  },
+  }
 };
 ```
 
@@ -69,7 +69,7 @@ const actionDefinitions = {
   resetTo: n => ({ setState, dispatch }) => {
     setState({ count: 0 });
     dispatch(actionDefinitions.increment(n));
-  },
+  }
 };
 ```
 
@@ -95,8 +95,8 @@ When the `increment` action is called, it can access the value `multiplyBy` in t
 const actions = {
   increment: (n = 1) => ({ setState, getState }, { multiplyBy }) => {
     setState({ count: getState().count + n * multiplyBy });
-  },
+  }
 };
 ```
 
-This is useful in case you want to make the same data to be available to all actions, or to update the Store state when one of those props is changed ([see Container docs for more](../advanced/container.md)).
+This is useful in case you want to make the same data to be available to all actions, or to update the Store state when one of those props is changed ([see Container docs for more](en/advanced/container.md)).

@@ -7,7 +7,7 @@ As with Subscribers, after definining a Store, a custom hook can be created with
 
 ```js
 // components/counter.js
-import { createStore, createHook } from 'react-sweet-state';
+import { createStore, createHook } from "react-sweet-state";
 
 const Store = createStore({
   initialState: { count: 0 },
@@ -15,8 +15,8 @@ const Store = createStore({
     increment: () => ({ setState }) => {
       const currentCount = getState().count;
       setState({ count: currentCount + 1 });
-    },
-  },
+    }
+  }
 });
 
 export const useCounter = createHook(Store);
@@ -28,7 +28,7 @@ Now you can use `useCounter` in your views, and it will expose the Store instanc
 
 ```js
 // app.js
-import { useCounter } from './components/counter';
+import { useCounter } from "./components/counter";
 
 const App = () => {
   const [state, actions] = useCounter();
@@ -43,4 +43,4 @@ const App = () => {
 
 ---
 
-For more details about hooks see [hook API](../api/hook.md), or how to create [selector hooks](../advanced/selector.md).
+For more details about hooks see [hook API](en/api/hook.md), or how to create [selector hooks](en/advanced/selector.md).

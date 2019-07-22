@@ -1,3 +1,0 @@
-## Introduction
-
-- [Motivation](./motivation.md)

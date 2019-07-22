@@ -7,8 +7,8 @@ By default, you are allowed to have a single Store instance, and they all live i
 import {
   createStore,
   createSubscriber,
-  createContainer,
-} from 'react-sweet-state';
+  createContainer
+} from "react-sweet-state";
 
 const Store = createStore({
   initialState: { count: 0 },
@@ -16,8 +16,8 @@ const Store = createStore({
     increment: () => ({ setState }) => {
       const currentCount = getState().count;
       setState({ count: currentCount + 1 });
-    },
-  },
+    }
+  }
 });
 
 export const CounterSubscriber = createSubscriber(Store);
@@ -30,7 +30,7 @@ The default behaviour of a `Container` is to create a locally scoped Store insta
 - `scope`: which is a string that makes `Container` create (or get) a global instance "prefixed" with that scope id, so you can have as many global instances as you need
 
 ```js
-import { CounterContainer, CounterSubscriber } from 'components/counter';
+import { CounterContainer, CounterSubscriber } from "components/counter";
 
 const App = () => (
   <Fragment>
@@ -40,7 +40,7 @@ const App = () => (
       </CounterSubscriber>
     </CounterContainer>
 
-    <CounterContainer scope={'counter-1'}>
+    <CounterContainer scope={"counter-1"}>
       <CounterSubscriber>
         {({ count }) => count /* this might be 2 */}
       </CounterSubscriber>
@@ -67,17 +67,17 @@ Containers enable a couple of additional properties:
 If two `Container` of the same type have the same `scope` they will share the same data, regardless where they are in the tree.
 
 ```js
-import { CounterContainer, CounterSubscriber } from 'components/counter';
+import { CounterContainer, CounterSubscriber } from "components/counter";
 
 const App = () => (
   <Fragment>
-    <CounterContainer scope={'counter-1'}>
+    <CounterContainer scope={"counter-1"}>
       <CounterSubscriber>
         {({ count }) => count /* if this is 2 */}
       </CounterSubscriber>
     </CounterContainer>
 
-    <CounterContainer scope={'counter-1'}>
+    <CounterContainer scope={"counter-1"}>
       <CounterSubscriber>
         {({ count }) => count /* this will be 2 too */}
       </CounterSubscriber>
@@ -88,7 +88,7 @@ const App = () => (
 
 #### Container props are available in actions
 
-Props provided to containers are passed to Store actions as a secondary parameter [see actions API](../api/actions.md).
+Props provided to containers are passed to Store actions as a secondary parameter [see actions API](en/api/actions.md).
 That makes extreamely easy passing dynamic configuration options to actions.
 
 ```js
@@ -98,12 +98,12 @@ const Store = createStore({
     increment: () => ({ setState }, { multiplier = 1 }) => {
       const currentCount = getState().count * multiplier;
       setState({ count: currentCount + 1 });
-    },
-  },
+    }
+  }
 });
 
 const App = () => (
-  <CounterContainer scope={'counter-1'} multiplier={2}>
+  <CounterContainer scope={"counter-1"} multiplier={2}>
     <CounterSubscriber>
       {({ count }) => count /* this will be an odd number */}
     </CounterSubscriber>
@@ -121,11 +121,11 @@ NOTE: Remember though that those props will be available **only** to Subscribers
 const CounterContainer = createContainer(Store, {
   onInit: () => ({ setState }, { initialCount }) => {
     setState({ count: initialCount });
-  },
+  }
 });
 
 const App = () => (
-  <CounterContainer scope={'counter-1'} initialCount={10}>
+  <CounterContainer scope={"counter-1"} initialCount={10}>
     <CounterSubscriber>
       {({ count }) => count /* this starts from 10 */}
     </CounterSubscriber>
@@ -139,4 +139,4 @@ Store instances created by `Container`s without `isGlobal` are automatically cle
 
 ---
 
-For more details about Containers see the [Containers API](../api/container.md)
+For more details about Containers see the [Containers API](en/api/container.md)

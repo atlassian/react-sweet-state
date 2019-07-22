@@ -7,7 +7,7 @@ After defining a Store, the `Subscriber` component for that Store can be created
 
 ```js
 // components/counter.js
-import { createStore, createSubscriber } from 'react-sweet-state';
+import { createStore, createSubscriber } from "react-sweet-state";
 
 const Store = createStore({
   initialState: { count: 0 },
@@ -15,8 +15,8 @@ const Store = createStore({
     increment: () => ({ setState }) => {
       const currentCount = getState().count;
       setState({ count: currentCount + 1 });
-    },
-  },
+    }
+  }
 });
 
 export const CounterSubscriber = createSubscriber(Store);
@@ -28,7 +28,7 @@ Now you can use `CounterSubscriber` in your views, and it will expose the Store 
 
 ```js
 // app.js
-import { CounterSubscriber } from './components/counter';
+import { CounterSubscriber } from "./components/counter";
 
 const App = () => (
   <CounterSubscriber>
@@ -45,4 +45,4 @@ const App = () => (
 
 --
 
-For more details about Subscribers see the [Subscribers API](../api/subscriber.md) or how to create [selector subscribers](../advanced/selector.md).
+For more details about Subscribers see the [Subscribers API](en/api/subscriber.md) or how to create [selector subscribers](en/advanced/selector.md).

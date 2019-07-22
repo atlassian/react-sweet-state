@@ -48,15 +48,20 @@
     <script src="//unpkg.com/docsify-edit-on-github@1.0.1/index.js"></script>
     <script>
       window.$docsify = {
-        name: 'react-sweet-state',
-        repo: 'https://github.com/atlassian/react-sweet-state',
+        name: "react-sweet-state",
+        repo: "https://github.com/atlassian/react-sweet-state",
         loadSidebar: true,
-        themeColor: '#dd2e44',
+        themeColor: "#dd2e44",
         plugins: [
           EditOnGithubPlugin.create(
-            'https://github.com/atlassian/react-sweet-state/tree/master/docs/'
-          ),
+            "https://github.com/atlassian/react-sweet-state/tree/master/docs/"
+          )
         ],
+        nameLink: {
+          "/en/": "#/en/",
+          "/es/": "#/es/",
+          "/": "/"
+        }
       };
     </script>
     <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
