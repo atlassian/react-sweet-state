@@ -38,4 +38,4 @@ const App = () => (
 
 ---
 
-For more details about actions you can also check the [actions API](../api/actions.md).
+For more details about actions you can also check the [actions API](./api/actions.md).

@@ -28,4 +28,4 @@ Optionally you can add a `name` property to the `createStore` object above, for 
 const Store = createStore({ initialState, actions, name: 'counter' });
 ```
 
-Once a `Subscriber` is rendered, a Store "instance" is created and the state is now shared across all components created from the same Store. But if you need more instances of the same Store, `Container` component allows you to instantiate them ([see Container docs for more](../advanced/container.md)).
+Once a `Subscriber` is rendered, a Store "instance" is created and the state is now shared across all components created from the same Store. But if you need more instances of the same Store, `Container` component allows you to instantiate them ([see Container docs for more](./advanced/container.md)).

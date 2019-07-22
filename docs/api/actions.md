@@ -99,4 +99,4 @@ const actions = {
 };
 ```
 
-This is useful in case you want to make the same data to be available to all actions, or to update the Store state when one of those props is changed ([see Container docs for more](../advanced/container.md)).
+This is useful in case you want to make the same data to be available to all actions, or to update the Store state when one of those props is changed ([see Container docs for more](./advanced/container.md)).

@@ -88,7 +88,7 @@ const App = () => (
 
 #### Container props are available in actions
 
-Props provided to containers are passed to Store actions as a secondary parameter [see actions API](../api/actions.md).
+Props provided to containers are passed to Store actions as a secondary parameter [see actions API](./api/actions.md).
 That makes extreamely easy passing dynamic configuration options to actions.
 
 ```js
@@ -139,4 +139,4 @@ Store instances created by `Container`s without `isGlobal` are automatically cle
 
 ---
 
-For more details about Containers see the [Containers API](../api/container.md)
+For more details about Containers see the [Containers API](./api/container.md)

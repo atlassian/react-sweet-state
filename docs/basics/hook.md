@@ -43,4 +43,4 @@ const App = () => {
 
 ---
 
-For more details about hooks see [hook API](../api/hook.md), or how to create [selector hooks](../advanced/selector.md).
+For more details about hooks see [hook API](./api/hook.md), or how to create [selector hooks](../advanced/selector.md).
