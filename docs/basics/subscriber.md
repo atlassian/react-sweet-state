@@ -2,8 +2,8 @@
 
 ### Creating a Subscriber
 
-Each `<Subscriber />` allows you to access Store state and actions in your views, via render prop pattern.
-After defining a Store, the `Subscriber` component for that Store can be created with `createSubscriber`:
+A `<Subscriber />` allows you to access Store state and actions in your views, via render prop pattern.
+After defining a Store, we can create `Subscriber` components for that Store with `createSubscriber`:
 
 ```js
 // components/counter.js
@@ -24,7 +24,7 @@ export const CounterSubscriber = createSubscriber(Store);
 
 ### Using a Subscriber
 
-Now you can use `CounterSubscriber` in your views, and it will expose the Store instance `state` and the `actions` as arguments of the render prop function:
+Now you can use `CounterSubscriber` in your views, and it will expose the Store instance `state` and `actions` as arguments of the render prop function:
 
 ```js
 // app.js

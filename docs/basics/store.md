@@ -1,6 +1,6 @@
 ## Creating a Store
 
-sweet-state Store is an object that describes your initial state and the actions that are going to mutate it. It defines the "type" of data that Subscribers and Containers will deal with, so updates reach only relevant components.
+A **sweet-state** Store is an object created with an initial state and the actions that are going to mutate it.
 
 To create a Store:
 
@@ -22,10 +22,10 @@ const actions = {
 const Store = createStore({ initialState, actions });
 ```
 
-Optionally you can add a `name` property to the `createStore` object above, for easier debugging in Redux Devtools.
+Optionally, you can add a `name` property to the `createStore` configuration object. It will be used as the displayName in Redux Devtools.
 
 ```js
 const Store = createStore({ initialState, actions, name: 'counter' });
 ```
 
-Once a `Subscriber` is rendered, a Store "instance" is created and the state is now shared across all components created from the same Store. But if you need more instances of the same Store, `Container` component allows you to instantiate them ([see Container docs for more](../advanced/container.md)).
+The first time a `Subscriber` or a `Container` linked to this store is rendered, a Store instance will be initialised and its state shared across all components created from the same Store. If you need multiple instances of the same Store, use the `Container` component ([see Container docs for more](../advanced/container.md)).

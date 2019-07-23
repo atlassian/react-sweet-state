@@ -8,7 +8,7 @@ createContainer(Store, [options]);
 
 ##### Arguments
 
-1. `Store` _(Object)_: The store type returned by running `createStore`
+1. `Store` _(Object)_: The store type returned from a call to `createStore`
 
 2. [`options`] _(Object)_: containing one or more of the following keys:
 

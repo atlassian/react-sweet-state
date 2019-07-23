@@ -1,6 +1,6 @@
 #### Middlewares
 
-sweet-state supports Redux-like middlewares. They can be added via `defaults.middlewares`.
+**sweet-state** supports Redux-like middlewares. They can be added via `defaults.middlewares`.
 
 ```js
 import { defaults } from 'react-sweet-state';

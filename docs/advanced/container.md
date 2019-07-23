@@ -1,6 +1,6 @@
 ## Containers
 
-By default, you are allowed to have a single Store instance, and they all live in a single global registry. However in large, complex applications you might want to have multiple instances of the same Store type. That's where `Container` component comes into play: it allows you to have multiple instances of the same Store type either globally (so still available app-wide) or just locally (only accessible to children Subscribers/hooks).
+By default, you are allowed to have a single Store instance, globally accessible. However, you might want to have multiple instances of the same Store type. That's where `Container` components come into play. They allow you to create multiple Store instances, making them either global (available app-wide) or local (only accessible to children Subscribers/hooks).
 
 ```js
 // components/counter.js
@@ -24,10 +24,10 @@ export const CounterSubscriber = createSubscriber(Store);
 export const CounterContainer = createContainer(Store);
 ```
 
-The default behaviour of a `Container` is to create a locally scoped Store instance (accessible only to it's children) but you can change this behaviour with two props:
+The default behaviour of a `Container` is to create a locally scoped Store instance (accessible only to its children) but you can change this behaviour with either of these props:
 
-- `isGlobal`: which tells the `Container` to act like a transparent link to the "default" instance stored in the global registry
-- `scope`: which is a string that makes `Container` create (or get) a global instance "prefixed" with that scope id, so you can have as many global instances as you need
+- `isGlobal`: tells the `Container` to act like a transparent link to the "default" instance, stored in the global registry
+- `scope`: is a string that makes the `Container` create (or get) a global instance "prefixed" with that scope id. This allows you to have as many global instances as you need
 
 ```js
 import { CounterContainer, CounterSubscriber } from 'components/counter';
@@ -56,15 +56,13 @@ const App = () => (
 );
 ```
 
-The power of `Container` is that you can expand or reduce the scope at will, without requiring any change on the children. That means you can start with a local scope and then, if you need to access the same state elsewhere, you can either move `Container` up in the tree or add the `scope` prop to "link" two separate trees.
+The power of `Container` is that you can expand or reduce the scope at will, without requiring any change on the children. That means you can start local and later, if you need to access the same state elsewhere, you can either move the `Container` up in the tree, add the `scope` prop to "link" two separate trees or remove the container altogether.
 
-### Additional properties
-
-Containers enable a couple of additional properties:
+### Additional features
 
 #### Scoped data sharing
 
-If two `Container` of the same type have the same `scope` they will share the same data, regardless where they are in the tree.
+If two `Container`s of the same type have the same `scope` they will share the same data, regardless where they are in the tree.
 
 ```js
 import { CounterContainer, CounterSubscriber } from 'components/counter';
@@ -88,8 +86,8 @@ const App = () => (
 
 #### Container props are available in actions
 
-Props provided to containers are passed to Store actions as a secondary parameter [see actions API](../api/actions.md).
-That makes extreamely easy passing dynamic configuration options to actions.
+Props provided to containers are passed to Store actions as a second parameter [see actions API](../api/actions.md).
+This makes extremely easy passing dynamic configuration options to actions.
 
 ```js
 const Store = createStore({
@@ -111,7 +109,7 @@ const App = () => (
 );
 ```
 
-NOTE: Remember though that those props will be available **only** to Subscribers/hooks that are children of the `Container` that receives them, regardless of the Container being global/scoped.
+_NOTE: Remember though that those props will **only** be available to Subscribers/hooks that are children of the `Container` that receives them, regardless of the Container being global/scoped._
 
 #### Container can trigger actions
 

@@ -1,6 +1,6 @@
 #### Devtools
 
-If you have [Redux Devtools extension](https://github.com/zalmoxisus/redux-devtools-extension) installed, sweet-state action's mutators and state will be visible there:
+If you have [Redux Devtools extension](https://github.com/zalmoxisus/redux-devtools-extension) installed, **sweet-state** action's mutators and state will be visible there:
 
 ```js
 const actions = {

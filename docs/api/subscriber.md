@@ -36,13 +36,15 @@ import Store from './store';
 
 const TodosByStatusSubscriber = createSubscriber(Store, {
   selector: (state, props) => ({
-    todos: state.todos.filter(t => t.status === props.status)
+    todos: state.todos.filter(t => t.status === props.status),
   }),
 });
 
 const Todos = ({ status = 'done' }) => (
   <TodosByStatusSubscriber status={status}>
-    {({ todos }, actions) => todos.map(todo => <Todo todo={todo} onAddTodo={actions.add} />) }
-  </TodosContainer>
+    {({ todos }, actions) =>
+      todos.map(todo => <Todo todo={todo} onAddTodo={actions.add} />)
+    }
+  </TodosByStatusSubscriber>
 );
 ```

@@ -2,7 +2,7 @@
 
 ### Inner function signature
 
-Given a standard action, the arguments of the "inner" function called by sweet-state itself are the following:
+Given a standard action, the arguments of the "inner" function called by **sweet-state** itself are the following:
 
 ```js
 const actions = {
