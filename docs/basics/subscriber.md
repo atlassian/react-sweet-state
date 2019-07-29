@@ -12,7 +12,7 @@ import { createStore, createSubscriber } from 'react-sweet-state';
 const Store = createStore({
   initialState: { count: 0 },
   actions: {
-    increment: () => ({ setState }) => {
+    increment: () => ({ setState, getState }) => {
       const currentCount = getState().count;
       setState({ count: currentCount + 1 });
     },
