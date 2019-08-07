@@ -1,19 +1,21 @@
 #### Devtools
 
-If you have [Redux Devtools extension](https://github.com/zalmoxisus/redux-devtools-extension) installed, **sweet-state** action's mutators and state will be visible there:
+If you have [Redux Devtools extension](https://github.com/zalmoxisus/redux-devtools-extension) installed, **sweet-state** action's mutators and state can be visible and logged. Just set the `defaults.devtools` to `true`:
+
+```js
+import { defaults } from 'react-sweet-state';
+defaults.devtools = true;
+```
+
+Now every action will be logged along with its name, payload and state changes:
 
 ```js
 const actions = {
-  reset: () => setState => {
+  reset: () => ({ setState }) => {
     // will be logged as "reset" in redux devtools
     setState({ count: 0 });
   },
 };
 ```
 
-If you want to turn devtools off (for instance on prod), just set the `defaults.devtools` to `false`:
-
-```js
-import { defaults } from 'react-sweet-state';
-defaults.devtools = false;
-```
+Remember: if you want to easily find your stores, you should add the `name` attribute to the [Store configuration object](../api/store.md)
