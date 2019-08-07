@@ -23,21 +23,6 @@ const actions = {
 };
 ```
 
-Remember that **sweet-state** automatically calls and returns the "inner" function, so you can easily chain async actions together.
-Assuming your Form Store has an async `save` action, we can `.then()` right after:
-
-```js
-const App = () => (
-  <FormSubscriber>
-    {(state, actions) => (
-      <form onSumbit={() => actions.save().then(/* do something after save*/)}>
-        {/* other form code here */}
-      </form>
-    )}
-  </FormSubscriber>
-);
-```
-
 ---
 
 For more details about actions you can also check the [actions API](../api/actions.md).
