@@ -3,6 +3,15 @@
 
 import type { Node } from 'react';
 
+/*
+ * Utility type to get the arguments of a function type
+ * https://github.com/facebook/flow/issues/4672#issuecomment-500247196
+ */
+type $Arguments<F> = $Call<
+    <A: $ReadOnlyArray<mixed>>((...A) => mixed) => A,
+    F
+>;
+
 /**
  * ST: Full store state
  * AC: Store actions
@@ -45,14 +54,7 @@ export type Action<ST, CPR = *, AC = *> = (
   containerProps: CPR
 ) => *;
 
-// prettier-ignore
-type BoundAction<F> =
-  (<A, B, C, D, E>(a: A, b: B, c: C, d: D, e: E) => $Call<$Call<F, A, B, C, D, E>, *, *>) &
-  (<A, B, C, D>(a: A, b: B, c: C, d: D) => $Call<$Call<F, A, B, C, D>, *, *>) &
-  (<A, B, C>(a: A, b: B, c: C) => $Call<$Call<F, A, B, C>, *, *>) &
-  (<A, B>(a: A, b: B) => $Call<$Call<F, A, B>, *, *>) &
-  (<A>(a: A) => $Call<$Call<F, A>, *, *>) &
-  (() => $Call<$Call<F>, *, *>);
+type BoundAction<F> = (...$Arguments<F>) => *;
 
 type MapBoundAction = <F>(F) => BoundAction<F>;
 export type BoundActions<AC> = $ObjMap<AC, MapBoundAction>;
