@@ -1,5 +1,5 @@
 // @flow
-import { type Action } from 'react-sweet-state';
+import { type ActionApi } from 'react-sweet-state';
 import type { UserModel, State } from './types';
 
 // Dummy data
@@ -8,19 +8,19 @@ const USERS: UserModel[] = [
   { id: '2', name: 'Paul' },
 ];
 
-export const setLoading = (): Action<State> => ({ setState }) => {
+export const setLoading = () => ({ setState }: ActionApi<State>) => {
   setState({
     loading: true,
   });
 };
 
-export const load = (): Action<State> => async ({
+export const load = () => async ({
   setState,
   getState,
-  actions,
-}) => {
+  dispatch,
+}: ActionApi<State>) => {
   if (getState().loading) return;
-  actions.setLoading();
+  dispatch(setLoading());
   // simulate async call
   await new Promise(r => setTimeout(r, 1000));
   setState({
@@ -29,7 +29,7 @@ export const load = (): Action<State> => async ({
   });
 };
 
-export const select = (uid: string): Action<State> => ({ setState }) => {
+export const select = (uid: string) => ({ setState }: ActionApi<State>) => {
   setState({
     selected: uid,
   });

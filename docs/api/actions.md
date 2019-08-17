@@ -7,7 +7,7 @@ Given a standard action, the arguments of the "inner" function called by **sweet
 ```js
 const actions = {
   doSomething: (...args) => (
-    { setState, getState, actions, dispatch },
+    { setState, getState, dispatch },
     containerProps
   ) => {
     // your code here
@@ -41,34 +41,18 @@ if (getState().loading) {
 
 Note: Pay attetion while storing parts of the state in a variable inside the actions: they might become stale especially during async operations.
 
-##### - actions
-
-This object contains all the actions you have defined for this store, ready to be called. So you can fire actions from other actions.
-
-```js
-const actionDefinitions = {
-  increment: n => ({ setState, getState }) => {
-    setState({ count: getState().count + n });
-  },
-  resetTo: n => ({ setState, actions }) => {
-    setState({ count: 0 });
-    actions.increment(n);
-  },
-};
-```
-
 ##### - dispatch
 
-Same as above, this method allows you to trigger other actions. It is an alternative to the `actions` object but this time calling the method desined in the Store actions object directly.
+This method allows you to trigger other actions from the explictly called action. It can also be used to abstract away some generic functionality or to create private actions that not exposed to consumers.
 
 ```js
-const actionDefinitions = {
+const actions = {
   increment: n => ({ setState, getState }) => {
     setState({ count: getState().count + n });
   },
   resetTo: n => ({ setState, dispatch }) => {
     setState({ count: 0 });
-    dispatch(actionDefinitions.increment(n));
+    dispatch(actions.increment(n));
   },
 };
 ```

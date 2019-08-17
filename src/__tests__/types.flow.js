@@ -7,6 +7,7 @@ import {
   createSubscriber,
   createHook,
   type Action,
+  type ActionApi,
 } from '..';
 
 /**
@@ -23,7 +24,7 @@ let TypeSubscriber;
 let typeHook;
 let TypeSelector;
 
-const actions = {
+const actionsDeprecated = {
   // setState tests
   increment: (n: number): Action<State> => ({ setState }) => {
     // $ExpectError setState should be of type State
@@ -79,6 +80,62 @@ const actions = {
     acs.increment(1);
     acs.fetch().then(v => v + 1);
     acs.fetch().then(v => v.split(''));
+    v0 + 1;
+    return title;
+  },
+};
+
+const actions = {
+  // setState tests
+  increment: (n: number) => ({ setState }: ActionApi<State>) => {
+    // $ExpectError setState should be of type State
+    setState('');
+
+    // $ExpectError Partial state should be of type State
+    setState({
+      foo: 1,
+    });
+
+    // correct
+    setState({
+      count: 2,
+    });
+    return '';
+  },
+
+  // GetState tests
+  decrement: () => ({ setState, getState }: ActionApi<State>) => {
+    const state = getState();
+    // $ExpectError State should be of type State
+    const bla = state.bla;
+    // $ExpectError State should not be considered writable
+    state.count = 1;
+
+    // correct
+    const { count } = state;
+
+    return count;
+  },
+
+  fetch: () => async (): Promise<string> => {
+    return '';
+  },
+
+  // Actions tests
+  setTitle: (title: string) => ({ dispatch }: ActionApi<State>) => {
+    const v0 = dispatch(actions.decrement());
+    // $ExpectError action should be correctly typed
+    dispatch(actions.increment());
+    // $ExpectError action should be correctly typed
+    dispatch(actions.increment('1'));
+    // $ExpectError action should be correctly typed
+    dispatch(actions.decrement()).then();
+    // $ExpectError result should be correctly typed
+    v0.split('');
+
+    // Correct
+    dispatch(actions.increment(1));
+    dispatch(actions.fetch()).then(v => v.split(''));
     v0 + 1;
     return title;
   },
