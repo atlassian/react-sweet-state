@@ -1,6 +1,7 @@
 - **Introduction**
 
   - [Motivation](/introduction/motivation.md)
+  - [Comparison with other libs](/introduction/comparison.md)
 
 - **Basics**
 
