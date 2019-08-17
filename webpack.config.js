@@ -20,7 +20,7 @@ const generateExampleEntries = function() {
   const exampleDirs = getDirectories(src);
 
   return exampleDirs.reduce((entry, dir) => {
-    entry['./' + basename(dir) + '/bundle'] = `${dir}/index.js`;
+    entry['./' + basename(dir) + '/bundle'] = `${dir}/index`;
     return entry;
   }, {});
 };
@@ -43,7 +43,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(t|j)sx?$/,
         loader: 'babel-loader',
         options: {
           presets: [['@babel/preset-env', { targets: { chrome: '60' } }]],
@@ -53,6 +53,7 @@ module.exports = {
   },
 
   resolve: {
+    extensions: ['.ts', '.tsx', '.js', '.json'],
     alias: {
       'react-sweet-state': resolve(__dirname, './src'),
     },
