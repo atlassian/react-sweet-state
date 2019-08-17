@@ -1,5 +1,5 @@
-declare module "react-sweet-state" {
-  import { ComponentType, ReactNode, ReactElement } from "react";
+declare module 'react-sweet-state' {
+  import { ComponentType, ReactNode, ReactElement } from 'react';
 
   export type SetState<TState> = (newState: Partial<TState>) => void;
   export type GetState<TState> = () => Readonly<TState>;
@@ -18,7 +18,7 @@ declare module "react-sweet-state" {
   type ActionThunk<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>
-  > = (...args: any[]) => Action<TState, TActions>;
+  > = (...args: any[]) => ActionAny<TState, TActions>;
 
   export type Store<
     TState,
@@ -37,27 +37,20 @@ declare module "react-sweet-state" {
     mutator: SetState<TState>;
   };
 
-  export type ActionArgs<
-    TState,
-    TActions extends Record<string, ActionThunk<TState, TActions>>,
-    TContainerProps = void
-  > = {
+  export type ActionApi<TState> = {
     setState: SetState<TState>;
     getState: GetState<TState>;
-    actions: BoundActions<TState, TActions>;
-    dispatch: (actionThunk: Action<TState, TActions, TContainerProps>) => any;
+    dispatch: <T extends ActionAny<TState, any>>(
+      actionThunk: T
+    ) => ReturnType<T>;
   };
 
-  export type Action<
-    TState,
-    TActions extends Record<string, ActionThunk<TState, TActions>>,
-    TContainerProps = void
-  > = (
-    state: ActionArgs<TState, TActions, TContainerProps>,
+  export type ActionAny<TState, TContainerProps = void> = (
+    api: ActionApi<TState>,
     containerProps: TContainerProps
   ) => any;
 
-  type BoundActions<
+  export type BoundActions<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>
   > = {
@@ -156,8 +149,8 @@ declare module "react-sweet-state" {
   >(
     store: Store<TState, TActions>,
     options?: {
-      onInit?: () => Action<TState, TActions, TProps>;
-      onUpdate?: () => Action<TState, TActions, TProps>;
+      onInit?: () => ActionAny<TState, TProps>;
+      onUpdate?: () => ActionAny<TState, TProps>;
       displayName?: string;
     }
   ): ContainerComponent<TProps>;
