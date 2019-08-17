@@ -7,11 +7,24 @@ Hooks allow composition naturally, without rendering additional components:
 import { useUserState } from './state-containers/user';
 import { useProjectState } from './state-containers/projects';
 
-const UserProject = () => {
+const UserProject = uid => {
   const [userState, userActions] = useUserState();
   const [projectState, projectActions] = useProjectState();
+
   /* now we can useEffect to trigger userActions.load()
     and when user data is returned call projectActions.load(userState.data.id) */
+  useEffect(() => {
+    // note: should be responsibility of the action to avoid multiple/useless fetch requests
+    userActions.load(uid);
+  }, [uid, userActions]);
+
+  useEffect(() => {
+    // this effect will be triggered every time user data changes
+    if (userState.data) {
+      projectActions.load(userState.data);
+    }
+  }, [userState.data, projectActions]);
+
   return; /* ... */
 };
 ```
