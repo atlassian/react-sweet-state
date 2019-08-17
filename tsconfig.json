@@ -14,6 +14,5 @@
       "react-sweet-state": ["types"]
     }
   },
-  "include": ["src/**/*"],
-  
+  "include": ["examples/**/*"],
 }

@@ -7,9 +7,9 @@ import {
   type Action,
 } from 'react-sweet-state';
 
-type State = {
+type State = {|
   count: number,
-};
+|};
 
 type Actions = typeof actions;
 

@@ -3,7 +3,13 @@
 This is a basic example:
 
 ```ts
-import { createStore, createSubscriber, createHook, createContainer, ActionApi } from 'react-sweet-state';
+import {
+  createStore,
+  createSubscriber,
+  createHook,
+  createContainer,
+  ActionApi,
+} from 'react-sweet-state';
 
 type State = { count: number };
 type Actions = typeof actions;
@@ -25,10 +31,12 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-const CounterSubscriber = createSubscriber<State, Actions>(Store);
-const useCounter = createHook<State, Actions>(Store);
-const CounterContainer = createContainer<State, Actions>(Store);
+const CounterSubscriber = createSubscriber(Store);
+const useCounter = createHook(Store);
+const CounterContainer = createContainer(Store);
 ```
+
+You don't have to manually type all the `create*` methods, as they can be inferred for the simpler use cases.
 
 #### Actions patterns
 
@@ -56,13 +64,13 @@ type SelectorState = boolean;
 const selector = (state: State): SelectorState => state.count > 0;
 
 // this component does not accept props
-const CounterSubscriber = createSubscriber<State, Actions, SelectorState, void>(Store, { 
-  selector 
+const CounterSubscriber = createSubscriber<State, Actions, SelectorState, void>(Store, {
+  selector
 });
 
 // this hook does not accept arguments
-const useCounter = createHook<State, Actions, SelectorState, void>(Store, { 
-  selector 
+const useCounter = createHook<State, Actions, SelectorState, void>(Store, {
+  selector
 });
 ```
 
