@@ -14,5 +14,6 @@ module.name_mapper='^react-sweet-state' ->'<PROJECT_ROOT>/src'
 suppress_comment= \\(.\\|\n\\)*\\$FlowFixMe
 suppress_comment= \\(.\\|\n\\)*\\$ExpectError
 include_warnings=true
+server.max_workers=1
 
 [strict]
