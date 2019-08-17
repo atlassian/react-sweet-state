@@ -29,7 +29,7 @@ export type Store<ST, AC> = {|
 
 export type StoreState<ST> = {|
   getState: GetState<ST>,
-  setState: ST => void,
+  setState: SetState<ST>,
   key: string[],
   subscribe: (listener: () => void) => StoreUnsubscribe,
   mutator: SetState<ST>,
@@ -97,11 +97,19 @@ export type SubscriberComponent<ST, AC, PR> = React$ComponentType<{|
   ...PR,
 |}>;
 
+/**
+ * createStore
+ */
+
 declare export function createStore<ST, AC>({|
   initialState: ST,
   actions: AC,
   name?: string,
 |}): Store<ST, AC>;
+
+/**
+ * createContainer
+ */
 
 declare export function createContainer<ST, AC, CPR>(
   store: Store<ST, AC>,

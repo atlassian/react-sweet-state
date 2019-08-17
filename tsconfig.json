@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "es2015",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "preserveConstEnums": true,
+    "jsx": "preserve",
+    "noEmit": true,
+    "typeRoots" : ["./node_modules/@types", "types"],
+    "baseUrl": ".",
+    "paths": {
+      "react-sweet-state": ["types"]
+    }
+  },
+  "include": ["examples/**/*"],
+}

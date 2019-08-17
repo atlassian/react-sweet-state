@@ -2,3 +2,6 @@ node_modules
 lib
 coverage
 yarn.lock   
+
+# misc
+.vscode

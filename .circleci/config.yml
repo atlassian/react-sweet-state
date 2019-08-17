@@ -39,7 +39,7 @@ jobs:
 
       - run:
           name: Run Type checking
-          command: npm run flow -s
+          command: npm run types -s
 
       - run:
           name: Run Unit Tests

@@ -33,4 +33,5 @@
 * **Recipes**
 
   - [Flow types](/recipes/flow.md)
+  - [Typescript types](/recipes/typescript.md)
   - [Composition](/recipes/composition.md)
