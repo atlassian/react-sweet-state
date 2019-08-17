@@ -4,8 +4,8 @@ Hooks allow composition naturally, without rendering additional components:
 
 ```js
 // ...
-import { useUserState } from './state-conatiners/user';
-import { useProjectState } from './state-conatiners/projects';
+import { useUserState } from './state-containers/user';
+import { useProjectState } from './state-containers/projects';
 
 const UserProject = () => {
   const [userState, userActions] = useUserState();
@@ -16,7 +16,7 @@ const UserProject = () => {
 };
 ```
 
-If you are looking for a way to avoid render-props components hell, you can have composition via 3rd party libs, like `react-composer`:
+If you are looking for a way to avoid render-props component hell, you can have composition via 3rd party libs, like `react-composer`:
 
 ```js
 import Composer from "react-composer";

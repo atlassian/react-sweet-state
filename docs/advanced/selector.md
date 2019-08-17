@@ -1,6 +1,6 @@
 ## Creating Subscribers/hooks with selectors
 
-sweet-state allows you to create Subscribers and hooks that return a specific (or manipulated) part of the state, and they re-render only if the output is not shallow equal. Creating such components is extremely easy as you only need to specify the `selector` function in the creator option object:
+**sweet-state** allows you to create Subscribers and hooks that return a specific (or transformed) part of the state, and they re-render only if the output is not shallow equal. Creating such components is extremely easy as you only need to specify a `selector` function on creation:
 
 ```js
 import { createStore, createSubscriber, createHook } from 'react-sweet-state';
@@ -27,11 +27,11 @@ export const useCurrentUser = createHook(Store, {
 });
 ```
 
-As long as the user returned by `find` is shallow equal to the previews one, `CurrentUserSubscriber` will not re-render it's children, but the selector will still be executed every time the state is mutated. If you need the selector to selectively recompute see the chapter about reselect.
+As long as the user returned by `find` is shallow equal to the previews one, `CurrentUserSubscriber` will not re-render it's children, but the selector will still be executed every time the state is mutated. If you need the selector to selectively recompute, read the [section below about reselect](#adding-reselect-to-memoize-selectors).
 
 #### Selectors with props
 
-The `selector` also receives a second argument, `props`, that are the custom props passed to the selector subscriber:
+The `selector` also receives a second argument (`props`) that are the custom props passed to the Subscriber:
 
 ```js
 import { createStore, createSubscriber, createHook } from 'react-sweet-state';
@@ -67,8 +67,13 @@ export const TodoList = ({ status }) => {
 
 #### Stateless selectors
 
-A useful value for the `selector` option is `null`: when so, `Subscriber` will not re-render on any store state change
-(but will if parent re-renders, as sweet-state is **not** using `PureComponent` nor `shouldComponentUpdate`).
+A useful value for the `selector` option is `null`. This will create a `Subscriber` that will:
+
+- not re-render on any store state change.
+- only expose access to the actions
+
+_Note: it will re-render if its parent re-renders, as sweet-state is **not** using `PureComponent` nor does it use `shouldComponentUpdate`_
+
 So `null` is useful when children just have to trigger actions:
 
 ```js
@@ -107,14 +112,14 @@ export const RefetchButton = () => {
 
 #### Adding reselect to memoize selectors
 
-In case `selector` is expensive or returns complex mutated data every single time it is executed, it can be enhanced with [reselect](https://github.com/reduxjs/reselect) `createSelector`. By doing so, you ensure it gets recomputed only when relevant parts of state/props change:
+In case `selector` is expensive or returns complex mutated data every single time it is executed, it can be enhanced with [reselect](https://github.com/reduxjs/reselect) `createSelector`. This way, you ensure it gets recomputed only when relevant parts of state/props change:
 
 ```js
 import { createStore, createSubscriber, createHook } from 'react-sweet-state';
 import { createSelector } from 'reselect';
 
 const Store = createStore({
-  initialState: { todos: [], loading: false, error: null },
+  initialState: { todos: [], loading: false, error: null, statusFilter: '' },
   actions: {
     // fetch todos, ecc...
   },

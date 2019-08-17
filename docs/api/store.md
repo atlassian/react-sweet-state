@@ -10,9 +10,9 @@ createStore(config);
 
 1. [`config`] _(Object)_: containing the following keys:
 
-   - `initialState` _(Object)_: each store instance state initial value.
+   - `initialState` _(Object)_: the store's initial state value.
 
-   - `actions` _(Object)_: an object with all the actions to mutate the store instance.
+   - `actions` _(Object)_: an object with all the actions that mutate the store instance.
 
    - `name` _(string)_: optional, useful for debugging and to generate more meaningful store keys.
 

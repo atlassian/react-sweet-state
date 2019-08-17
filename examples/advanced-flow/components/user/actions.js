@@ -8,12 +8,19 @@ const USERS: UserModel[] = [
   { id: '2', name: 'Paul' },
 ];
 
-export const load = (): Action<State> => async ({ setState, getState }) => {
-  if (getState().loading) return;
-
+export const setLoading = (): Action<State> => ({ setState }) => {
   setState({
     loading: true,
   });
+};
+
+export const load = (): Action<State> => async ({
+  setState,
+  getState,
+  actions,
+}) => {
+  if (getState().loading) return;
+  actions.setLoading();
   // simulate async call
   await new Promise(r => setTimeout(r, 1000));
   setState({

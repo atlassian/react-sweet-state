@@ -1,4 +1,4 @@
-## Typing sweet-state with Flow
+## Typing **sweet-state** with Flow
 
 This is a basic example:
 
@@ -6,7 +6,6 @@ This is a basic example:
 import { createStore, createSubscriber, createHook, createContainer, type Action } from 'react-sweet-state';
 
 type State = {| count: number |};
-type Actions = typeof actions;
 
 const initialState: State = {
   count: 0,
@@ -20,6 +19,8 @@ const actions = {
   },
 };
 
+type Actions = typeof actions;
+
 const Store = createStore<State, Actions>({
   initialState,
   actions,
@@ -30,7 +31,7 @@ const useCounter = createHook<State, Actions>(Store);
 const CounterContainer = createContainer<State, Actions>(Store);
 ```
 
-#### Actions patterns
+#### Actions pattern
 
 If your actions require `Container` props:
 
