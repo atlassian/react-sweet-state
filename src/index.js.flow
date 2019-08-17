@@ -17,7 +17,7 @@ type StoreUnsubscribe = () => void;
 
 export type RenderPropComponent<S, A> = (
   state: S,
-  actions: $Exact<BoundActions<A>>,
+  actions: $Exact<BoundActions<A>>
 ) => Node;
 export type HookReturnValue<S, A> = [S, $Exact<BoundActions<A>>];
 
@@ -35,12 +35,21 @@ export type StoreState<ST> = {|
   mutator: SetState<ST>,
 |};
 
+type ExtractReturnType = <R>((api: ActionApi<any>, cProps: any) => R) => R;
+
+export type ActionApi<ST> = {|
+  setState: SetState<ST>,
+  getState: GetState<ST>,
+  actions: any, // deprecated
+  dispatch: <F>(actionThunk: F) => $Call<ExtractReturnType, F>,
+|};
+
 export type Action<ST, CPR = *, AC = *> = (
   {|
     setState: SetState<ST>,
     getState: GetState<ST>,
     actions: BoundActions<AC>,
-    dispatch: (actionThunk: Action<ST, CPR, AC>) => *,
+    dispatch: <F>(actionThunk: F) => *,
   |},
   containerProps: CPR
 ) => *;
@@ -67,8 +76,14 @@ declare export class Registry {
     initialStates?: { [key: string]: Object },
   }) => void;
   stores: Map<string, StoreInstance<any, any>>;
-  initStore: <ST, AC>(store: Store<ST, AC>, key: string) => StoreInstance<ST, AC>;
-  getStore: <ST, AC>(store: Store<ST, AC>, scopeId?: string) => StoreInstance<ST, AC>;
+  initStore: <ST, AC>(
+    store: Store<ST, AC>,
+    key: string
+  ) => StoreInstance<ST, AC>;
+  getStore: <ST, AC>(
+    store: Store<ST, AC>,
+    scopeId?: string
+  ) => StoreInstance<ST, AC>;
   deleteStore: <ST, AC>(store: Store<ST, AC>, scopeId?: string) => void;
 }
 
@@ -114,8 +129,8 @@ declare export function createStore<ST, AC>({|
 declare export function createContainer<ST, AC, CPR>(
   store: Store<ST, AC>,
   options?: {|
-    onInit?: () => Action<ST, CPR, AC>,
-    onUpdate?: () => Action<ST, CPR, AC>,
+    onInit?: () => (api: ActionApi<ST>, containerProps: CPR) => any,
+    onUpdate?: () => (api: ActionApi<ST>, containerProps: CPR) => any,
     displayName?: string,
   |}
 ): ContainerComponent<CPR>;

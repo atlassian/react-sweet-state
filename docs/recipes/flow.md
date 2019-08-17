@@ -3,7 +3,7 @@
 This is a basic example:
 
 ```js
-import { createStore, createSubscriber, createHook, createContainer, type Action } from 'react-sweet-state';
+import { createStore, createSubscriber, createHook, createContainer, type ActionApi } from 'react-sweet-state';
 
 type State = {| count: number |};
 
@@ -12,7 +12,7 @@ const initialState: State = {
 };
 
 const actions = {
-  increment: (by = 1): Action<State> => ({ setState, getState }) => {
+  increment: (by = 1) => ({ setState, getState }: ActionApi<State>) => {
     setState({
       count: getState().count + by,
     });
@@ -33,29 +33,17 @@ const CounterContainer = createContainer<State, Actions>(Store);
 
 #### Actions pattern
 
-If your actions require `Container` props:
+If your actions require `Container` props, just type the second argument:
 
 ```js
 type ContainerProps = {| multiplier: number |};
 
 const actions = {
-  increment: (by = 1): Action<State, ContainerProps> => (
-    { setState, getState },
-    { multiplier }
+  increment: (by = 1) => (
+    { setState, getState }: ActionApi<State>,
+    { multiplier }: ContainerProps
   ) => {
     setState({ count: getState().count + by * multiplier });
-  },
-};
-```
-
-And if you need the `actions` key correctly typed:
-
-```js
-type Actions = typeof actions;
-
-const actions = {
-  fetch: (): Action<State, void, Actions> => ({ actions }) => {
-    /* ... */
   },
 };
 ```
@@ -69,10 +57,14 @@ type SelectorState = boolean;
 const selector = (state: State): SelectorState => state.count > 0;
 
 // this component does not accept props
-const CounterSubscriber = createSubscriber<State, Actions, SelectorState, void>(Store);
+const CounterSubscriber = createSubscriber<State, Actions, SelectorState, void>(Store, {
+  selector,
+});
 
 // this hook does not accept arguments
-const CounterSubscriber = createSubscriber<State, Actions, SelectorState, void>(Store);
+const useCounter = createHook<State, Actions, SelectorState, void>(Store, {
+  selector,
+});
 ```
 
 In case your component/hook needs also some props, you can define them as fourth argument:
@@ -83,10 +75,14 @@ type SelectorState = boolean;
 const selector = (state: State, props: SelectorProps): SelectorState => state.count > props.min;
 
 // this component requires props
-const CounterSubscriber = createSubscriber<State, Actions, SelectorState, SelectorProps>(Store);
+const CounterSubscriber = createSubscriber<State, Actions, SelectorState, SelectorProps>(Store, {
+  selector,
+});
 
 // this hook requires an argument
-const useCounter = createHook<State, Actions, SelectorState, SelectorProps>(Store);
+const useCounter = createHook<State, Actions, SelectorState, SelectorProps>(Store {
+  selector,
+});
 ```
 
 #### createContainer patterns

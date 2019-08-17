@@ -4,7 +4,7 @@ import {
   createStore,
   createSubscriber,
   createHook,
-  type Action,
+  type ActionApi,
 } from 'react-sweet-state';
 
 type State = {
@@ -20,7 +20,7 @@ const initialState: State = {
 };
 
 const actions = {
-  add: (message: string): Action<State> => ({ setState, getState }) => {
+  add: (message: string) => ({ setState, getState }: ActionApi<State>) => {
     setState({
       data: [...getState().data, message],
     });

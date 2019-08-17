@@ -5,7 +5,7 @@ import {
   createContainer,
   createSubscriber,
   createHook,
-  type Action,
+  type ActionApi,
 } from 'react-sweet-state';
 
 let currentId = 0;
@@ -27,7 +27,7 @@ const initialState: State = {
 };
 
 const actions = {
-  add: (title: string): Action<State> => ({ setState, getState }) => {
+  add: (title: string) => ({ setState, getState }: ActionApi<State>) => {
     currentId++;
     const newTodo = { id: currentId, title, isDone: false };
     setState({
@@ -36,7 +36,7 @@ const actions = {
     });
   },
 
-  toggle: (todoId: number): Action<State> => ({ setState, getState }) => {
+  toggle: (todoId: number) => ({ setState, getState }: ActionApi<State>) => {
     const todo = getState().byId[todoId];
     setState({
       byId: {
@@ -55,15 +55,19 @@ const Store = createStore<State, Actions>({
 
 /** Container */
 
-export const TodosContainer = createContainer<*, *, {| n: number |}>(Store, {
-  onInit: () => ({ getState, dispatch }, { n }) => {
-    if (getState().order.length) return;
-    Array.from({ length: 10 * n }).map((__, i) => {
-      const title = `Todo ${n}-${i + 1}`;
-      dispatch(actions.add(title));
-    });
-  },
-});
+type ContainerProps = {| n: number |};
+export const TodosContainer = createContainer<State, Actions, ContainerProps>(
+  Store,
+  {
+    onInit: () => ({ getState, dispatch }, { n }) => {
+      if (getState().order.length) return;
+      Array.from({ length: 10 * n }).map((__, i) => {
+        const title = `Todo ${n}-${i + 1}`;
+        dispatch(actions.add(title));
+      });
+    },
+  }
+);
 
 /** Subscribers / Hooks */
 
@@ -72,21 +76,27 @@ const getAllTodosSelector = state => ({
   loading: state.loading,
 });
 
-export const TodosSubscriber = createSubscriber<*, *, *, {||}>(Store, {
-  selector: getAllTodosSelector,
-});
+export const TodosSubscriber = createSubscriber<State, Actions, *, {||}>(
+  Store,
+  {
+    selector: getAllTodosSelector,
+  }
+);
 
-export const useTodos = createHook<*, *, *, empty>(Store, {
+export const useTodos = createHook<State, Actions, *, empty>(Store, {
   selector: getAllTodosSelector,
 });
 
 const getTodosCountSelector = state => ({ count: state.order.length });
 
-export const TodosCountSubscriber = createSubscriber<*, *, *, {||}>(Store, {
-  selector: getTodosCountSelector,
-});
+export const TodosCountSubscriber = createSubscriber<State, Actions, *, {||}>(
+  Store,
+  {
+    selector: getTodosCountSelector,
+  }
+);
 
-export const useTodosCount = createHook<*, *, *, empty>(Store, {
+export const useTodosCount = createHook<State, Actions, *, empty>(Store, {
   selector: getTodosCountSelector,
 });
 
