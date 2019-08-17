@@ -20,13 +20,13 @@ let Test;
 const actions = {
   // setState tests
   increment: (n: number) => ({ setState }: ActionApi<State>) => {
-    // @ts-ignore setState should be of type State
+    // $ExpectError
     setState('');
 
-    // @ts-ignore Partial state should be of type State
+    // $ExpectError
     setState({ foo: 1 });
 
-    // correct
+    // Correct
     setState({
       count: 2,
     });
@@ -37,9 +37,9 @@ const actions = {
   // GetState tests
   decrement: () => ({ setState, getState }: ActionApi<State>) => {
     const state = getState();
-    // @ts-ignore State should be of type State
+    // $ExpectError
     const bla = state.bla;
-    // @ts-ignore State should not be considered writable
+    // $ExpectError
     state.count = 1;
 
     // correct
@@ -55,9 +55,9 @@ const actions = {
   // Dispatch tests
   setTitle: (title: string) => ({ dispatch }: ActionApi<State>) => {
     const v0 = dispatch(actions.decrement());
-    // @ts-ignore action should be correctly typed
+    // $ExpectError
     dispatch(actions.decrement()).then();
-    // @ts-ignore result should be correctly typed
+    // $ExpectError
     v0.split('');
 
     // Correct
@@ -69,16 +69,16 @@ const actions = {
   },
 };
 
-// @ts-ignore Store should be created with a valid argument
+// $ExpectError
 const TypeStore0 = createStore<State, Actions>({ count: 0 });
 
 const TypeStore1 = createStore<State, Actions>({
-  // @ts-ignore Store should have initialState of type state
+  // $ExpectError
   initialState: { bla: 0 },
-  actions
+  actions,
 });
 
-// @ts-ignore Store should have actions
+// $ExpectError
 const TypeStore2 = createStore<State, Actions>({ initialState: { count: 0 } });
 
 // Correct
@@ -92,15 +92,15 @@ const TypeStore = createStore<State, Actions>({
  * createSubscriber types tests
  */
 
-const TypeSubscriber = createSubscriber<State, Actions>(TypeStore);
+const TypeSubscriber = createSubscriber(TypeStore);
 
 Test = (
-  // @ts-ignore Child arg shape should be state + actions
+  // $ExpectError
   <TypeSubscriber>{({ foo }) => foo}</TypeSubscriber>
 );
 
 Test = (
-  // @ts-ignore Actions should be correcly typed
+  // $ExpectError
   <TypeSubscriber>{(__, { increment }) => increment()}</TypeSubscriber>
 );
 
@@ -119,12 +119,12 @@ const TypeSelector = createSubscriber<State, Actions, { baz: number }>(
 );
 
 Test = (
-  // @ts-ignore Child arg shape should be pick + actions
+  // $ExpectError
   <TypeSelector>{({ count }) => count}</TypeSelector>
 );
 
 Test = (
-  // @ts-ignore Should not accept props
+  // $ExpectError
   <TypeSelector min={3}>{({ baz }) => baz}</TypeSelector>
 );
 
@@ -137,12 +137,14 @@ const TypeSelectorNull = createSubscriber<State, Actions, void>(TypeStore, {
 });
 
 Test = (
-  // @ts-ignore Child arg shape should be just actions
+  // $ExpectError
   <TypeSelectorNull>{({ count }) => count}</TypeSelectorNull>
 );
 
-// @ts-ignore Should not accept props
-Test = <TypeSelectorNull myProp>{state => Boolean(state)}</TypeSelectorNull>;
+Test = (
+  // $ExpectError
+  <TypeSelectorNull myProp>{state => state === undefined}</TypeSelectorNull>
+);
 
 // Correct
 Test = (
@@ -161,17 +163,17 @@ const TypeSelectorProp = createSubscriber<
 });
 
 Test = (
-  // @ts-ignore Should require props
+  // $ExpectError
   <TypeSelectorProp>{({ baz }) => baz}</TypeSelectorProp>
 );
 
 Test = (
-  // @ts-ignore Should require correct prop types
+  // $ExpectError
   <TypeSelectorProp min="2">{({ baz }) => baz}</TypeSelectorProp>
 );
 
 Test = (
-  // @ts-ignore Should have correct selector types
+  // $ExpectError
   <TypeSelectorProp min={2}>{({ min }) => min.split('')}</TypeSelectorProp>
 );
 
@@ -188,19 +190,19 @@ const typeBaseHook = createHook<State, Actions>(TypeStore);
 
 const baseReturn = typeBaseHook();
 
-// @ts-ignore Should not accept arguments
+// $ExpectError
 typeBaseHook({});
 
-// @ts-ignore Array index 0 should be state
+// $ExpectError
 baseReturn[0].foo;
 
-// @ts-ignore Array index 1 should be actions
+// $ExpectError
 baseReturn[1].increment();
 
-// @ts-ignore Array index 1 should be actions
+// $ExpectError
 baseReturn[1].increment('1');
 
-// @ts-ignore Array index 1 return type should be correct
+// $ExpectError
 baseReturn[1].decrement().then(v => v);
 
 // Correct
@@ -219,10 +221,10 @@ const typeSelectorHook = createHook<State, Actions, { baz: number }>(
 
 const selectorReturn = typeSelectorHook();
 
-// @ts-ignore Array index 0 shape should be selector output
+// $ExpectError
 selectorReturn[0].count;
 
-// @ts-ignore Should not accept props
+// $ExpectError
 typeSelectorHook({ min: 3 });
 
 // Correct
@@ -235,7 +237,7 @@ const typeNullHook = createHook<State, Actions, void>(TypeStore, {
 
 const nullReturn = typeNullHook();
 
-// @ts-ignore Array 0 shape should be undefined
+// $ExpectError
 nullReturn[0].count;
 
 // Correct
@@ -246,14 +248,14 @@ const typeArgHook = createHook<State, Actions, SelectorState, SelectorProps>(
   { selector: (state, props) => ({ baz: 1, min: props.min }) }
 );
 
-// @ts-ignore Should require argument
+// $ExpectError
 typeArgHook();
 
-// @ts-ignore Should require correct prop types
+// $ExpectError
 typeArgHook({ min: '2' });
 
 const argReturn = typeArgHook({ min: 2 });
-// @ts-ignore Should have correct selector types
+// $ExpectError
 argReturn[0].min.split('');
 
 // Correct
@@ -266,12 +268,12 @@ argReturn[0].min + argReturn[0].baz;
 const TypeContainer = createContainer<State, Actions>(TypeStore);
 
 Test = (
-  // @ts-ignore Container is not a render-prop
+  // $ExpectError
   <TypeContainer>{({ count }) => count}</TypeContainer>
 );
 
 Test = (
-  // @ts-ignore Does not accept extra props
+  // $ExpectError
   <TypeContainer foo="1">bla</TypeContainer>
 );
 
@@ -284,11 +286,11 @@ const TypePropsContainer = createContainer<State, Actions, { url: string }>(
   TypeStore
 );
 
-// @ts-ignore Requires typed props
+// $ExpectError
 Test = <TypePropsContainer isGlobal>bla</TypePropsContainer>;
 
 Test = (
-  // @ts-ignore Only allows typed extra props
+  // $ExpectError
   <TypePropsContainer foo="1">bla</TypePropsContainer>
 );
 

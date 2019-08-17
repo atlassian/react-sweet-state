@@ -1,8 +1,8 @@
 declare module 'react-sweet-state' {
   import { ComponentType, ReactNode, ReactElement } from 'react';
 
-  export type SetState<TState> = (newState: Partial<TState>) => void;
-  export type GetState<TState> = () => Readonly<TState>;
+  type SetState<TState> = (newState: Partial<TState>) => void;
+  type GetState<TState> = () => Readonly<TState>;
   type StoreUnsubscribe = () => void;
 
   type RenderPropComponent<TState, TActions> = (
@@ -20,7 +20,7 @@ declare module 'react-sweet-state' {
     TActions extends Record<string, ActionThunk<TState, TActions>>
   > = (...args: any[]) => ActionAny<TState, TActions>;
 
-  export type Store<
+  type Store<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>
   > = {
@@ -29,7 +29,7 @@ declare module 'react-sweet-state' {
     actions: TActions;
   };
 
-  export type StoreState<TState> = {
+  type StoreState<TState> = {
     getState: GetState<TState>;
     setState: SetState<TState>;
     key: string[];
@@ -37,7 +37,7 @@ declare module 'react-sweet-state' {
     mutator: SetState<TState>;
   };
 
-  export type ActionApi<TState> = {
+  type ActionApi<TState> = {
     setState: SetState<TState>;
     getState: GetState<TState>;
     dispatch: <T extends ActionAny<TState, any>>(
@@ -45,12 +45,12 @@ declare module 'react-sweet-state' {
     ) => ReturnType<T>;
   };
 
-  export type ActionAny<TState, TContainerProps = void> = (
+  type ActionAny<TState, TContainerProps = void> = (
     api: ActionApi<TState>,
     containerProps: TContainerProps
   ) => any;
 
-  export type BoundActions<
+  type BoundActions<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>
   > = {
@@ -59,13 +59,13 @@ declare module 'react-sweet-state' {
     ) => ReturnType<ReturnType<TActions[K]>>;
   };
 
-  export interface StoreInstance<TState, TActions> {
+  interface StoreInstance<TState, TActions> {
     store: StoreState<TState>;
     actions: TActions;
   }
 
-  export class Registry {
-    configure(options: { initialStates?: { [key: string]: Object } }): void;
+  class Registry {
+    configure(options: { initialStates?: { [key: string]: any } }): void;
     stores: Map<string, StoreInstance<any, any>>;
     initStore: <
       TState,
@@ -90,16 +90,16 @@ declare module 'react-sweet-state' {
     ) => void;
   }
 
-  export var defaultRegistry: Registry;
+  const defaultRegistry: Registry;
 
   type MiddlewareResult = any;
-  export type Middleware = (
+  type Middleware = (
     store: StoreState<any>
   ) => (
     next: (fn: any) => MiddlewareResult
   ) => (fn: () => any) => MiddlewareResult;
 
-  export var defaults: {
+  const defaults: {
     devtools: boolean;
     middlewares: any;
     mutator: <TState>(
@@ -129,7 +129,7 @@ declare module 'react-sweet-state' {
    * createStore
    */
 
-  export function createStore<
+  function createStore<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>
   >(config: {
@@ -142,7 +142,7 @@ declare module 'react-sweet-state' {
    * createContainer
    */
 
-  export function createContainer<
+  function createContainer<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>,
     TProps = {}
@@ -164,7 +164,7 @@ declare module 'react-sweet-state' {
     props: TProps
   ) => TOutput;
 
-  export function createSubscriber<
+  function createSubscriber<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>,
     TSelectedState = TState,
@@ -185,7 +185,7 @@ declare module 'react-sweet-state' {
    * createHook
    */
 
-  export function createHook<
+  function createHook<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>,
     TSelectedState = TState,
@@ -196,6 +196,6 @@ declare module 'react-sweet-state' {
       selector?: Selector<TState, TArg, TSelectedState> | null;
     }
   ): (
-    ...args: TArg extends void ? [] : [TArg]
+    ...args: TArg extends undefined ? [] : [TArg]
   ) => [TSelectedState, BoundActions<TState, TActions>];
 }
