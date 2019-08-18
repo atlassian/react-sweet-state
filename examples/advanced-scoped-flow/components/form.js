@@ -5,7 +5,7 @@ import {
   createContainer,
   createSubscriber,
   createHook,
-  type ActionApi,
+  type StoreActionApi,
 } from 'react-sweet-state';
 
 type State = {
@@ -14,7 +14,7 @@ type State = {
   isSending: boolean,
   toUsers: number,
 };
-
+type StoreApi = StoreActionApi<State>;
 type Actions = typeof actions;
 
 type ContainerProps = {|
@@ -29,14 +29,14 @@ const initialState: State = {
 };
 
 const actions = {
-  input: (value: string) => ({ setState }: ActionApi<State>) => {
+  input: (value: string) => ({ setState }: StoreApi) => {
     setState({
       message: value,
       isValid: value.length > 0,
     });
   },
 
-  send: (message: string) => async ({ setState }: ActionApi<State>) => {
+  send: (message: string) => async ({ setState }: StoreApi) => {
     setState({
       isSending: true,
     });

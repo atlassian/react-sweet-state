@@ -5,7 +5,7 @@ import {
   createContainer,
   createSubscriber,
   createHook,
-  ActionApi,
+  StoreActionApi,
 } from 'react-sweet-state';
 
 /**
@@ -19,7 +19,7 @@ let Test;
 
 const actions = {
   // setState tests
-  increment: (n: number) => ({ setState }: ActionApi<State>) => {
+  increment: (n: number) => ({ setState }: StoreActionApi<State>) => {
     // $ExpectError
     setState('');
 
@@ -35,7 +35,7 @@ const actions = {
   },
 
   // GetState tests
-  decrement: () => ({ setState, getState }: ActionApi<State>) => {
+  decrement: () => ({ setState, getState }: StoreActionApi<State>) => {
     const state = getState();
     // $ExpectError
     const bla = state.bla;
@@ -53,7 +53,7 @@ const actions = {
   },
 
   // Dispatch tests
-  setTitle: (title: string) => ({ dispatch }: ActionApi<State>) => {
+  setTitle: (title: string) => ({ dispatch }: StoreActionApi<State>) => {
     const v0 = dispatch(actions.decrement());
     // $ExpectError
     dispatch(actions.decrement()).then();

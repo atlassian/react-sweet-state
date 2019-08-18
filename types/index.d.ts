@@ -37,7 +37,7 @@ declare module 'react-sweet-state' {
     mutator: SetState<TState>;
   };
 
-  type ActionApi<TState> = {
+  type StoreActionApi<TState> = {
     setState: SetState<TState>;
     getState: GetState<TState>;
     dispatch: <T extends ActionAny<TState, any>>(
@@ -46,7 +46,7 @@ declare module 'react-sweet-state' {
   };
 
   type ActionAny<TState, TContainerProps = void> = (
-    api: ActionApi<TState>,
+    api: StoreActionApi<TState>,
     containerProps: TContainerProps
   ) => any;
 

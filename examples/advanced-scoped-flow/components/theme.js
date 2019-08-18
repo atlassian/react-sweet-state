@@ -5,7 +5,7 @@ import {
   createContainer,
   createSubscriber,
   createHook,
-  type ActionApi,
+  type StoreActionApi,
 } from 'react-sweet-state';
 
 type State = {
@@ -24,7 +24,7 @@ const initialState: State = {
 
 const actions = {
   change: (value?: string) => (
-    { setState }: ActionApi<State>,
+    { setState }: StoreActionApi<State>,
     { defaultColor }: ContainerProps
   ) => {
     setState({

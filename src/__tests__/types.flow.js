@@ -7,7 +7,7 @@ import {
   createSubscriber,
   createHook,
   type Action,
-  type ActionApi,
+  type StoreActionApi,
 } from '..';
 
 /**
@@ -87,7 +87,7 @@ const actionsDeprecated = {
 
 const actions = {
   // setState tests
-  increment: (n: number) => ({ setState }: ActionApi<State>) => {
+  increment: (n: number) => ({ setState }: StoreActionApi<State>) => {
     // $ExpectError setState should be of type State
     setState('');
 
@@ -104,7 +104,7 @@ const actions = {
   },
 
   // GetState tests
-  decrement: () => ({ setState, getState }: ActionApi<State>) => {
+  decrement: () => ({ setState, getState }: StoreActionApi<State>) => {
     const state = getState();
     // $ExpectError State should be of type State
     const bla = state.bla;
@@ -122,7 +122,7 @@ const actions = {
   },
 
   // Actions tests
-  setTitle: (title: string) => ({ dispatch }: ActionApi<State>) => {
+  setTitle: (title: string) => ({ dispatch }: StoreActionApi<State>) => {
     const v0 = dispatch(actions.decrement());
     // $ExpectError action should be correctly typed
     dispatch(actions.increment());

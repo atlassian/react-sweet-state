@@ -5,7 +5,7 @@ import {
   createContainer,
   createSubscriber,
   createHook,
-  type ActionApi,
+  type StoreActionApi,
 } from 'react-sweet-state';
 
 let currentId = 0;
@@ -17,7 +17,7 @@ type State = {
   order: number[],
   loading: boolean,
 };
-
+type StoreApi = StoreActionApi<State>;
 type Actions = typeof actions;
 
 const initialState: State = {
@@ -27,7 +27,7 @@ const initialState: State = {
 };
 
 const actions = {
-  add: (title: string) => ({ setState, getState }: ActionApi<State>) => {
+  add: (title: string) => ({ setState, getState }: StoreApi) => {
     currentId++;
     const newTodo = { id: currentId, title, isDone: false };
     setState({
@@ -36,7 +36,7 @@ const actions = {
     });
   },
 
-  toggle: (todoId: number) => ({ setState, getState }: ActionApi<State>) => {
+  toggle: (todoId: number) => ({ setState, getState }: StoreApi) => {
     const todo = getState().byId[todoId];
     setState({
       byId: {

@@ -3,23 +3,23 @@
 This is a basic example:
 
 ```js
-import { createStore, createSubscriber, createHook, createContainer, type ActionApi } from 'react-sweet-state';
+import { createStore, createSubscriber, createHook, createContainer, type StoreActionApi } from 'react-sweet-state';
 
 type State = {| count: number |};
+type StoreApi = StoreActionApi<State>;
+type Actions = typeof actions;
 
 const initialState: State = {
   count: 0,
 };
 
 const actions = {
-  increment: (by = 1) => ({ setState, getState }: ActionApi<State>) => {
+  increment: (by = 1) => ({ setState, getState }: StoreApi) => {
     setState({
       count: getState().count + by,
     });
   },
 };
-
-type Actions = typeof actions;
 
 const Store = createStore<State, Actions>({
   initialState,
@@ -40,7 +40,7 @@ type ContainerProps = {| multiplier: number |};
 
 const actions = {
   increment: (by = 1) => (
-    { setState, getState }: ActionApi<State>,
+    { setState, getState }: StoreApi<State>,
     { multiplier }: ContainerProps
   ) => {
     setState({ count: getState().count + by * multiplier });

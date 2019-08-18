@@ -1,5 +1,5 @@
 // @flow
-import { type ActionApi } from 'react-sweet-state';
+import { type StoreActionApi } from 'react-sweet-state';
 import type { UserModel, State } from './types';
 
 // Dummy data
@@ -8,7 +8,7 @@ const USERS: UserModel[] = [
   { id: '2', name: 'Paul' },
 ];
 
-export const setLoading = () => ({ setState }: ActionApi<State>) => {
+export const setLoading = () => ({ setState }: StoreActionApi<State>) => {
   setState({
     loading: true,
   });
@@ -18,7 +18,7 @@ export const load = () => async ({
   setState,
   getState,
   dispatch,
-}: ActionApi<State>) => {
+}: StoreActionApi<State>) => {
   if (getState().loading) return;
   dispatch(setLoading());
   // simulate async call
@@ -29,7 +29,9 @@ export const load = () => async ({
   });
 };
 
-export const select = (uid: string) => ({ setState }: ActionApi<State>) => {
+export const select = (uid: string) => ({
+  setState,
+}: StoreActionApi<State>) => {
   setState({
     selected: uid,
   });

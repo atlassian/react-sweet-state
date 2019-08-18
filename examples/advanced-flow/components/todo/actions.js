@@ -1,6 +1,6 @@
 // @flow
 
-import { type ActionApi } from 'react-sweet-state';
+import { type StoreActionApi } from 'react-sweet-state';
 import type { TodoModel, State } from './types';
 
 // Dummy data
@@ -12,7 +12,7 @@ const TODOS: { [id: string]: TodoModel[] } = {
 export const load = (uid: string) => async ({
   setState,
   getState,
-}: ActionApi<State>) => {
+}: StoreActionApi<State>) => {
   if (getState().loading) return;
 
   setState({

@@ -8,10 +8,11 @@ import {
   createSubscriber,
   createHook,
   createContainer,
-  ActionApi,
+  StoreActionApi,
 } from 'react-sweet-state';
 
 type State = { count: number };
+type StoreApi = StoreActionApi<State>;
 type Actions = typeof actions;
 
 const initialState: State = {
@@ -19,7 +20,7 @@ const initialState: State = {
 };
 
 const actions = {
-  increment: (by = 1) => ({ setState, getState }: ActionApi<State>) => {
+  increment: (by = 1) => ({ setState, getState }: StoreApi) => {
     setState({
       count: getState().count + by,
     });
@@ -47,7 +48,7 @@ type ContainerProps = { multiplier: number };
 
 const actions = {
   increment: (by = 1) => (
-    { setState, getState }: ActionApi<State>,
+    { setState, getState }: StoreApi,
     { multiplier }: ContainerProps
   ) => {
     setState({ count: getState().count + by * multiplier });

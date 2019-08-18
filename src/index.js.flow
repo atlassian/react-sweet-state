@@ -35,9 +35,9 @@ export type StoreState<ST> = {|
   mutator: SetState<ST>,
 |};
 
-type ExtractReturnType = <R>((api: ActionApi<any>, cProps: any) => R) => R;
+type ExtractReturnType = <R>((api: StoreActionApi<any>, cProps: any) => R) => R;
 
-export type ActionApi<ST> = {|
+export type StoreActionApi<ST> = {|
   setState: SetState<ST>,
   getState: GetState<ST>,
   actions: any, // deprecated
@@ -129,8 +129,8 @@ declare export function createStore<ST, AC>({|
 declare export function createContainer<ST, AC, CPR>(
   store: Store<ST, AC>,
   options?: {|
-    onInit?: () => (api: ActionApi<ST>, containerProps: CPR) => any,
-    onUpdate?: () => (api: ActionApi<ST>, containerProps: CPR) => any,
+    onInit?: () => (api: StoreActionApi<ST>, containerProps: CPR) => any,
+    onUpdate?: () => (api: StoreActionApi<ST>, containerProps: CPR) => any,
     displayName?: string,
   |}
 ): ContainerComponent<CPR>;
