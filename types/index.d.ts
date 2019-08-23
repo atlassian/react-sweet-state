@@ -18,7 +18,7 @@ declare module 'react-sweet-state' {
   type ActionThunk<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>
-  > = (...args: any[]) => ActionAny<TState, TActions>;
+  > = (...args: any[]) => ActionAny<TState, any>;
 
   type Store<
     TState,
@@ -145,40 +145,40 @@ declare module 'react-sweet-state' {
   function createContainer<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>,
-    TProps = {}
+    TContainerProps = {}
   >(
     store: Store<TState, TActions>,
     options?: {
-      onInit?: () => ActionAny<TState, TProps>;
-      onUpdate?: () => ActionAny<TState, TProps>;
+      onInit?: () => ActionAny<TState, TContainerProps>;
+      onUpdate?: () => ActionAny<TState, TContainerProps>;
       displayName?: string;
     }
-  ): ContainerComponent<TProps>;
+  ): ContainerComponent<TContainerProps>;
 
   /**
    * createSubscriber
    */
 
-  type Selector<TState, TProps, TOutput> = (
+  type Selector<TState, TSubscriberProps, TOutput> = (
     state: TState,
-    props: TProps
+    props: TSubscriberProps
   ) => TOutput;
 
   function createSubscriber<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>,
     TSelectedState = TState,
-    TProps = {}
+    TSubscriberProps = {}
   >(
     store: Store<TState, TActions>,
     options?: {
       displayName?: string;
-      selector?: Selector<TState, TProps, TSelectedState> | null;
+      selector?: Selector<TState, TSubscriberProps, TSelectedState> | null;
     }
   ): SubscriberComponent<
     TSelectedState,
     BoundActions<TState, TActions>,
-    TProps
+    TSubscriberProps
   >;
 
   /**
@@ -189,13 +189,13 @@ declare module 'react-sweet-state' {
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>,
     TSelectedState = TState,
-    TArg = void
+    THookArg = void
   >(
     store: Store<TState, TActions>,
     options?: {
-      selector?: Selector<TState, TArg, TSelectedState> | null;
+      selector?: Selector<TState, THookArg, TSelectedState> | null;
     }
   ): (
-    ...args: TArg extends undefined ? [] : [TArg]
+    ...args: THookArg extends undefined ? [] : [THookArg]
   ) => [TSelectedState, BoundActions<TState, TActions>];
 }
