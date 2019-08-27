@@ -32,7 +32,7 @@
     "lint": "eslint ./src",
     "preversion": "npm run lint -s && npm run types -s && npm run test -s",
     "prepack": "npm run preversion -s && npm run build -s",
-    "docs": "docsify serve docs",
+    "docs": "npx docsify-cli serve docs",
     "start": "webpack-dev-server",
     "perf:start": "webpack-dev-server --config ./webpack.config.perf.js"
   },
@@ -61,7 +61,6 @@
     "babel-eslint": "^10.0.2",
     "babel-jest": "^24.9.0",
     "babel-loader": "^8.0.6",
-    "docsify-cli": "^4.3.0",
     "dtslint": "^0.9.1",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
