@@ -4,7 +4,6 @@ import {
   useEffect,
   useRef,
   useCallback,
-  useMemo,
 } from 'react';
 import { readContext } from '../context';
 import memoize from '../utils/memoize';
@@ -59,9 +58,9 @@ export function createHook(Store, { selector } = {}) {
       // after component is mounted or store changed, we subscribe
       const unsubscribe = storeState.subscribe(onUpdate);
       unsubRef.current = unsubscribe;
-    }
+    };
 
-    const [_, setUpdateFn] = useState(registerUpdateFn)
+    const [, setUpdateFn] = useState(registerUpdateFn);
 
     // if we detect that state has changed, we shedule an immediate re-render
     // (as suggested by react docs https://reactjs.org/docs/hooks-faq.html#how-do-i-implement-getderivedstatefromprops)
