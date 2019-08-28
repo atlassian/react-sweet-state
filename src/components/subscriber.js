@@ -23,6 +23,7 @@ export default class Subscriber extends Component {
 
   store = null;
   subscription = null;
+  mounted = false;
   selector = this.constructor.selector && memoize(this.constructor.selector);
 
   constructor(props) {
@@ -36,10 +37,7 @@ export default class Subscriber extends Component {
   }
 
   componentDidMount() {
-    // As suggested by the async docs, we add listener after mount
-    // So it won't leak if mount is interrupted or errors
-    // https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html
-    this.subscribeToUpdates();
+    this.mounted = true;
 
     // Moreover, when async render, state could change between render and mount
     // so to ensure state is fresh we should manually call onUpdate and
@@ -56,6 +54,7 @@ export default class Subscriber extends Component {
 
   componentWillUnmount() {
     this.store = null;
+    this.mounted = false;
     if (this.subscription) {
       this.subscription.remove();
       this.subscription = null;
@@ -68,6 +67,11 @@ export default class Subscriber extends Component {
     // We can get stores from context ONLY during rendering phase
     // overwise React will return the default ctx value!
     this.store = fromContext ? this.getStoreFromContext() : this.store;
+
+    if (!this.subscription) {
+      this.subscribeToUpdates();
+    }
+
     const currentStoreState = this.store.storeState.getState();
     return this.selector
       ? this.selector(currentStoreState, props)
@@ -101,6 +105,8 @@ export default class Subscriber extends Component {
   }
 
   onUpdate = (updState, forceUpdate) => {
+    // Ensure only gets update when component is mounted
+    if (!this.mounted) return;
     // Ensure component is still mounted and has a store attached
     if (!this.store) return;
     const prevStoreStateValue = this.state.storeStateValue;

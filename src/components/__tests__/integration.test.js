@@ -185,6 +185,6 @@ describe('Integration', () => {
     expect(children1.mock.calls[3]).toEqual([state3, expectActions]);
     expect(children2.mock.calls[3]).toEqual([state3, expectActions]);
     expect(children3.mock.calls[4]).toEqual([state3, expectActions]);
-    expect(children4.mock.calls[4]).toEqual([state3, expectActions]);
+    expect(children4.mock.calls[5]).toEqual([state3, expectActions]);
   });
 });

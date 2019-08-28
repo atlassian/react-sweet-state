@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   useCallback,
+  useMemo,
 } from 'react';
 import { readContext } from '../context';
 import memoize from '../utils/memoize';
@@ -46,6 +47,22 @@ export function createHook(Store, { selector } = {}) {
       }
     };
 
+    const unsubRef = useRef();
+
+    const registerUpdateFn = () => {
+      if (unsubRef.current) {
+        return;
+      }
+
+      // we call the current ref fn so state is fresh
+      const onUpdate = (...args) => onUpdateRef.current(...args);
+      // after component is mounted or store changed, we subscribe
+      const unsubscribe = storeState.subscribe(onUpdate);
+      unsubRef.current = unsubscribe;
+    }
+
+    const [_, setUpdateFn] = useState(registerUpdateFn)
+
     // if we detect that state has changed, we shedule an immediate re-render
     // (as suggested by react docs https://reactjs.org/docs/hooks-faq.html#how-do-i-implement-getderivedstatefromprops)
     // still, it feels silly
@@ -54,13 +71,12 @@ export function createHook(Store, { selector } = {}) {
     }
 
     useIsomorphicLayoutEffect(() => {
-      // we call the current ref fn so state is fresh
-      const onUpdate = (...args) => onUpdateRef.current(...args);
-      // after component is mounted or store changed, we subscribe
-      const unsubscribe = storeState.subscribe(onUpdate);
+      setUpdateFn(registerUpdateFn);
+
       return () => {
         // fired on unmount or every time store changes
-        unsubscribe();
+        unsubRef.current();
+        unsubRef.current = null;
       };
     }, [storeState]);
 
