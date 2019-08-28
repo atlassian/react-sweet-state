@@ -161,7 +161,7 @@ describe('Integration', () => {
       }
     }
 
-    const wrapper = mount(<App scopeId="A" />);
+    const wrapper = mount(<App scopeId="a" />);
     await Promise.resolve();
 
     // 1. { loading: true, todos: [] };
@@ -186,5 +186,78 @@ describe('Integration', () => {
     expect(children2.mock.calls[3]).toEqual([state3, expectActions]);
     expect(children3.mock.calls[4]).toEqual([state3, expectActions]);
     expect(children4.mock.calls[5]).toEqual([state3, expectActions]);
+  });
+
+  it.only('should call the listeners in the correct register order', async () => {
+    const Container = createContainer(Store, {});
+    const Subscriber = createSubscriber(Store);
+    const useHook = createHook(Store);
+
+    const calls = [];
+    const childrensChild = jest.fn(() => {
+      calls.push('childrensChild');
+      return null;
+    });
+    const Children = jest.fn(() => {
+      calls.push('Children');
+      return <Subscriber>{childrensChild}</Subscriber>;
+    });
+    const parent = jest.fn(({ children }) => {
+      calls.push('parent');
+      return children;
+    });
+    const childrenHook = jest.fn(() => {
+      calls.push('childrenHook');
+      return null;
+    });
+
+    let acts;
+
+    const Hook = () => {
+      const [state, actions] = useHook();
+      acts = actions;
+      return childrenHook(state, actions);
+    };
+
+    function ParentComponent({ children }) {
+      return (
+        <Subscriber>
+          {(state, action) => parent({ state, action, children })}
+        </Subscriber>
+      );
+    }
+    ParentComponent.propTypes = { children: PropTypes.any };
+
+    const App = () => (
+      <Container scope="test">
+        <ParentComponent>
+          <Children />
+          <Hook />
+        </ParentComponent>
+      </Container>
+    );
+
+    mount(<App />);
+    await Promise.resolve();
+
+    expect(calls).toEqual([
+      'parent',
+      'Children',
+      'childrensChild',
+      'childrenHook',
+    ]);
+
+    acts.add('todo2');
+    await Promise.resolve();
+
+    expect(calls).toEqual([
+      'parent',
+      'Children',
+      'childrensChild',
+      'childrenHook',
+      'parent',
+      'childrensChild',
+      'childrenHook',
+    ]);
   });
 });
