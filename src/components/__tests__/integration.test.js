@@ -188,7 +188,7 @@ describe('Integration', () => {
     expect(children4.mock.calls[5]).toEqual([state3, expectActions]);
   });
 
-  it.only('should call the listeners in the correct register order', async () => {
+  it('should call the listeners in the correct register order', async () => {
     const Container = createContainer(Store, {});
     const Subscriber = createSubscriber(Store);
     const useHook = createHook(Store);
