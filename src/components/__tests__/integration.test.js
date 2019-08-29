@@ -161,7 +161,7 @@ describe('Integration', () => {
       }
     }
 
-    const wrapper = mount(<App scopeId="A" />);
+    const wrapper = mount(<App scopeId="a" />);
     await Promise.resolve();
 
     // 1. { loading: true, todos: [] };
@@ -186,5 +186,153 @@ describe('Integration', () => {
     expect(children2.mock.calls[3]).toEqual([state3, expectActions]);
     expect(children3.mock.calls[4]).toEqual([state3, expectActions]);
     expect(children4.mock.calls[4]).toEqual([state3, expectActions]);
+  });
+
+  it('should call the listeners in the correct register order', async () => {
+    const Container = createContainer(Store, {});
+    const Subscriber = createSubscriber(Store);
+    const useHook = createHook(Store);
+
+    const calls = [];
+    const childrensChild = jest.fn(() => {
+      calls.push('childrensChild');
+      return null;
+    });
+    const Children = jest.fn(() => {
+      calls.push('Children');
+      return <Subscriber>{childrensChild}</Subscriber>;
+    });
+    const parent = jest.fn(({ children }) => {
+      calls.push('parent');
+      return children;
+    });
+    const childrenHook = jest.fn(() => {
+      calls.push('childrenHook');
+      return null;
+    });
+
+    let acts;
+
+    const Hook = () => {
+      const [state, actions] = useHook();
+      acts = actions;
+      return childrenHook(state, actions);
+    };
+
+    function ParentComponent({ children }) {
+      return (
+        <Subscriber>
+          {(state, action) => parent({ state, action, children })}
+        </Subscriber>
+      );
+    }
+    ParentComponent.propTypes = { children: PropTypes.any };
+
+    const App = () => (
+      <Container scope="test">
+        <ParentComponent>
+          <Children />
+          <Hook />
+        </ParentComponent>
+      </Container>
+    );
+
+    mount(<App />);
+    await Promise.resolve();
+
+    expect(calls).toEqual([
+      'parent',
+      'Children',
+      'childrensChild',
+      'childrenHook',
+    ]);
+    calls.splice(0);
+
+    acts.add('todo2');
+    await Promise.resolve();
+
+    expect(calls).toEqual(['parent', 'childrensChild', 'childrenHook']);
+  });
+
+  it('should call the listeners in the correct register order after scope change', async () => {
+    const Container = createContainer(Store, {});
+    const Subscriber = createSubscriber(Store);
+    const useHook = createHook(Store);
+
+    const calls = [];
+
+    let acts;
+
+    const SubWrapper = () => {
+      return (
+        <Subscriber>
+          {(_, action) => {
+            acts = action;
+            calls.push('SubWrapper');
+            return null;
+          }}
+        </Subscriber>
+      );
+    };
+
+    const HookWrapper = ({ name, children = null }) => {
+      const [, actions] = useHook({ name });
+      acts = actions;
+      calls.push(`HookWrapper[${name}]`);
+      return children;
+    };
+
+    HookWrapper.propTypes = { name: PropTypes.string, children: PropTypes.any };
+
+    class App extends Component {
+      static propTypes = {
+        scopeId: PropTypes.string,
+      };
+      render() {
+        return (
+          <>
+            <HookWrapper name="outter" />
+            <Container scope={this.props.scopeId} v={this.props.scopeId}>
+              <HookWrapper name="inner">
+                <SubWrapper />
+                <HookWrapper name="in-inner" />
+              </HookWrapper>
+            </Container>
+          </>
+        );
+      }
+    }
+
+    const wrapper = mount(<App scopeId="a" />);
+    await Promise.resolve();
+
+    expect(calls).toEqual([
+      'HookWrapper[outter]',
+      'HookWrapper[inner]',
+      'SubWrapper',
+      'HookWrapper[in-inner]',
+    ]);
+
+    calls.splice(0);
+
+    wrapper.setProps({ scopeId: 'B' });
+    await Promise.resolve();
+
+    expect(calls).toEqual([
+      'HookWrapper[outter]',
+      'HookWrapper[inner]',
+      'SubWrapper',
+      'HookWrapper[in-inner]',
+    ]);
+    calls.splice(0);
+
+    acts.add('todo2');
+    await Promise.resolve();
+
+    expect(calls).toEqual([
+      'HookWrapper[inner]',
+      'SubWrapper',
+      'HookWrapper[in-inner]',
+    ]);
   });
 });

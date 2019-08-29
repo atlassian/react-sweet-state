@@ -16,6 +16,26 @@ const DEFAULT_SELECTOR = state => state;
 // React currently throws a warning when using useLayoutEffect on the server
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+const useUnmount = fn => useIsomorphicLayoutEffect(() => fn, []);
+
+const handleStoreSubscription = ({
+  subscriptionRef,
+  onUpdateRef,
+  storeState,
+}) => {
+  if (subscriptionRef.current) {
+    subscriptionRef.current.remove();
+    subscriptionRef.current = null;
+  }
+  if (storeState && onUpdateRef) {
+    // we call the current ref fn so state is fresh
+    const onUpdate = (...args) => onUpdateRef.current(...args);
+    subscriptionRef.current = {
+      storeState,
+      remove: storeState.subscribe(onUpdate),
+    };
+  }
+};
 
 export function createHook(Store, { selector } = {}) {
   return function(props) {
@@ -33,7 +53,8 @@ export function createHook(Store, { selector } = {}) {
       : DEFAULT_SELECTOR;
 
     const currentState = stateSelector(storeState.getState(), props);
-    let [prevState, setState] = useState(currentState);
+    const [prevState, setState] = useState(currentState);
+    const subscriptionRef = useRef();
 
     // We store update function into a ref so when called has fresh state
     // React setState in useEffect provides a stale state unless we re-subscribe
@@ -53,16 +74,15 @@ export function createHook(Store, { selector } = {}) {
       setState(currentState);
     }
 
-    useIsomorphicLayoutEffect(() => {
-      // we call the current ref fn so state is fresh
-      const onUpdate = (...args) => onUpdateRef.current(...args);
-      // after component is mounted or store changed, we subscribe
-      const unsubscribe = storeState.subscribe(onUpdate);
-      return () => {
-        // fired on unmount or every time store changes
-        unsubscribe();
-      };
-    }, [storeState]);
+    // on first render or on scope change we subscribe
+    if (
+      !subscriptionRef.current ||
+      subscriptionRef.current.storeState !== storeState
+    ) {
+      handleStoreSubscription({ subscriptionRef, onUpdateRef, storeState });
+    }
+
+    useUnmount(() => handleStoreSubscription({ subscriptionRef }));
 
     return [currentState, actions];
   };
