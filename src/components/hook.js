@@ -59,7 +59,6 @@ export function createHook(Store, { selector } = {}) {
 
       // we call the current ref fn so state is fresh
       const onUpdate = (...args) => onUpdateRef.current(...args);
-      // after component is mounted or store changed, we subscribe
       const unsubscribe = storeState.subscribe(onUpdate);
       unsubRef.current = unsubscribe;
     };
