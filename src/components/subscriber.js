@@ -62,16 +62,9 @@ export default class Subscriber extends Component {
     // overwise React will return the default ctx value!
     const store = fromContext ? this.getStoreFromContext() : this.store;
 
-    if (store !== this.store) {
-      if (this.subscription) {
-        this.subscription.remove();
-        this.subscription = null;
-      }
-
+    // if component is initialising or if scope has changed
+    if (!this.store || store.storeState !== this.store.storeState) {
       this.store = store;
-    }
-
-    if (!this.subscription) {
       this.subscribeToUpdates();
     }
 
@@ -95,16 +88,14 @@ export default class Subscriber extends Component {
   subscribeToUpdates() {
     const { storeState } = this.store;
     // in case store has been recreated during an update (due to scope change)
-    if (this.subscription && this.subscription.storeState !== storeState) {
+    if (this.subscription) {
       this.subscription.remove();
       this.subscription = null;
     }
-    if (!this.subscription) {
-      this.subscription = {
-        storeState,
-        remove: storeState.subscribe(this.onUpdate),
-      };
-    }
+    this.subscription = {
+      storeState,
+      remove: storeState.subscribe(this.onUpdate),
+    };
   }
 
   onUpdate = (updState, forceUpdate) => {

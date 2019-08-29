@@ -16,6 +16,26 @@ const DEFAULT_SELECTOR = state => state;
 // React currently throws a warning when using useLayoutEffect on the server
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+const useUnmount = fn => useIsomorphicLayoutEffect(() => fn, []);
+
+const handleStoreSubscription = ({
+  subscriptionRef,
+  onUpdateRef,
+  storeState,
+}) => {
+  if (subscriptionRef.current) {
+    subscriptionRef.current.remove();
+    subscriptionRef.current = null;
+  }
+  if (storeState && onUpdateRef) {
+    // we call the current ref fn so state is fresh
+    const onUpdate = (...args) => onUpdateRef.current(...args);
+    subscriptionRef.current = {
+      storeState,
+      remove: storeState.subscribe(onUpdate),
+    };
+  }
+};
 
 export function createHook(Store, { selector } = {}) {
   return function(props) {
@@ -33,8 +53,8 @@ export function createHook(Store, { selector } = {}) {
       : DEFAULT_SELECTOR;
 
     const currentState = stateSelector(storeState.getState(), props);
-    let [prevState, setState] = useState(currentState);
-    let [prevStore, setStore] = useState(storeState);
+    const [prevState, setState] = useState(currentState);
+    const subscriptionRef = useRef();
 
     // We store update function into a ref so when called has fresh state
     // React setState in useEffect provides a stale state unless we re-subscribe
@@ -47,24 +67,6 @@ export function createHook(Store, { selector } = {}) {
       }
     };
 
-    const unsubRef = useRef();
-
-    const registerUpdateFn = () => {
-      props && props;
-
-      if (unsubRef.current) {
-        unsubRef.current();
-        unsubRef.current = null;
-      }
-
-      // we call the current ref fn so state is fresh
-      const onUpdate = (...args) => onUpdateRef.current(...args);
-      const unsubscribe = storeState.subscribe(onUpdate);
-      unsubRef.current = unsubscribe;
-    };
-
-    useState(registerUpdateFn);
-
     // if we detect that state has changed, we shedule an immediate re-render
     // (as suggested by react docs https://reactjs.org/docs/hooks-faq.html#how-do-i-implement-getderivedstatefromprops)
     // still, it feels silly
@@ -72,19 +74,15 @@ export function createHook(Store, { selector } = {}) {
       setState(currentState);
     }
 
-    if (prevStore !== storeState) {
-      registerUpdateFn();
-      setStore(storeState);
+    // on first render or on scope change we subscribe
+    if (
+      !subscriptionRef.current ||
+      subscriptionRef.current.storeState !== storeState
+    ) {
+      handleStoreSubscription({ subscriptionRef, onUpdateRef, storeState });
     }
 
-    useIsomorphicLayoutEffect(() => {
-      return () => {
-        if (unsubRef.current) {
-          unsubRef.current();
-          unsubRef.current = null;
-        }
-      };
-    }, []);
+    useUnmount(() => handleStoreSubscription({ subscriptionRef }));
 
     return [currentState, actions];
   };

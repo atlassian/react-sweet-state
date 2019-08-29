@@ -321,12 +321,10 @@ describe('Integration', () => {
     expect(calls).toEqual([
       'HookWrapper[outter]',
       'HookWrapper[inner]',
-      'HookWrapper[inner]',
       'SubWrapper',
       'HookWrapper[in-inner]',
-      'HookWrapper[in-inner]',
     ]);
-    calls.splice(0);
+    calls.length = 0;
 
     acts.add('todo2');
     await Promise.resolve();
