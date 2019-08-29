@@ -324,7 +324,7 @@ describe('Integration', () => {
       'SubWrapper',
       'HookWrapper[in-inner]',
     ]);
-    calls.length = 0;
+    calls.splice(0);
 
     acts.add('todo2');
     await Promise.resolve();
