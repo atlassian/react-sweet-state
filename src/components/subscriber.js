@@ -46,12 +46,6 @@ export default class Subscriber extends Component {
     this.onUpdate();
   }
 
-  componentDidUpdate() {
-    // ensure subscription is still to the correct store
-    // as parent scope might change between renders
-    this.subscribeToUpdates();
-  }
-
   componentWillUnmount() {
     this.store = null;
     this.mounted = false;
@@ -66,7 +60,16 @@ export default class Subscriber extends Component {
     const { children, ...props } = nextProps;
     // We can get stores from context ONLY during rendering phase
     // overwise React will return the default ctx value!
-    this.store = fromContext ? this.getStoreFromContext() : this.store;
+    const store = fromContext ? this.getStoreFromContext() : this.store;
+
+    if (store !== this.store) {
+      if (this.subscription) {
+        this.subscription.remove();
+        this.subscription = null;
+      }
+
+      this.store = store;
+    }
 
     if (!this.subscription) {
       this.subscribeToUpdates();

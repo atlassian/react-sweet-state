@@ -34,6 +34,7 @@ export function createHook(Store, { selector } = {}) {
 
     const currentState = stateSelector(storeState.getState(), props);
     let [prevState, setState] = useState(currentState);
+    let [prevStore, setStore] = useState(storeState);
 
     // We store update function into a ref so when called has fresh state
     // React setState in useEffect provides a stale state unless we re-subscribe
@@ -49,8 +50,11 @@ export function createHook(Store, { selector } = {}) {
     const unsubRef = useRef();
 
     const registerUpdateFn = () => {
+      props && props;
+
       if (unsubRef.current) {
-        return;
+        unsubRef.current();
+        unsubRef.current = null;
       }
 
       // we call the current ref fn so state is fresh
@@ -60,7 +64,7 @@ export function createHook(Store, { selector } = {}) {
       unsubRef.current = unsubscribe;
     };
 
-    const [, setUpdateFn] = useState(registerUpdateFn);
+    useState(registerUpdateFn);
 
     // if we detect that state has changed, we shedule an immediate re-render
     // (as suggested by react docs https://reactjs.org/docs/hooks-faq.html#how-do-i-implement-getderivedstatefromprops)
@@ -69,15 +73,19 @@ export function createHook(Store, { selector } = {}) {
       setState(currentState);
     }
 
-    useIsomorphicLayoutEffect(() => {
-      setUpdateFn(registerUpdateFn);
+    if (prevStore !== storeState) {
+      registerUpdateFn();
+      setStore(storeState);
+    }
 
+    useIsomorphicLayoutEffect(() => {
       return () => {
-        // fired on unmount or every time store changes
-        unsubRef.current();
-        unsubRef.current = null;
+        if (unsubRef.current) {
+          unsubRef.current();
+          unsubRef.current = null;
+        }
       };
-    }, [storeState]);
+    }, []);
 
     return [currentState, actions];
   };
