@@ -62,7 +62,10 @@ export function createHook(Store, { selector } = {}) {
     const onUpdateRef = useRef();
     onUpdateRef.current = (updState = prevState, forceUpdate) => {
       const nextState = stateSelector(updState, props);
-      if (!shallowEqual(nextState, currentState) || forceUpdate) {
+      if (
+        subscriptionRef.current &&
+        (!shallowEqual(nextState, currentState) || forceUpdate)
+      ) {
         setState(nextState);
       }
     };

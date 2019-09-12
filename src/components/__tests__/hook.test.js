@@ -110,6 +110,20 @@ describe('Hook', () => {
     expect(unsubscribeMock).toHaveBeenCalled();
   });
 
+  it('should not set state if updated after unmount', () => {
+    jest.spyOn(console, 'error');
+    const { getMount } = setup();
+    storeStateMock.subscribe.mockReturnValue(jest.fn());
+    const wrapper = getMount();
+    const newState = { count: 1 };
+    storeStateMock.getState.mockReturnValue(newState);
+    const update = storeStateMock.subscribe.mock.calls[0][0];
+    wrapper.unmount();
+    act(() => update(newState));
+
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
   it('should render children with selected return value', () => {
     const selector = jest.fn().mockReturnValue({ foo: 1 });
     const { getMount, children } = setup({ prop: 1 }, selector);
