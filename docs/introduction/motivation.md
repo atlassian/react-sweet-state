@@ -1,6 +1,6 @@
 ## Motivation
 
-State management in React is a complex problem. The de-facto standard is Redux, however new patterns are emerging and they require flexibility. React itself is providing more and more primitives to try help people addressing the problem, reducing the complexity that some implementations require. Nethertheless, complex applications require more than just primitives.
+State management in React is a complex problem. The de-facto standard is Redux, however new patterns are emerging and they require flexibility. React itself is providing more and more primitives to try help people addressing the problem, reducing the complexity that some implementations require. Nevertheless, complex applications require more than just primitives.
 
 That's why **sweet-state** focuses the good parts of Redux, React Context and React Hooks and combines them in a nice package, easy to use and scale.
 
