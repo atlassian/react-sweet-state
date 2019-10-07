@@ -13,9 +13,13 @@ import {
 /**
  * Store types tests
  */
-type State = {| count: number |};
+type State = {|
+  count: number,
+|};
 type Actions = typeof actions;
-type SelectorProps = {| min: number |};
+type SelectorProps = {|
+  min: number,
+|};
 
 let Test;
 let TypeStore;
@@ -329,7 +333,10 @@ Test = <TypeContainer>bla</TypeContainer>;
 Test = <TypeContainer scope="a">bla</TypeContainer>;
 Test = <TypeContainer isGlobal>bla</TypeContainer>;
 
-const TypePropsContainer = createContainer<State, Actions, {| url: string |}>(
+type ContainerProps = {|
+  url: string,
+|};
+const TypePropsContainer = createContainer<State, Actions, ContainerProps>(
   TypeStore
 );
 
