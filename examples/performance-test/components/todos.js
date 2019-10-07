@@ -3,7 +3,6 @@
 import {
   createStore,
   createContainer,
-  createSubscriber,
   createHook,
   type StoreActionApi,
 } from 'react-sweet-state';
@@ -36,13 +35,15 @@ const actions = {
     });
   },
 
-  toggle: (todoId: number) => ({ setState, getState }: StoreApi) => {
+  toggle: () => ({ setState, getState }: StoreApi) => {
+    const todoId = getState().order[0];
     const todo = getState().byId[todoId];
     setState({
       byId: {
         ...getState().byId,
         [todo.id]: { ...todo, isDone: !todo.isDone },
       },
+      loading: false,
     });
   },
 };
@@ -55,13 +56,15 @@ const Store = createStore<State, Actions>({
 
 /** Container */
 
-type ContainerProps = {| n: number |};
+type ContainerProps = {|
+  n: number,
+|};
 export const TodosContainer = createContainer<State, Actions, ContainerProps>(
   Store,
   {
     onInit: () => ({ getState, dispatch }, { n }) => {
       if (getState().order.length) return;
-      Array.from({ length: 10 * n }).map((__, i) => {
+      Array.from({ length: 2 * n }).map((__, i) => {
         const title = `Todo ${n}-${i + 1}`;
         dispatch(actions.add(title));
       });
@@ -69,38 +72,15 @@ export const TodosContainer = createContainer<State, Actions, ContainerProps>(
   }
 );
 
-/** Subscribers / Hooks */
+/**  Hooks */
 
-const getAllTodosSelector = state => ({
-  data: state.order.map(v => state.byId[v]),
-  loading: state.loading,
+export const useTodosActions = createHook<State, Actions, void, empty>(Store, {
+  selector: null,
 });
 
-export const TodosSubscriber = createSubscriber<State, Actions, *, {||}>(
-  Store,
-  {
-    selector: getAllTodosSelector,
-  }
-);
-
-export const useTodos = createHook<State, Actions, *, empty>(Store, {
-  selector: getAllTodosSelector,
-});
-
-const getTodosCountSelector = state => ({ count: state.order.length });
-
-export const TodosCountSubscriber = createSubscriber<State, Actions, *, {||}>(
-  Store,
-  {
-    selector: getTodosCountSelector,
-  }
-);
-
-export const useTodosCount = createHook<State, Actions, *, empty>(Store, {
-  selector: getTodosCountSelector,
-});
-
-type TodosFilteredProps = {| isDone: boolean |};
+type TodosFilteredProps = {|
+  isDone: boolean,
+|};
 
 const getFilteredTodosSelector = (state: State, props: TodosFilteredProps) => ({
   data: state.order
@@ -109,25 +89,10 @@ const getFilteredTodosSelector = (state: State, props: TodosFilteredProps) => ({
   loading: state.loading,
 });
 
-type FilteredTodosState = $Call<
-  typeof getFilteredTodosSelector,
-  State,
-  TodosFilteredProps
->;
-
-export const TodosFilteredSubscriber = createSubscriber<
-  State,
-  Actions,
-  FilteredTodosState,
-  TodosFilteredProps
->(Store, {
-  selector: getFilteredTodosSelector,
-});
-
 export const useTodosFiltered = createHook<
   State,
   Actions,
-  FilteredTodosState,
+  *,
   TodosFilteredProps
 >(Store, {
   selector: getFilteredTodosSelector,

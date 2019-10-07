@@ -1,63 +1,64 @@
 // @flow
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import ReactDOM from 'react-dom';
+import { defaults } from 'react-sweet-state';
 
 import '@babel/polyfill';
 
-import { TreeRpc } from './views/tree-rpc';
+import { TodosContainer } from './components/todos';
 import { TreeHooks } from './views/tree-hooks';
 
-const [TYPE = '', DEPTH = '2'] = window.location.hash
-  .replace('#', '')
-  .split('|');
+const batchUpdateMiddleware = () => next => fn => {
+  let result;
+  ReactDOM.unstable_batchedUpdates(() => {
+    result = next(fn);
+  });
+  return result;
+};
+defaults.middlewares.add(batchUpdateMiddleware);
+
+const [DEPTH = 1] = window.location.hash.replace('#', '').split('|');
+
+const RenderBlocker = React.memo<*>(({ children }: any) => children);
 
 /**
  * Main App
  */
 class App extends Component<{}, any> {
   state = {
-    type: TYPE,
     depth: Number(DEPTH),
   };
 
-  onChangeType = ev => {
-    const { depth } = this.state;
-    const type = ev.target.value;
-    this.setState({ type });
-    window.location.hash = type + '|' + depth;
-  };
-
   onChangeDepth = ev => {
-    const { type } = this.state;
     const depth = Number(ev.target.value);
     this.setState({ depth });
-    window.location.hash = type + '|' + depth;
+    window.location.hash = depth;
   };
 
   render() {
-    const { type, depth } = this.state;
+    const { depth } = this.state;
     return (
       <div>
-        <h1>Performance ({type})</h1>
-        Type:{' '}
-        <select onChange={this.onChangeType} value={type}>
-          {['', 'rpc', 'hooks'].map(v => (
-            <option key={v} value={v}>
-              {v}
-            </option>
-          ))}
-        </select>
+        <h1>Performance</h1>
         Depth:{' '}
         <select onChange={this.onChangeDepth} value={depth}>
-          {['2', '5', '10'].map(v => (
+          {['1', '3', '5', '10'].map(v => (
             <option key={v} value={v}>
               {v}
             </option>
           ))}
         </select>
-        <main>
-          {type === 'rpc' && <TreeRpc n={depth} />}
-          {type === 'hooks' && <TreeHooks n={depth} />}
+        <main style={{ display: 'flex', justifyContent: 'space-evenly' }}>
+          <div>
+            <TodosContainer n={depth}>
+              <TreeHooks n={depth} prefix="pure" Separator={RenderBlocker} />
+            </TodosContainer>
+          </div>
+          <div>
+            <TodosContainer n={depth}>
+              <TreeHooks n={depth} prefix="flow" Separator={Fragment} />
+            </TodosContainer>
+          </div>
         </main>
       </div>
     );
