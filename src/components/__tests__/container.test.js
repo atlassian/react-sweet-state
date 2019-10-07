@@ -6,7 +6,8 @@ import { shallow, mount } from 'enzyme';
 import { StoreMock, storeStateMock } from '../../__tests__/mocks';
 import { defaultRegistry, StoreRegistry } from '../../store/registry';
 import { createStore } from '../../store';
-import { createContainer, createSubscriber } from '../creators';
+import { createContainer } from '../container';
+import { createSubscriber } from '../subscriber';
 
 const mockRegistry = {
   configure: jest.fn(),
@@ -27,6 +28,7 @@ jest.mock('../../store/registry', () => ({
 const mockOnContainerInitInner = jest.fn();
 const mockOnContainerUpdateInner = jest.fn();
 const Store = createStore({
+  name: 'test',
   initialState: StoreMock.initialState,
   actions: StoreMock.actions,
 });
@@ -45,6 +47,17 @@ describe('Container', () => {
     StoreRegistry.mockImplementation(() => mockRegistry);
     mockRegistry.getStore.mockReturnValue(getStoreReturn);
     storeStateMock.getState.mockReturnValue(StoreMock.initialState);
+  });
+
+  describe('createContainer', () => {
+    it('should return a Container component', () => {
+      expect(Container.displayName).toEqual('Container(test)');
+      expect(Container.storeType).toEqual(Store);
+      expect(Container.hooks).toEqual({
+        onInit: expect.any(Function),
+        onUpdate: expect.any(Function),
+      });
+    });
   });
 
   describe('constructor', () => {
@@ -69,7 +82,7 @@ describe('Container', () => {
         children,
         value: {
           getStore: expect.any(Function),
-          globalRegistry: expect.any(Object),
+          globalRegistry: undefined, // shallow() context support is buggy
         },
       });
     });
@@ -80,10 +93,7 @@ describe('Container', () => {
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
       const wrapper = mount(<Container scope="s1">{children}</Container>);
-      expect(defaultRegistry.getStore).toHaveBeenCalledWith(
-        Subscriber.storeType,
-        's1'
-      );
+      expect(defaultRegistry.getStore).toHaveBeenCalledWith(Store, 's1');
       expect(wrapper.instance().registry.getStore).not.toHaveBeenCalled();
     });
 
@@ -104,10 +114,7 @@ describe('Container', () => {
           </Container>
         </Container>
       );
-      expect(defaultRegistry.getStore).toHaveBeenCalledWith(
-        Subscriber.storeType,
-        's2'
-      );
+      expect(defaultRegistry.getStore).toHaveBeenCalledWith(Store, 's2');
     });
 
     it('should get local storeState if local matching', () => {
@@ -115,7 +122,7 @@ describe('Container', () => {
       const children = <Subscriber>{() => null}</Subscriber>;
       const wrapper = mount(<Container>{children}</Container>);
       expect(wrapper.instance().registry.getStore).toHaveBeenCalledWith(
-        Subscriber.storeType,
+        Store,
         undefined
       );
       expect(defaultRegistry.getStore).not.toHaveBeenCalled();
@@ -125,10 +132,7 @@ describe('Container', () => {
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
       const wrapper = mount(<Container isGlobal>{children}</Container>);
-      expect(defaultRegistry.getStore).toHaveBeenCalledWith(
-        Subscriber.storeType,
-        undefined
-      );
+      expect(defaultRegistry.getStore).toHaveBeenCalledWith(Store, undefined);
       expect(wrapper.instance().registry.getStore).not.toHaveBeenCalled();
     });
 
@@ -139,10 +143,7 @@ describe('Container', () => {
       const children = <Subscriber>{() => null}</Subscriber>;
       const wrapper = mount(<Container scope="s1">{children}</Container>);
       wrapper.unmount();
-      expect(defaultRegistry.deleteStore).toHaveBeenCalledWith(
-        Subscriber.storeType,
-        's1'
-      );
+      expect(defaultRegistry.deleteStore).toHaveBeenCalledWith(Store, 's1');
     });
 
     it('should not cleanup from global on unmount if still listeners', () => {
@@ -162,10 +163,7 @@ describe('Container', () => {
       const children = <Subscriber>{() => null}</Subscriber>;
       const wrapper = mount(<Container scope="s1">{children}</Container>);
       wrapper.setProps({ scope: 's2' });
-      expect(defaultRegistry.deleteStore).toHaveBeenCalledWith(
-        Subscriber.storeType,
-        's1'
-      );
+      expect(defaultRegistry.deleteStore).toHaveBeenCalledWith(Store, 's1');
     });
 
     it('should call Container onInit on first render', () => {
