@@ -7,6 +7,6 @@ module.exports = Object.assign({}, baseConfig, {
   devtool: 'source-map',
 
   module: {
-    rules: [{ test: /\.js$/, loader: 'babel-loader' }],
+    rules: [{ test: /\.(t|j)sx?$/, loader: 'babel-loader' }],
   },
 });
