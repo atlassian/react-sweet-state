@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { Provider, readContext } from '../context';
+import { Context } from '../context';
 import { StoreRegistry, bindAction, bindActions } from '../store';
 import shallowEqual from '../utils/shallow-equal';
+
+const noop = () => () => {};
 
 export default class Container extends Component {
   static propTypes = {
@@ -14,6 +16,7 @@ export default class Container extends Component {
 
   static storeType = null;
   static hooks = null;
+  static contextType = Context;
 
   static getDerivedStateFromProps(nextProps, prevState) {
     const { scope } = nextProps;
@@ -22,25 +25,25 @@ export default class Container extends Component {
     let nextState = null;
     if (hasScopeChanged) {
       const actions = prevState.bindContainerActions(scope);
-      nextState = { scope, scopedActions: actions };
+      nextState = {
+        scope,
+        scopedActions: actions,
+      };
     }
     // We trigger the action here so subscribers get new values ASAP
-    // onInit this is called twice (contructor and here) to support React<16.5
-    // but the state update is triggered only once as shallowEq will stop it
     prevState.triggerContainerAction(nextProps);
     return nextState;
   }
 
-  constructor(props) {
-    super(props);
-    const ctx = readContext();
+  constructor(props, context) {
+    super(props, context);
     this.registry = new StoreRegistry('__local__');
 
     this.state = {
       api: {
-        globalRegistry: ctx.globalRegistry,
+        globalRegistry: this.context.globalRegistry,
         getStore: (Store, scope) =>
-          this.getScopedStore(Store, scope) || ctx.getStore(Store),
+          this.getScopedStore(Store, scope) || this.context.getStore(Store),
       },
       // stored to make them available in getDerivedStateFromProps
       // as js context there is null https://github.com/facebook/react/issues/12612
@@ -48,11 +51,7 @@ export default class Container extends Component {
       triggerContainerAction: this.triggerContainerAction,
       scope: props.scope,
     };
-
-    // this is needed for compat with React<16.5
-    // as gDSFP in not called before first render
     this.state.scopedActions = this.bindContainerActions(props.scope);
-    this.triggerContainerAction(props);
   }
 
   componentDidUpdate(prevProps) {
@@ -144,8 +143,8 @@ export default class Container extends Component {
     // scope are no longer subscribed to the old one, so we "force update"
     // the remaining.
     // This is sub-optimal as if there are other containers with the same
-    // old scope id we will re-render those too, but detecting children only
-    // might be more expensive
+    // old scope id we will re-render those too, but better than using context
+    // as that will re-render all children even if pure/memo
     storeState.listeners().forEach(updateFn => updateFn(undefined, true));
   }
 
@@ -159,6 +158,19 @@ export default class Container extends Component {
 
   render() {
     const { children } = this.props;
-    return <Provider value={this.state.api}>{children}</Provider>;
+    return (
+      <Context.Provider value={this.state.api}>{children}</Context.Provider>
+    );
   }
+}
+
+export function createContainer(
+  Store,
+  { onInit = noop, onUpdate = noop, displayName = '' } = {}
+) {
+  return class extends Container {
+    static storeType = Store;
+    static displayName = displayName || `Container(${Store.key[0]})`;
+    static hooks = { onInit, onUpdate };
+  };
 }
