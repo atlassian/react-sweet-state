@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Concurrent mode test</title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+      main {
+        display: flex;
+        line-height: 1.5;
+      }
+      hr {
+        margin: 1em;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Concurrent mode test</h1>
+    <p>
+      Click as fast as you can on the button below: if the count values are
+      consistent then the code correclty supports concurrent mode tearing
+    </p>
+    <button id="remoteIncrement">Increment remote count</button>
+    <h2><span id="result"></span></h2>
+    <div id="root"></div>
+    <script src="./bundle.js" type="text/javascript"></script>
+  </body>
+</html>
