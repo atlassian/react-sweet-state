@@ -68,7 +68,7 @@ export type BoundActions<AC> = $ObjMap<AC, MapBoundAction>;
 
 export type StoreInstance<ST, AC> = {
   store: StoreState<ST>,
-  actions: AC,
+  actions: BoundActions<AC>,
 };
 
 declare export class Registry {
