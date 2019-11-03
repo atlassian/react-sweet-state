@@ -59,9 +59,12 @@ declare module 'react-sweet-state' {
     ) => ReturnType<ReturnType<TActions[K]>>;
   };
 
-  interface StoreInstance<TState, TActions> {
+  interface StoreInstance<
+    TState,
+    TActions extends Record<string, ActionThunk<TState, TActions>>
+  > {
     store: StoreState<TState>;
-    actions: TActions;
+    actions: BoundActions<TState, TActions>;
   }
 
   class Registry {
