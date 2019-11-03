@@ -96,8 +96,8 @@ describe('Hook', () => {
     const update = storeStateMock.subscribe.mock.calls[0][0];
     act(() => update(newState));
 
-    expect(storeStateMock.getState).toHaveBeenCalledTimes(3);
-    expect(children).toHaveBeenCalledTimes(3);
+    expect(storeStateMock.getState).toHaveBeenCalled();
+    expect(children).toHaveBeenCalledTimes(2);
     expect(children).toHaveBeenCalledWith(newState, actions);
   });
 

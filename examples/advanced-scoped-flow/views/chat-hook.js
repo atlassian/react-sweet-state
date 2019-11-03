@@ -5,7 +5,7 @@ import { FormContainer, useForm } from '../components/form';
 import { useMessages } from '../components/messages';
 import { ThemeContainer, useTheme } from '../components/theme';
 
-const ThemeWrapper = ({ children }: any) => {
+const ThemeWrapper = React.memo(({ children }: any) => {
   const [{ color }, { change }] = useTheme();
   return (
     <div style={{ background: color }}>
@@ -16,7 +16,7 @@ const ThemeWrapper = ({ children }: any) => {
       {children}
     </div>
   );
-};
+});
 
 const MessagesList = ({ messages }: any) => (
   <div>
@@ -50,17 +50,18 @@ const FormComponent = ({ onSubmitSuccess }: any) => {
   );
 };
 
-export const ChatHook = ({ id, defaultColor, remoteUsers }: any) => {
-  const [{ data }, { add }] = useMessages();
-
-  return (
-    <ThemeContainer scope={id} defaultColor={defaultColor}>
-      <ThemeWrapper>
-        <MessagesList messages={data} />
-        <FormContainer remoteUsers={remoteUsers}>
-          <FormComponent onSubmitSuccess={add} />
-        </FormContainer>
-      </ThemeWrapper>
-    </ThemeContainer>
-  );
-};
+export const ChatHook = React.memo<any>(
+  ({ id, defaultColor, remoteUsers }: any) => {
+    const [{ data }, { add }] = useMessages();
+    return (
+      <ThemeContainer scope={id} defaultColor={defaultColor}>
+        <ThemeWrapper>
+          <MessagesList messages={data} />
+          <FormContainer remoteUsers={remoteUsers}>
+            <FormComponent onSubmitSuccess={add} />
+          </FormContainer>
+        </ThemeWrapper>
+      </ThemeContainer>
+    );
+  }
+);

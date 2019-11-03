@@ -3,23 +3,28 @@
 import React, { Fragment, Component, PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { mount } from 'enzyme';
+import { act } from 'react-dom/test-utils';
 
 import { createStore, defaultRegistry } from '../../store';
-import { createContainer, createSubscriber } from '../creators';
+import { createContainer } from '../container';
+import { createSubscriber } from '../subscriber';
 import { createHook } from '../hook';
 
+const actTick = () => act(async () => await Promise.resolve());
+
+const actions = {
+  add: todo => ({ setState, getState }) =>
+    setState({ todos: [...getState().todos, todo] }),
+  load: (v = '') => async ({ setState, getState }) => {
+    if (getState().loading) return;
+    setState({ loading: true });
+    await Promise.resolve();
+    setState({ todos: [`todo${v}`], loading: false });
+  },
+};
 const Store = createStore({
   initialState: { todos: [], loading: false },
-  actions: {
-    add: todo => ({ setState, getState }) =>
-      setState({ todos: [...getState().todos, todo] }),
-    load: (v = '') => async ({ setState, getState }) => {
-      if (getState().loading) return;
-      setState({ loading: true });
-      await Promise.resolve();
-      setState({ todos: [`todo${v}`], loading: false });
-    },
-  },
+  actions,
 });
 
 const expectActions = {
@@ -78,7 +83,7 @@ describe('Integration', () => {
 
   it('should share scoped state across multiple subscribers', async () => {
     const Container = createContainer(Store, {
-      onInit: () => ({ actions }) => actions.load(),
+      onInit: () => ({ dispatch }) => dispatch(actions.load()),
     });
     const Subscriber = createSubscriber(Store);
 
@@ -96,7 +101,7 @@ describe('Integration', () => {
       </Fragment>
     );
 
-    await Promise.resolve();
+    await actTick();
 
     expect(children1.mock.calls[0]).toEqual([
       { loading: true, todos: [] },
@@ -119,7 +124,7 @@ describe('Integration', () => {
 
   it('should update all subscribers on scope change', async () => {
     const Container = createContainer(Store, {
-      onInit: () => ({ actions }, { v }) => actions.load(v),
+      onInit: () => ({ dispatch }, { v }) => dispatch(actions.load(v)),
     });
     const Subscriber = createSubscriber(Store);
     const useHook = createHook(Store);
@@ -134,8 +139,8 @@ describe('Integration', () => {
     ));
 
     const Hook = ({ fn = children3 }) => {
-      const [state, actions] = useHook();
-      return fn(state, actions);
+      const [state, boundActions] = useHook();
+      return fn(state, boundActions);
     };
 
     // cannot use React.memo here as bug in enzyme-adapt 1.11
@@ -162,7 +167,7 @@ describe('Integration', () => {
     }
 
     const wrapper = mount(<App scopeId="a" />);
-    await Promise.resolve();
+    await actTick();
 
     // 1. { loading: true, todos: [] };
     // 2. { loading: false, todos: ['todo1'] };
@@ -172,20 +177,21 @@ describe('Integration', () => {
     expect(children4).toHaveBeenCalledTimes(2);
 
     wrapper.setProps({ scopeId: 'B' });
-    await Promise.resolve();
+    await actTick();
 
     const state2 = { loading: true, todos: [] };
-    expect(children1.mock.calls[2]).toEqual([state2, expectActions]);
-    expect(children2.mock.calls[2]).toEqual([state2, expectActions]);
-    // hooks currently re-render an additional time, we ignore it
-    expect(children3.mock.calls[3]).toEqual([state2, expectActions]);
-    expect(children4.mock.calls[3]).toEqual([state2, expectActions]);
+    const call2 = 2;
+    expect(children1.mock.calls[call2]).toEqual([state2, expectActions]);
+    expect(children2.mock.calls[call2]).toEqual([state2, expectActions]);
+    expect(children3.mock.calls[call2]).toEqual([state2, expectActions]);
+    expect(children4.mock.calls[call2]).toEqual([state2, expectActions]);
 
     const state3 = { loading: false, todos: ['todoB'] };
-    expect(children1.mock.calls[3]).toEqual([state3, expectActions]);
-    expect(children2.mock.calls[3]).toEqual([state3, expectActions]);
-    expect(children3.mock.calls[4]).toEqual([state3, expectActions]);
-    expect(children4.mock.calls[4]).toEqual([state3, expectActions]);
+    const call3 = 3;
+    expect(children1.mock.calls[call3]).toEqual([state3, expectActions]);
+    expect(children2.mock.calls[call3]).toEqual([state3, expectActions]);
+    expect(children3.mock.calls[call3]).toEqual([state3, expectActions]);
+    expect(children4.mock.calls[call3]).toEqual([state3, expectActions]);
   });
 
   it('should call the listeners in the correct register order', async () => {
@@ -214,9 +220,9 @@ describe('Integration', () => {
     let acts;
 
     const Hook = () => {
-      const [state, actions] = useHook();
-      acts = actions;
-      return childrenHook(state, actions);
+      const [state, boundActions] = useHook();
+      acts = boundActions;
+      return childrenHook(state, boundActions);
     };
 
     function ParentComponent({ children }) {
@@ -238,7 +244,7 @@ describe('Integration', () => {
     );
 
     mount(<App />);
-    await Promise.resolve();
+    await actTick();
 
     expect(calls).toEqual([
       'parent',
@@ -248,8 +254,7 @@ describe('Integration', () => {
     ]);
     calls.splice(0);
 
-    acts.add('todo2');
-    await Promise.resolve();
+    act(() => acts.add('todo2'));
 
     expect(calls).toEqual(['parent', 'childrensChild', 'childrenHook']);
   });
@@ -276,8 +281,8 @@ describe('Integration', () => {
     };
 
     const HookWrapper = ({ name, children = null }) => {
-      const [, actions] = useHook({ name });
-      acts = actions;
+      const [, boundActions] = useHook({ name });
+      acts = boundActions;
       calls.push(`HookWrapper[${name}]`);
       return children;
     };
@@ -304,7 +309,7 @@ describe('Integration', () => {
     }
 
     const wrapper = mount(<App scopeId="a" />);
-    await Promise.resolve();
+    await actTick();
 
     expect(calls).toEqual([
       'HookWrapper[outter]',
@@ -316,7 +321,7 @@ describe('Integration', () => {
     calls.splice(0);
 
     wrapper.setProps({ scopeId: 'B' });
-    await Promise.resolve();
+    await actTick();
 
     expect(calls).toEqual([
       'HookWrapper[outter]',
@@ -326,8 +331,7 @@ describe('Integration', () => {
     ]);
     calls.splice(0);
 
-    acts.add('todo2');
-    await Promise.resolve();
+    act(() => acts.add('todo2'));
 
     expect(calls).toEqual([
       'HookWrapper[inner]',
