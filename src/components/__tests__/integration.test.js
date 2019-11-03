@@ -180,14 +180,14 @@ describe('Integration', () => {
     await actTick();
 
     const state2 = { loading: true, todos: [] };
-    const call2 = 3; // enzyme hooks re-render an additional time
+    const call2 = 2;
     expect(children1.mock.calls[call2]).toEqual([state2, expectActions]);
     expect(children2.mock.calls[call2]).toEqual([state2, expectActions]);
     expect(children3.mock.calls[call2]).toEqual([state2, expectActions]);
     expect(children4.mock.calls[call2]).toEqual([state2, expectActions]);
 
     const state3 = { loading: false, todos: ['todoB'] };
-    const call3 = 4;
+    const call3 = 3;
     expect(children1.mock.calls[call3]).toEqual([state3, expectActions]);
     expect(children2.mock.calls[call3]).toEqual([state3, expectActions]);
     expect(children3.mock.calls[call3]).toEqual([state3, expectActions]);
