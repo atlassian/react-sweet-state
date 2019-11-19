@@ -128,7 +128,7 @@ it('should return the existing user data if present', async () => {
 });
 
 it('should setState to loading while request is in flight', async () => {
-  fetchUser.mockImplemantation(() => Promise.resolve(mockUserData_1));
+  fetchUser.mockImplementation(() => Promise.resolve(mockUserData_1));
 
   await thunk({ setState, getState });
 
@@ -142,7 +142,7 @@ it('should setState to loading while request is in flight', async () => {
 });
 
 it('should store response data', async () => {
-  fetchUser.mockImplemantation(() => Promise.resolve(mockUserData_1));
+  fetchUser.mockImplementation(() => Promise.resolve(mockUserData_1));
 
   await thunk({ setState, getState });
 
