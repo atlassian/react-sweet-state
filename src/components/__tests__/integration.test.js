@@ -37,6 +37,14 @@ describe('Integration', () => {
     defaultRegistry.stores.clear();
     // this is a hack to get useEffect run sync, otherwise it might not get called
     jest.spyOn(React, 'useEffect').mockImplementation(React.useLayoutEffect);
+    // React warns about hooks not being wrapped in act()
+    // but if we do, react batches state update making tests pass
+    // even if subscription order is wrong
+    const consoleError = console.error;
+    jest.spyOn(console, 'error').mockImplementation((msg, ...rest) => {
+      if (typeof msg === 'string' && msg.includes('act(...)')) return;
+      consoleError.apply(console, msg, ...rest);
+    });
   });
 
   afterEach(() => {
@@ -254,7 +262,8 @@ describe('Integration', () => {
     ]);
     calls.splice(0);
 
-    act(() => acts.add('todo2'));
+    // Do NOT wrap in act() as it will batch renders and make this test always pass
+    acts.add('todo2');
 
     expect(calls).toEqual(['parent', 'childrensChild', 'childrenHook']);
   });
@@ -331,7 +340,9 @@ describe('Integration', () => {
     ]);
     calls.splice(0);
 
-    act(() => acts.add('todo2'));
+    // Do NOT wrap in act() as it will batch renders and make this test always pass
+    acts.add('todo2');
+    await actTick();
 
     expect(calls).toEqual([
       'HookWrapper[inner]',
