@@ -18,6 +18,41 @@ const DEFAULT_SELECTOR = state => state;
 // React currently throws a warning when using useLayoutEffect on the server
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+const useUnmount = fn => useIsomorphicLayoutEffect(() => fn, []);
+
+// We memoize both the input and the output
+// so if input args are shallow equal we do not recompute the selector
+// and also when we do, check if output is shallow equal to prevent children update
+const createMemoizedSelector = selector => {
+  const memoSelector = memoize(selector);
+  let lastResult;
+  return (...args) => {
+    const result = memoSelector(...args);
+    if (!shallowEqual(result, lastResult)) {
+      lastResult = result;
+    }
+    return lastResult;
+  };
+};
+
+const handleStoreSubscription = (
+  subscriptionRef,
+  onUpdateRef = null,
+  storeState = null
+) => {
+  if (subscriptionRef.current) {
+    subscriptionRef.current.remove();
+    subscriptionRef.current = null;
+  }
+  if (storeState && onUpdateRef) {
+    // we call the current ref fn so state is fresh
+    const onUpdate = (...args) => onUpdateRef.current(...args);
+    subscriptionRef.current = {
+      storeState,
+      remove: storeState.subscribe(onUpdate),
+    };
+  }
+};
 
 export function createHook(Store, { selector } = {}) {
   return function useSweetState(propsArg) {
@@ -28,7 +63,7 @@ export function createHook(Store, { selector } = {}) {
     // Otherwise always return same value, as we ignore state
     const stateSelector = selector
       ? // eslint-disable-next-line react-hooks/rules-of-hooks
-        useCallback(memoize(selector), [])
+        useCallback(createMemoizedSelector(selector), [])
       : selector === null
       ? EMPTY_SELECTOR
       : DEFAULT_SELECTOR;
@@ -39,7 +74,7 @@ export function createHook(Store, { selector } = {}) {
     useDebugValue(currentState);
 
     const [, triggerUpdate] = useState(0);
-    const subscriptionRef = useRef(false);
+    const subscriptionRef = useRef(null);
 
     // We store update function into a ref and re-create on each render
     // so when called gets fresh currentState and props
@@ -52,24 +87,25 @@ export function createHook(Store, { selector } = {}) {
       if (!subscriptionRef.current) return;
 
       const nextState = stateSelector(updStoreState, propsArg);
-      if (!shallowEqual(nextState, currentState) || forceUpdate) {
+      if (nextState !== currentState || forceUpdate) {
         triggerUpdate(n => ~n);
       }
     };
 
-    // On component mount (or storeState change) we subscribe to storeState updates
-    useIsomorphicLayoutEffect(() => {
-      // we call the current ref fn so props are fresh
-      const onUpdate = (...a) => onUpdateRef.current(...a);
-      const unsubscribe = storeState.subscribe(onUpdate);
-      subscriptionRef.current = true;
-      // trigger a first update as state might have changed in meantime
-      onUpdate();
-      return () => {
-        unsubscribe();
-        subscriptionRef.current = false;
-      };
-    }, [storeState]);
+    // On first render or on scope change we subscribe
+    // The inline subscription allows us to ensure:
+    // - the order of updates is always top to bottom
+    // - we get store updates since component inception
+    // - we change subscription on scope change asap
+    if (
+      !subscriptionRef.current ||
+      subscriptionRef.current.storeState !== storeState
+    ) {
+      handleStoreSubscription(subscriptionRef, onUpdateRef, storeState);
+    }
+
+    // On component unmount we unsubscribe to storeState updates
+    useUnmount(() => handleStoreSubscription(subscriptionRef));
 
     return [currentState, actions];
   };

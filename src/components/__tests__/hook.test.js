@@ -144,6 +144,21 @@ describe('Hook', () => {
     expect(children).toHaveBeenLastCalledWith({ foo: 2 }, actions);
   });
 
+  it('should re-render children with same value if selector output is shallow equal', () => {
+    const selector = () => ({ foo: 1 });
+    const { getMount, children } = setup({ bar: 1 }, selector);
+    const wrapper = getMount();
+    const newState = { count: 1 };
+    storeStateMock.getState.mockReturnValue(newState);
+
+    wrapper.setProps({ bar: 1 });
+
+    // ensure memoisation on selector OUTPUT works
+    const childrenStateInitial = children.mock.calls[0][0];
+    const childrenStateUpdate = children.mock.calls[1][0];
+    expect(childrenStateInitial).toBe(childrenStateUpdate);
+  });
+
   it('should update on state change if selector output is not shallow equal', () => {
     const selector = jest.fn().mockImplementation(() => ({ foo: [1] }));
     const { getMount, children } = setup({}, selector);
