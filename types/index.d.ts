@@ -1,7 +1,10 @@
 declare module 'react-sweet-state' {
   import { ComponentType, ReactNode, ReactElement } from 'react';
 
-  type SetState<TState> = (newState: Partial<TState>) => void;
+  interface SetState<TState> {
+    (newState: Partial<TState>): void;
+  }
+
   type GetState<TState> = () => Readonly<TState>;
   type StoreUnsubscribe = () => void;
 
@@ -105,10 +108,7 @@ declare module 'react-sweet-state' {
   const defaults: {
     devtools: boolean;
     middlewares: any;
-    mutator: <TState>(
-      prevState: TState,
-      partialState: Partial<TState>
-    ) => TState;
+    mutator: (currentState: any, setStateArg: any) => any;
   };
 
   type ContainerComponent<TProps> = ComponentType<

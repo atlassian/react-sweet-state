@@ -17,7 +17,7 @@ sweet-state is heavily inspired by Redux mixed with Context API concepts. It has
 
 Each `Subscriber`, or `Hook`, is responsible to get the instantiated Store (creating a new one with `initialState` if necessary), allowing sharing state across your project extremely easy.
 
-Similar to Redux thunks, actions receive a set of arguments to get and mutate the state. The default `setState` implementation is similar to React `setState`, accepting an object that will be shallow merged with the current state. However, you are free to replace the built-in `setState` logic with a custom implementation, like `immer` for instance.
+Similar to Redux thunks, actions receive a set of arguments to get and mutate the state. The default `setState` implementation is similar to React `setState`, accepting an object that will be shallow merged with the current state. However, you are free to replace the built-in `setState` logic with a custom mutator implementation, like `immer` for instance.
 
 ## Basic usage
 
