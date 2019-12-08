@@ -25,7 +25,8 @@ const actions = {
 
 ### Triggering actions on other Stores
 
-Sweet-state does not provide any built-in method to trigger actions on other Stores, however that’s OK as it forces a consistent Flux architecture, where every change apply top down.  
+Sweet-state does not provide any built-in method to trigger actions on other Stores, however that’s OK as it forces a consistent Flux architecture, where every change applies top down.
+
 Moreover, hooks allow a natural way to deal with actions composition, enabling integration not only between sweet-state actions but also with any other state management library. See [the composition section for some examples](../recipes/composition.md).
 
 ---

@@ -12,7 +12,7 @@ createHook(Store, [options]);
 
 2. [`options`] _(Object)_: containing one or more of the following keys:
 
-   - `selector` _(Function | null)_: an function that will be triggered every time the hook gets new state or props. If it's `null`, then the hook will not trigger a re-render on state change. The selector function is called with two arguments:
+   - `selector` _(Function | null)_: a function that will be triggered every time the hook gets new state or props. If it's `null`, then the hook will not trigger a re-render on state change. The selector function is called with two arguments:
      1. `state`: the store instance state
      2. `props`: the custom props defined on the component itself
 

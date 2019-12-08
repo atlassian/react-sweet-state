@@ -50,7 +50,7 @@ const actions = {
 
 #### createSubscriber / createHook patterns
 
-If you provide a selector to your components, you need to defined two additional flow arguments to `createSubscriber`/`createHook`: the selector output and the selector props.
+If you provide a selector to your components, you need to define two additional flow arguments on `createSubscriber`/`createHook`: the selector output and the selector props.
 
 ```js
 type SelectorState = boolean;
@@ -67,7 +67,7 @@ const useCounter = createHook<State, Actions, SelectorState, void>(Store, {
 });
 ```
 
-In case your component/hook needs also some props, you can define them as fourth argument:
+In case your component/hook also needs some props, you can define them as the fourth argument:
 
 ```js
 type SelectorProps = {| min: number |};

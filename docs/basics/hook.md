@@ -2,8 +2,7 @@
 
 ### Creating a hook
 
-Subscribers (via render props) are not the only way to access state and actions. **sweet-state** also provides a method to create hooks to access Store state in your views.
-As with Subscribers, after definining a Store, custom hooks can be created with `createHook`:
+Subscribers (via render props) are not the only way to access state and actions. **sweet-state** also provides a method to create hooks to access Store state in your views. As with Subscribers, after defining a Store, custom hooks can be created with `createHook`:
 
 ```js
 // components/counter.js
