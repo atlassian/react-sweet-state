@@ -9,7 +9,7 @@ In both scenarios we assume the initial state data is readily available in your 
 
 ##### Hydrate through a Container
 
-We have already seen this in use the `Container` chapter:
+We have already seen this in use in the `Container` chapter:
 
 ```js
 const CounterContainer = createContainer(Store, {

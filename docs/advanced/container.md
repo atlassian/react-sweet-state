@@ -86,8 +86,7 @@ const App = () => (
 
 #### Container props are available in actions
 
-Props provided to containers are passed to Store actions as a second parameter [see actions API](../api/actions.md).
-This makes extremely easy passing dynamic configuration options to actions.
+Props provided to containers are passed to Store actions as a second parameter [see actions API](../api/actions.md). This makes it extremely easy to pass dynamic configuration options to actions.
 
 ```js
 const Store = createStore({
@@ -113,7 +112,7 @@ _NOTE: Remember though that those props will **only** be available to Subscriber
 
 #### Container can trigger actions
 
-`Container` options have a `onInit` and `onUpdate` keys, to trigger actions and update the state on its props change. The methods' shape is the same as all other actions.
+`Container` options have `onInit` and `onUpdate` keys, to trigger actions and update the state on its props change. The methods' shape is the same as all other actions.
 
 ```js
 const CounterContainer = createContainer(Store, {

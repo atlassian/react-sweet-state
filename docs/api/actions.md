@@ -19,7 +19,7 @@ The first argument is an object containing:
 
 ##### - setState
 
-It is the method responsible for triggering actual updates to the store. The default is a syncronous version of React `setState`, supporting only an object as argument (shallow merged into current state). See React guidelines for do's and dont's around `setState` for more around the limitations of shallow merge.
+It is the method responsible for triggering actual updates to the store. The default is a synchronous version of React `setState`, supporting only an object as argument (shallow merged into current state). See React guidelines for do's and dont's around `setState` for more around the limitations of shallow merge.
 
 ```js
 // inside your action
@@ -39,11 +39,11 @@ if (getState().loading) {
 }
 ```
 
-Note: Pay attetion while storing parts of the state in a variable inside the actions: they might become stale especially during async operations.
+Note: Pay attention while storing parts of the state in a variable inside the actions: they might become stale especially during async operations.
 
 ##### - dispatch
 
-This method allows you to trigger other actions from the explictly called action. It can also be used to abstract away some generic functionality or to create private actions that not exposed to consumers.
+This method allows you to trigger other actions from the explicitly called action. It can also be used to abstract away some generic functionality or to create private actions that are not exposed to consumers.
 
 ```js
 const actions = {

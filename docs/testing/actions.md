@@ -205,7 +205,7 @@ In this scenario we have two actions that affect the store state and one of them
 
 #### Note of caution
 
-When creating action you can make them as complex and intertwined as you like. Below we show an example of the sort of situation you can build. **However, we strongly advise you don't write actions that directly depend on transient state set by other actions**. This is considered a 'code smell' and indicator of an incorrect separation of concerns across actions.
+When creating actions you can make them as complex and intertwined as you like. Below we show an example of the sort of situation you can build. **However, we strongly advise you don't write actions that directly depend on transient state set by other actions**. This is considered a 'code smell' and indicator of an incorrect separation of concerns across actions.
 
 ```js
 // Example of intertwined actions

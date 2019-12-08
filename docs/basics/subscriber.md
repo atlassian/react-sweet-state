@@ -2,7 +2,7 @@
 
 ### Creating a Subscriber
 
-A `<Subscriber />` allows you to access Store state and actions in your views, via render prop pattern.
+A `<Subscriber />` allows you to access Store state and actions in your views, via the render props pattern.
 After defining a Store, we can create `Subscriber` components for that Store with `createSubscriber`:
 
 ```js

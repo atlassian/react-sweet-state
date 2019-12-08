@@ -104,10 +104,8 @@ export const RefetchButton = () => (
 // or
 export const RefetchButton = () => {
   const [, actions] = useTodosActions();
-  return (
-    <button onClick={actions.refetch}>Refetch</button>
-  )
-}
+  return <button onClick={actions.refetch}>Refetch</button>;
+};
 ```
 
 #### Adding reselect to memoize selectors
@@ -142,4 +140,4 @@ export const TodoList = ({ status }) => (
 );
 ```
 
-In example above, if other attributes of the state change (eg: `loading`), `TodosFilteredSubscriber` will not re-render.
+In the example above, if other attributes of the state change (eg: `loading`), `TodosFilteredSubscriber` will not re-render.
