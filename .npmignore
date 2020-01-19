@@ -4,8 +4,12 @@
 .circleci
 .editorconfig
 .eslintrc.js
+.prettierrc.js
 *.config.js
+*.config.*.js
 *.setup.js
+.flowconfig
+tsconfig.json
 
 # Ignore source files
 src
@@ -18,3 +22,6 @@ docs
 **/__tests__
 tests
 coverage
+
+# Other stuff
+.DS_Store
