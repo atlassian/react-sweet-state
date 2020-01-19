@@ -18,7 +18,7 @@ import { produce } from 'immer';
 defaults.mutator = (currentState, producer) => produce(currentState, producer);
 ```
 
-The second argument of the mutator is the parameter you call `setState` with, so it can be anything. For immer it has to be a function, so `setState` will now be called with a producer function instead of a partial state object:
+Generally, the second argument of the mutator is what you call `setState` with, so it can be anything. For immer to work, it has to be a producer function (instead of a partial state object):
 
 ```js
 const actions = {
@@ -31,11 +31,12 @@ const actions = {
 };
 ```
 
-NOTE: if you are using Typescript you will need to overload `SetState` interface otherwise TS will complain. To do that, in your project `types` folder (or where your `typeRoots` config gets additional `d.ts` files) add `react-sweet-state.d.ts` with:
+NOTE: if you are using Typescript you will need to overload `SetState` interface otherwise TS will error. In order to do that, in your project `types` folder (or where your `typeRoots` config gets additional `d.ts` files) add `react-sweet-state.d.ts` with:
 
 ```ts
 declare module 'react-sweet-state' {
   // this allows setState to be called with a function instead of allowing only Partial<TState>
+  // remember also that TState should be writable, as immer expects you to mutate it
   interface SetState<TState> {
     (producer: (draftState: TState) => void): void;
   }
