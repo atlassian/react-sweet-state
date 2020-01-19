@@ -3,7 +3,7 @@ import {
   useLayoutEffect,
   useEffect,
   useRef,
-  useCallback,
+  useMemo,
   useContext,
   useDebugValue,
 } from 'react';
@@ -26,8 +26,8 @@ const useUnmount = fn => useIsomorphicLayoutEffect(() => fn, []);
 const createMemoizedSelector = selector => {
   const memoSelector = memoize(selector);
   let lastResult;
-  return (...args) => {
-    const result = memoSelector(...args);
+  return (currentState, hookArg) => {
+    const result = memoSelector(currentState, hookArg);
     if (!shallowEqual(result, lastResult)) {
       lastResult = result;
     }
@@ -63,7 +63,7 @@ export function createHook(Store, { selector } = {}) {
     // Otherwise always return same value, as we ignore state
     const stateSelector = selector
       ? // eslint-disable-next-line react-hooks/rules-of-hooks
-        useCallback(createMemoizedSelector(selector), [])
+        useMemo(() => createMemoizedSelector(selector), [])
       : selector === null
       ? EMPTY_SELECTOR
       : DEFAULT_SELECTOR;
