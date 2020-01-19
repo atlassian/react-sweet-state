@@ -23,6 +23,30 @@ const actions = {
 };
 ```
 
+### Generic (and private) actions
+
+Sometimes you might want to have generic actions that are called by other actions, but without exposing them publicly as part the API. That can be easily done using `dispatch`:
+
+```js
+const setLoading = () => ({ setState }) => {
+  setState({ loading: true });
+};
+
+const setData = data => ({ setState }) => {
+  setState({ loading: false, data });
+};
+
+const actions = {
+  load: () => async ({ getState, dispatch }, { api }) => {
+    if (getState().loading === true) return;
+
+    dispatch(setLoading());
+    const todos = await api.get('/todos');
+    dispatch(setData(todos));
+  },
+};
+```
+
 ### Triggering actions on other Stores
 
 Sweet-state does not provide any built-in method to trigger actions on other Stores, however that’s OK as it forces a consistent Flux architecture, where every change applies top down.

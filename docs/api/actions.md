@@ -26,7 +26,7 @@ It is the method responsible for triggering actual updates to the store. The def
 setState({ count: 0 });
 ```
 
-Note: You can replace this default implementation with a custom one, for instance with [immer](https://github.com/mweststrate/immer), by overriding `defaults.mutator`.
+Note: You can replace this default implementation with a custom one, ([see mutator docs](../advanced/mutator.md)).
 
 ##### - getState
 
