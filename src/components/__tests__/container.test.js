@@ -82,7 +82,7 @@ describe('Container', () => {
         children,
         value: {
           getStore: expect.any(Function),
-          globalRegistry: undefined, // shallow() context support is buggy
+          globalRegistry: defaultRegistry,
         },
       });
     });

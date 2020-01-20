@@ -2,7 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import { Context } from '../context';
-import { StoreRegistry, bindAction, bindActions } from '../store';
+import {
+  StoreRegistry,
+  bindAction,
+  bindActions,
+  defaultRegistry,
+} from '../store';
 import shallowEqual from '../utils/shallow-equal';
 
 const noop = () => () => {};
@@ -39,11 +44,18 @@ export default class Container extends Component {
     super(props, context);
     this.registry = new StoreRegistry('__local__');
 
+    const {
+      // These fallbacks are needed only to make enzyme shallow work
+      // as it does not fully support provider-less Context enzyme#1553
+      globalRegistry = defaultRegistry,
+      getStore = defaultRegistry.getStore,
+    } = this.context;
+
     this.state = {
       api: {
-        globalRegistry: this.context.globalRegistry,
+        globalRegistry,
         getStore: (Store, scope) =>
-          this.getScopedStore(Store, scope) || this.context.getStore(Store),
+          this.getScopedStore(Store, scope) || getStore(Store),
       },
       // stored to make them available in getDerivedStateFromProps
       // as js context there is null https://github.com/facebook/react/issues/12612
