@@ -66,12 +66,11 @@ declare module 'react-sweet-state' {
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>
   > {
-    store: StoreState<TState>;
+    storeState: StoreState<TState>;
     actions: BoundActions<TState, TActions>;
   }
 
   class Registry {
-    configure(options: { initialStates?: { [key: string]: any } }): void;
     stores: Map<string, StoreInstance<any, any>>;
     initStore: <
       TState,
@@ -85,14 +84,14 @@ declare module 'react-sweet-state' {
       TActions extends Record<string, ActionThunk<TState, TActions>>
     >(
       store: Store<TState, TActions>,
-      scopeId: string
+      scopeId?: string
     ) => StoreInstance<TState, TActions>;
     deleteStore: <
       TState,
       TActions extends Record<string, ActionThunk<TState, TActions>>
     >(
       store: Store<TState, TActions>,
-      scopeId: string
+      scopeId?: string
     ) => void;
   }
 
