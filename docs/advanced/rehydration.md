@@ -18,40 +18,36 @@ const CounterContainer = createContainer(Store, {
   },
 });
 
-const initialState = 10;
-
 const App = () => (
-  <CounterContainer scope={'counter-1'} initialCount={initialState}>
+  <CounterContainer isGlobal initialCount={window.INITIAL_STATE}>
     {/* ... */}
   </CounterContainer>
 );
 ```
 
-As you see, the `Container` is configured with an `onInit` action that takes the initial state prop and stores it. This is the preferred way of initialising the Store as it avoids unnecessary action trigger complexity in your render function.
+As you see, the `Container` is configured with an `onInit` action that takes the initial state prop and stores it. This is the preferred way of initialising the Store as it will make the initial state immediately available to all subscribers executing after, avoiding unnecessary re-renders.
 
-##### Hydrate through an render-prop action
+##### Hydrate through an action
 
 ```js
-import { createSubscriber } from 'react-sweet-state';
+import { createHook } from 'react-sweet-state';
 import Store from './store';
 
 const actions = {
   initState: initialState => ({ setState }) => setState(initialState),
 };
 
-const CounterSubscriberActions = createSubscriber(Store, {
+const useCounterActions = createHook(Store, {
   selector: null,
 });
 
-const initialState = 10;
+const App = () => {
+  const [, { initState }] = useCounterActions();
+  useMemo(() => initState(window.INITIAL_STATE), []);
 
-const Todos = ({ status = 'done' }) => (
-  <CounterSubscriberActions>
-    {(__, { initState }) => (
-      <TriggerOnMount action={() => initState(initialState)} />
-    )}
-  </CounterSubscriberActions>
-);
+  return (
+    {/* ... */}
+  );
 ```
 
 As we pointed out in the previous section, this way of initialising the Store state adds additional complexity to your render function.

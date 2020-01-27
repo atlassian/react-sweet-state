@@ -44,31 +44,12 @@ describe('StoreRegistry', () => {
     expect(instance1).not.toBe(instance2);
   });
 
-  it('should get and create a new store populated from initialStates passed to registry.configure', () => {
-    const data = { [StoreMock.key + '@__global__']: { count: 1 } };
-    const registry = new StoreRegistry();
-    registry.configure({ initialStates: data });
-    const instance = registry.getStore(StoreMock);
-    expect(instance.storeState.getState()).toEqual({ count: 1 });
-  });
-
   it('should delete store from registry', () => {
     const registry = new StoreRegistry();
     registry.getStore(StoreMock);
     registry.getStore(StoreMock, 's1');
     registry.deleteStore(StoreMock, 's1');
     expect(registry.stores.size).toEqual(1);
-  });
-
-  it('should export store states', () => {
-    const registry = new StoreRegistry();
-    registry.getStore(StoreMock);
-    registry.getStore(StoreMock, 's1');
-    const states = registry.getStates();
-    expect(states).toEqual({
-      'store-key@__global__': { count: 0 },
-      'store-key@s1': { count: 0 },
-    });
   });
 
   describe('Store keys', () => {
