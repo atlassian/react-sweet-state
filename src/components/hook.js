@@ -88,7 +88,9 @@ export function createHook(Store, { selector } = {}) {
 
       const nextState = stateSelector(updStoreState, propsArg);
       if (nextState !== currentState || forceUpdate) {
-        triggerUpdate(n => ~n);
+        // we need a different value on each update
+        // otherwise React might optimise the state update and discard it!
+        triggerUpdate(n => n + 0.1);
       }
     };
 
