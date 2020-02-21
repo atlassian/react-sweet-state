@@ -73,8 +73,7 @@ const CounterApp = () => {
 
 ## Documentation
 
-[Check the docs website](https://atlassian.github.io/react-sweet-state/)  
-[or the docs folder](docs/README.md).
+Check [the docs website](https://atlassian.github.io/react-sweet-state/) or [the docs folder](docs/README.md).
 
 ## Examples
 
