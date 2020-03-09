@@ -48,10 +48,10 @@ declare module 'react-sweet-state' {
     ) => ReturnType<T>;
   };
 
-  type ActionAny<TState, TContainerProps = void> = (
+  type ActionAny<TState, TContainerProps = void, TReturnValue = any> = (
     api: StoreActionApi<TState>,
     containerProps: TContainerProps
-  ) => any;
+  ) => TReturnValue;
 
   type BoundActions<
     TState,
