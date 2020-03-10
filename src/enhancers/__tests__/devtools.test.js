@@ -119,7 +119,7 @@ describe('withDevtools', () => {
     it('should handle custom ACTION payload', () => {
       const message = {
         type: 'ACTION',
-        payload: '{ type: "", payload: { count : 0 } }',
+        payload: '{ "type": "", "payload": { "count" : 0 } }',
       };
       subscriber(message);
       expect(storeStateMock.setState).toHaveBeenCalledWith({ count: 0 });
