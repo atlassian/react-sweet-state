@@ -26,8 +26,7 @@ const connectDevTools = storeState => {
           return;
       }
     } else if (message.type === 'ACTION') {
-      let action;
-      eval(`action = ${message.payload}`);
+      let action = JSON.parse(message.payload);
       storeState.setState(action.payload);
     }
   });
