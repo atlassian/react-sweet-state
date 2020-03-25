@@ -60,7 +60,7 @@ export const TodoList = ({ status }) => (
 );
 // or
 export const TodoList = ({ status }) => {
-  const [state, actions] = useTodosByStatus({ status });
+  const [todos, actions] = useTodosByStatus({ status });
   return todos.map(/* render... */);
 }
 ```
