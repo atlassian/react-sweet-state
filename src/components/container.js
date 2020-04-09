@@ -77,6 +77,7 @@ export default class Container extends Component {
   }
 
   componentWillUnmount() {
+    this.onUnmount();
     this.deleteScopedStore();
   }
 
@@ -102,6 +103,13 @@ export default class Container extends Component {
       storeState,
       hooks.onUpdate,
       'onUpdate',
+      this.getContainerProps,
+      actions
+    );
+    this.onUnmount = bindAction(
+      storeState,
+      hooks.onUnmount,
+      'onUnmount',
       this.getContainerProps,
       actions
     );
@@ -178,11 +186,11 @@ export default class Container extends Component {
 
 export function createContainer(
   Store,
-  { onInit = noop, onUpdate = noop, displayName = '' } = {}
+  { onInit = noop, onUpdate = noop, onUnmount = noop, displayName = '' } = {}
 ) {
   return class extends Container {
     static storeType = Store;
     static displayName = displayName || `Container(${Store.key[0]})`;
-    static hooks = { onInit, onUpdate };
+    static hooks = { onInit, onUpdate, onUnmount };
   };
 }

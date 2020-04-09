@@ -27,6 +27,7 @@ jest.mock('../../store/registry', () => ({
 
 const mockOnContainerInitInner = jest.fn();
 const mockOnContainerUpdateInner = jest.fn();
+const mockOnContainerUnmountInner = jest.fn();
 const Store = createStore({
   name: 'test',
   initialState: StoreMock.initialState,
@@ -35,6 +36,7 @@ const Store = createStore({
 const Container = createContainer(Store, {
   onInit: () => mockOnContainerInitInner,
   onUpdate: () => mockOnContainerUpdateInner,
+  onUnmount: () => mockOnContainerUnmountInner,
 });
 
 describe('Container', () => {
@@ -56,6 +58,7 @@ describe('Container', () => {
       expect(Container.hooks).toEqual({
         onInit: expect.any(Function),
         onUpdate: expect.any(Function),
+        onUnmount: expect.any(Function),
       });
     });
   });
@@ -144,6 +147,16 @@ describe('Container', () => {
       const wrapper = mount(<Container scope="s1">{children}</Container>);
       wrapper.unmount();
       expect(defaultRegistry.deleteStore).toHaveBeenCalledWith(Store, 's1');
+    });
+
+    it('should call Container onUnmount on unmount', () => {
+      storeStateMock.subscribe.mockReturnValue(jest.fn());
+      storeStateMock.listeners.mockReturnValue([]);
+      const Subscriber = createSubscriber(Store);
+      const children = <Subscriber>{() => null}</Subscriber>;
+      const wrapper = mount(<Container>{children}</Container>);
+      wrapper.unmount();
+      expect(mockOnContainerUnmountInner).toHaveBeenCalledTimes(1);
     });
 
     it('should not cleanup from global on unmount if still listeners', () => {
