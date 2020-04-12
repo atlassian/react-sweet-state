@@ -18,6 +18,8 @@ createContainer(Store, [options]);
 
    - `onUpdate` _(Function)_: an action that will be triggered when props on a container change.
 
+   - `onCleanup` _(Function)_: an action that will be triggered after the container has been unmounted. Useful in case you want to clean up side effects like event listeners or timers, or restore the store state to its initial state.
+
 ##### Returns
 
 _(Component)_: this React component allows you to change the behaviour of child Subscriber components by providing different Store instances or custom props to actions. It accept the following props:

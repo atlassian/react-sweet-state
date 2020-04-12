@@ -153,6 +153,7 @@ declare module 'react-sweet-state' {
     options?: {
       onInit?: () => ActionAny<TState, TContainerProps>;
       onUpdate?: () => ActionAny<TState, TContainerProps>;
+      onCleanup?: () => ActionAny<TState, TContainerProps>;
       displayName?: string;
     }
   ): ContainerComponent<TContainerProps>;

@@ -31,9 +31,16 @@ export const bindAction = (
 export const bindActions = (
   actions,
   storeState,
-  getContainerProps = () => ({})
+  getContainerProps = () => ({}),
+  boundActions = null
 ) =>
   Object.keys(actions).reduce((acc, k) => {
-    acc[k] = bindAction(storeState, actions[k], k, getContainerProps, acc);
+    acc[k] = bindAction(
+      storeState,
+      actions[k],
+      k,
+      getContainerProps,
+      boundActions || acc
+    );
     return acc;
   }, {});
