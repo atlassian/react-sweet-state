@@ -18,6 +18,7 @@
   - [Devtools](/advanced/devtools.md)
   - [State rehydration](/advanced/rehydration.md)
   - [Middlewares](/advanced/middlewares.md)
+  - [Custom mutator](/advanced/mutator.md)
 
 - **Testing**
 
