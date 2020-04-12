@@ -132,7 +132,7 @@ declare module 'react-sweet-state' {
    */
 
   function createStore<
-    TState,
+    TState extends object,
     TActions extends Record<string, ActionThunk<TState, TActions>>
   >(config: {
     initialState: TState;

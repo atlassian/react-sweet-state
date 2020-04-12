@@ -81,6 +81,9 @@ const TypeStore1 = createStore<State, Actions>({
 // $ExpectError
 const TypeStore2 = createStore<State, Actions>({ initialState: { count: 0 } });
 
+// $ExpectError
+const TypeStore3 = createStore<string, Actions>({ initialState: '', actions });
+
 // Correct
 const TypeStore = createStore<State, Actions>({
   initialState: { count: 0 },
