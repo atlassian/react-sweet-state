@@ -29,6 +29,9 @@ export const TodoContainer = createContainer<State, Actions, ContainerProps>(
     onUpdate: () => ({ dispatch }, { selectedUser }) => {
       if (selectedUser) dispatch(actions.load(selectedUser));
     },
+    onCleanup: () => ({ setState }) => {
+      setState(initialState);
+    },
   }
 );
 

@@ -18,7 +18,7 @@ createContainer(Store, [options]);
 
    - `onUpdate` _(Function)_: an action that will be triggered when props on a container change.
 
-   - `onCleanup` _(Function)_: an action that will be triggered after the container has been unmounted. Useful in case you want to clean up side effects like event listeners or timers, or restore the store state to its initial state.
+   - `onCleanup` _(Function)_: an action that will be triggered after the container has been unmounted. Useful in case you want to clean up side effects like event listeners or timers, or restore the store state to its initial state. As with `onInit`, if you define multiple containers this action will trigger after unmount of each one.
 
 ##### Returns
 
