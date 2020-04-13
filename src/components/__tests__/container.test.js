@@ -27,6 +27,7 @@ jest.mock('../../store/registry', () => ({
 
 const mockOnContainerInitInner = jest.fn();
 const mockOnContainerUpdateInner = jest.fn();
+const mockOnContainerCleanupInner = jest.fn();
 const Store = createStore({
   name: 'test',
   initialState: StoreMock.initialState,
@@ -35,6 +36,7 @@ const Store = createStore({
 const Container = createContainer(Store, {
   onInit: () => mockOnContainerInitInner,
   onUpdate: () => mockOnContainerUpdateInner,
+  onCleanup: () => mockOnContainerCleanupInner,
 });
 
 describe('Container', () => {
@@ -56,6 +58,7 @@ describe('Container', () => {
       expect(Container.hooks).toEqual({
         onInit: expect.any(Function),
         onUpdate: expect.any(Function),
+        onCleanup: expect.any(Function),
       });
     });
   });
@@ -136,14 +139,38 @@ describe('Container', () => {
       expect(wrapper.instance().registry.getStore).not.toHaveBeenCalled();
     });
 
-    it('should cleanup from global on unmount if no more listeners', () => {
-      storeStateMock.subscribe.mockReturnValue(jest.fn());
-      storeStateMock.listeners.mockReturnValue([]);
+    it('should cleanup from global on unmount if no more listeners', async () => {
+      const listeners = [];
+      const subscribe = fn => {
+        listeners.push(fn);
+        return () => (listeners.length = 0);
+      };
+      storeStateMock.subscribe.mockImplementation(subscribe);
+      storeStateMock.listeners.mockReturnValue(listeners);
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
       const wrapper = mount(<Container scope="s1">{children}</Container>);
       wrapper.unmount();
+      await Promise.resolve();
+      expect(listeners).toHaveLength(0);
       expect(defaultRegistry.deleteStore).toHaveBeenCalledWith(Store, 's1');
+    });
+
+    it('should call Container onCleanup on unmount', async () => {
+      const listeners = [];
+      const subscribe = fn => {
+        listeners.push(fn);
+        return () => (listeners.length = 0);
+      };
+      storeStateMock.subscribe.mockImplementation(subscribe);
+      storeStateMock.listeners.mockReturnValue(listeners);
+      const Subscriber = createSubscriber(Store);
+      const children = <Subscriber>{() => null}</Subscriber>;
+      const wrapper = mount(<Container>{children}</Container>);
+      wrapper.unmount();
+      await Promise.resolve();
+      expect(listeners).toHaveLength(0);
+      expect(mockOnContainerCleanupInner).toHaveBeenCalledTimes(1);
     });
 
     it('should not cleanup from global on unmount if still listeners', () => {

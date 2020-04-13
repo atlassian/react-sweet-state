@@ -131,6 +131,7 @@ declare export function createContainer<ST, AC, CPR>(
   options?: {|
     onInit?: () => (api: StoreActionApi<ST>, containerProps: CPR) => any,
     onUpdate?: () => (api: StoreActionApi<ST>, containerProps: CPR) => any,
+    onCleanup?: () => (api: StoreActionApi<ST>, containerProps: CPR) => any,
     displayName?: string,
   |}
 ): ContainerComponent<CPR>;

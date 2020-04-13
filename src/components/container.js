@@ -2,12 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import { Context } from '../context';
-import {
-  StoreRegistry,
-  bindAction,
-  bindActions,
-  defaultRegistry,
-} from '../store';
+import { StoreRegistry, bindActions, defaultRegistry } from '../store';
 import shallowEqual from '../utils/shallow-equal';
 
 const noop = () => () => {};
@@ -42,7 +37,6 @@ export default class Container extends Component {
 
   constructor(props, context) {
     super(props, context);
-    this.registry = new StoreRegistry('__local__');
 
     const {
       // These fallbacks are needed only to make enzyme shallow work
@@ -66,6 +60,9 @@ export default class Container extends Component {
     this.state.scopedActions = this.bindContainerActions(props.scope);
   }
 
+  registry = new StoreRegistry('__local__');
+  scopedHooks = {};
+
   componentDidUpdate(prevProps) {
     if (this.props.scope !== prevProps.scope) {
       // Trigger a forced update on all subscribers
@@ -77,7 +74,13 @@ export default class Container extends Component {
   }
 
   componentWillUnmount() {
-    this.deleteScopedStore();
+    // schedule on next tick as this is called by React before useEffect cleanup
+    // so if we run immediately listeners will still be there and run
+    Promise.resolve().then(() => {
+      this.scopedHooks.onCleanup();
+      // Check if scope has still subscribers, if not delete
+      this.deleteScopedStore();
+    });
   }
 
   bindContainerActions = scope => {
@@ -91,20 +94,14 @@ export default class Container extends Component {
       storeState,
       this.getContainerProps
     );
-    this.onInit = bindAction(
+
+    this.scopedHooks = bindActions(
+      hooks,
       storeState,
-      hooks.onInit,
-      'onInit',
       this.getContainerProps,
       actions
     );
-    this.onUpdate = bindAction(
-      storeState,
-      hooks.onUpdate,
-      'onUpdate',
-      this.getContainerProps,
-      actions
-    );
+
     // make sure we also reset actionProps
     this.actionProps = null;
     return actions;
@@ -119,11 +116,11 @@ export default class Container extends Component {
     // in actions even before react sets them in this.props
     this.actionProps = restProps;
 
-    if (this.onInit) {
-      this.onInit();
-      this.onInit = null;
+    if (this.scopedHooks.onInit) {
+      this.scopedHooks.onInit();
+      this.scopedHooks.onInit = null;
     } else {
-      this.onUpdate();
+      this.scopedHooks.onUpdate();
     }
   };
 
@@ -178,11 +175,11 @@ export default class Container extends Component {
 
 export function createContainer(
   Store,
-  { onInit = noop, onUpdate = noop, displayName = '' } = {}
+  { onInit = noop, onUpdate = noop, onCleanup = noop, displayName = '' } = {}
 ) {
   return class extends Container {
     static storeType = Store;
     static displayName = displayName || `Container(${Store.key[0]})`;
-    static hooks = { onInit, onUpdate };
+    static hooks = { onInit, onUpdate, onCleanup };
   };
 }

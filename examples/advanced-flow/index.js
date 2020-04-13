@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { defaults, type Middleware } from 'react-sweet-state';
 
@@ -27,28 +27,31 @@ defaults.devtools = true;
 /**
  * Main App
  */
-class App extends Component<{}> {
-  render() {
-    return (
-      <div>
-        <h1>User Todos example</h1>
-        <main>
-          <div>
-            <h3>With Render-props</h3>
-            <UserListRpc />
-            <TodoListRpc />
-          </div>
-          <hr />
-          <div>
-            <h3>With Hooks</h3>
-            <UserListHook />
-            <TodoListHook />
-          </div>
-        </main>
-      </div>
-    );
-  }
-}
+const App = () => {
+  const [showTodos, toggleShowTodos] = useState(true);
+
+  return (
+    <div>
+      <h1>User Todos example</h1>
+      <button type="button" onClick={() => toggleShowTodos(!showTodos)}>
+        Toggle todos visibility
+      </button>
+      <main>
+        <div>
+          <h3>With Render-props</h3>
+          <UserListRpc />
+          {showTodos && <TodoListRpc />}
+        </div>
+        <hr />
+        <div>
+          <h3>With Hooks</h3>
+          <UserListHook />
+          {showTodos && <TodoListHook />}
+        </div>
+      </main>
+    </div>
+  );
+};
 
 // $FlowFixMe
 ReactDOM.render(<App />, document.getElementById('root'));
