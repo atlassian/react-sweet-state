@@ -154,6 +154,9 @@ TypeStore = createStore<State, Actions>({ initialState: { bla: 0 }, actions });
 // $ExpectError Store should have actions
 TypeStore = createStore<State, Actions>({ initialState: { count: 0 } });
 
+// $ExpectError Store type should be object
+TypeStore = createStore<string, Actions>({ initialState: '', actions });
+
 // Correct
 TypeStore = createStore<State, Actions>({
   initialState: { count: 0 },
