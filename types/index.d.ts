@@ -35,6 +35,8 @@ declare module 'react-sweet-state' {
   type StoreState<TState> = {
     getState: GetState<TState>;
     setState: SetState<TState>;
+    resetState: () => void;
+    notify: () => void;
     key: string[];
     subscribe: (listener: () => void) => StoreUnsubscribe;
     mutator: SetState<TState>;
@@ -99,14 +101,12 @@ declare module 'react-sweet-state' {
 
   type MiddlewareResult = any;
   type Middleware = (
-    store: StoreState<any>
-  ) => (
-    next: (fn: any) => MiddlewareResult
-  ) => (fn: () => any) => MiddlewareResult;
+    storeState: StoreState<any>
+  ) => (next: (arg: any) => MiddlewareResult) => (arg: any) => MiddlewareResult;
 
   const defaults: {
     devtools: boolean;
-    middlewares: any;
+    middlewares: Set<Middleware>;
     mutator: (currentState: any, setStateArg: any) => any;
   };
 

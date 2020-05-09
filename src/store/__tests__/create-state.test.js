@@ -13,6 +13,7 @@ describe('createStore', () => {
       getState: expect.any(Function),
       setState: expect.any(Function),
       resetState: expect.any(Function),
+      notify: expect.any(Function),
       subscribe: expect.any(Function),
       listeners: expect.any(Function),
       mutator: expect.any(Function),
@@ -51,7 +52,18 @@ describe('createStore', () => {
       const listener = jest.fn();
       store.subscribe(listener);
       store.resetState();
-      expect(listener).toHaveBeenCalledWith(initialState);
+      expect(listener).toHaveBeenCalledWith(store);
+    });
+  });
+
+  describe('notify()', () => {
+    it('should notify listeners', () => {
+      const store = createStore(storeStateMock.key, initialState);
+      const newState = { count: 1 };
+      const listener = jest.fn();
+      store.subscribe(listener);
+      store.notify(newState);
+      expect(listener).toHaveBeenCalled();
     });
   });
 

@@ -1,5 +1,5 @@
 // @flow
-import React, { useState } from 'react';
+import React, { useState, StrictMode } from 'react';
 import ReactDOM from 'react-dom';
 import { defaults, type Middleware } from 'react-sweet-state';
 
@@ -19,6 +19,7 @@ const mw: Middleware = storeState => next => arg => {
   return result;
 };
 defaults.middlewares.add(mw);
+
 /**
  * Enable Redux devtools support
  */
@@ -53,5 +54,10 @@ const App = () => {
   );
 };
 
-// $FlowFixMe
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+  // $FlowFixMe
+  document.getElementById('root')
+);

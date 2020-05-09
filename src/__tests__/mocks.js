@@ -16,6 +16,7 @@ export const storeStateMock = {
   getState: jest.fn(),
   setState: jest.fn(),
   resetState: jest.fn(),
+  notify: jest.fn(),
   subscribe: jest.fn(),
   listeners: jest.fn(),
   mutator: jest.fn(),

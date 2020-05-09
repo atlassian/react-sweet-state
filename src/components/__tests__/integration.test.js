@@ -185,6 +185,7 @@ describe('Integration', () => {
     expect(children4).toHaveBeenCalledTimes(2);
 
     wrapper.setProps({ scopeId: 'B' });
+
     await actTick();
 
     const state2 = { loading: true, todos: [] };
@@ -194,8 +195,11 @@ describe('Integration', () => {
     expect(children3.mock.calls[call2]).toEqual([state2, expectActions]);
     expect(children4.mock.calls[call2]).toEqual([state2, expectActions]);
 
+    await actTick();
+
     const state3 = { loading: false, todos: ['todoB'] };
-    const call3 = 3;
+    // should be 3 but enzyme does not support batching properly
+    const call3 = 4;
     expect(children1.mock.calls[call3]).toEqual([state3, expectActions]);
     expect(children2.mock.calls[call3]).toEqual([state3, expectActions]);
     expect(children3.mock.calls[call3]).toEqual([state3, expectActions]);
@@ -262,8 +266,7 @@ describe('Integration', () => {
     ]);
     calls.splice(0);
 
-    // Do NOT wrap in act() as it will batch renders and make this test always pass
-    acts.add('todo2');
+    act(() => acts.add('todo2'));
 
     expect(calls).toEqual(['parent', 'childrensChild', 'childrenHook']);
   });
@@ -340,9 +343,7 @@ describe('Integration', () => {
     ]);
     calls.splice(0);
 
-    // Do NOT wrap in act() as it will batch renders and make this test always pass
-    acts.add('todo2');
-    await actTick();
+    act(() => acts.add('todo2'));
 
     expect(calls).toEqual([
       'HookWrapper[inner]',

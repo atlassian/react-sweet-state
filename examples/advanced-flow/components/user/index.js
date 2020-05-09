@@ -22,6 +22,7 @@ const initialState: State = {
 };
 
 const Store = createStore<State, Actions>({
+  name: 'user',
   initialState,
   actions,
 });

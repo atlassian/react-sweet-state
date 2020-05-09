@@ -5,10 +5,10 @@
 ```js
 import { defaults } from 'react-sweet-state';
 
-const logger = storeState => next => fn => {
-  console.log('Updating', storeState.key);
-  const result = next(fn);
-  console.log('Changed', result.changes);
+const logger = storeState => next => arg => {
+  console.log(storeState.key, 'payload: ', arg);
+  const result = next(arg);
+  console.log(storeState.key, ':', storeState.getState());
   return result;
 };
 
