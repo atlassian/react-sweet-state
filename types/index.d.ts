@@ -38,7 +38,9 @@ declare module 'react-sweet-state' {
     resetState: () => void;
     notify: () => void;
     key: string[];
-    subscribe: (listener: () => void) => StoreUnsubscribe;
+    subscribe: (
+      listener: (state: TState, storeState: StoreState<TState>) => void
+    ) => StoreUnsubscribe;
     mutator: SetState<TState>;
   };
 

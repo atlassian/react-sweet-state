@@ -52,18 +52,17 @@ describe('createStore', () => {
       const listener = jest.fn();
       store.subscribe(listener);
       store.resetState();
-      expect(listener).toHaveBeenCalledWith(store);
+      expect(listener).toHaveBeenCalledWith(initialState, store);
     });
   });
 
   describe('notify()', () => {
     it('should notify listeners', () => {
       const store = createStore(storeStateMock.key, initialState);
-      const newState = { count: 1 };
       const listener = jest.fn();
       store.subscribe(listener);
-      store.notify(newState);
-      expect(listener).toHaveBeenCalled();
+      store.notify();
+      expect(listener).toHaveBeenCalledWith(initialState, store);
     });
   });
 
