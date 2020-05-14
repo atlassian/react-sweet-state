@@ -112,6 +112,8 @@ declare module 'react-sweet-state' {
     mutator: (currentState: any, setStateArg: any) => any;
   };
 
+  function batch(callback: () => any): void;
+
   type ContainerComponent<TProps> = ComponentType<
     {
       scope?: string;

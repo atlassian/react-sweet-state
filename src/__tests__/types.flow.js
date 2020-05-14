@@ -2,6 +2,7 @@
 /* eslint-disable no-unused-vars, react/display-name */
 import React from 'react';
 import {
+  batch,
   createStore,
   createContainer,
   createSubscriber,
@@ -80,7 +81,9 @@ const actionsDeprecated = {
     v0.split('');
 
     // Correct
-    acs.decrement();
+    batch(() => {
+      acs.decrement();
+    });
     acs.increment(1);
     acs.fetch().then(v => v + 1);
     acs.fetch().then(v => v.split(''));
@@ -138,6 +141,7 @@ const actions = {
     v0.split('');
 
     // Correct
+    batch(() => dispatch(actions.decrement()));
     dispatch(actions.increment(1));
     dispatch(actions.fetch()).then(v => v.split(''));
     v0 + 1;

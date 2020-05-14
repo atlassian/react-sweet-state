@@ -104,6 +104,8 @@ declare export var defaults: {
   mutator: <ST>(currentState: ST, setStateArg: any) => ST,
 };
 
+declare export function batch(callback: () => any): void;
+
 export type ContainerComponent<PR> = React$ComponentType<{|
   scope?: string,
   isGlobal?: boolean,

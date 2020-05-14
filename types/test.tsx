@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 
 import {
+  batch,
   createStore,
   createContainer,
   createSubscriber,
@@ -61,7 +63,7 @@ const actions = {
     v0.split('');
 
     // Correct
-    dispatch(actions.decrement());
+    batch(() => dispatch(actions.decrement()));
     dispatch(actions.fetch()).then(v => v + 1);
     dispatch(actions.fetch()).then(v => v.split(''));
     v0 + 1;
