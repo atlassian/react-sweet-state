@@ -5,6 +5,18 @@ import { FormSubscriber, FormContainer } from '../components/form';
 import { MessagesSubscriber } from '../components/messages';
 import { ThemeContainer, ThemeSubscriber } from '../components/theme';
 
+const IsolatedHeader = React.memo(() => (
+  <ThemeSubscriber>
+    {({ color }, { change }) => (
+      <div style={{ background: color }}>
+        <button onClick={() => change('#DFF')}>Theme 1</button>
+        <button onClick={() => change('#FDF')}>Theme 2</button>
+        <button onClick={() => change('#FFD')}>Theme 3</button>
+      </div>
+    )}
+  </ThemeSubscriber>
+));
+
 export class ChatRpc extends Component<{
   id: string,
   remoteUsers: number,
@@ -15,12 +27,10 @@ export class ChatRpc extends Component<{
     return (
       <ThemeContainer scope={id} defaultColor={defaultColor}>
         <ThemeSubscriber>
-          {({ color }, { change }) => (
+          {({ color }) => (
             <div style={{ background: color }}>
               <h3>With Render-props</h3>
-              <button onClick={() => change('#DFF')}>Theme 1</button>
-              <button onClick={() => change('#FDF')}>Theme 2</button>
-              <button onClick={() => change('#FFD')}>Theme 3</button>
+              <IsolatedHeader />
               <MessagesSubscriber>
                 {({ data }, { add }) => (
                   <div>

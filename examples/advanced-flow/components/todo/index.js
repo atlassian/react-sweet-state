@@ -19,6 +19,7 @@ const initialState: State = {
 };
 
 const Store = createStore<State, Actions>({
+  name: 'todo',
   initialState,
   actions,
 });

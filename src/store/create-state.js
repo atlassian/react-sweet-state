@@ -12,12 +12,15 @@ function createStoreState(key, initialState) {
     },
     setState(nextState) {
       currentState = nextState;
-      for (let listener of listeners) {
-        listener(currentState);
-      }
+      storeState.notify();
     },
     resetState() {
       storeState.setState(initialState);
+    },
+    notify(s = storeState) {
+      for (let listener of listeners) {
+        listener(s.getState(), s);
+      }
     },
     subscribe(listener) {
       listeners = listeners.concat(listener);

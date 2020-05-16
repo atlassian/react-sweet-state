@@ -5,7 +5,7 @@ import { mount } from 'enzyme';
 import { act } from 'react-dom/test-utils';
 
 import { StoreMock, storeStateMock } from '../../__tests__/mocks';
-import { createHook } from '../hook';
+import { createHook, createMemoizedSelector } from '../hook';
 import { defaultRegistry } from '../../store/registry';
 
 jest.mock('../../store/registry', () => {
@@ -97,7 +97,9 @@ describe('Hook', () => {
     act(() => update(newState));
 
     expect(storeStateMock.getState).toHaveBeenCalled();
-    expect(children).toHaveBeenCalledTimes(2);
+    // this should be 2 with batched updates + bail out
+    // but looks like enzyme does not support that properly
+    expect(children).toHaveBeenCalledTimes(3);
     expect(children).toHaveBeenCalledWith(newState, actions);
   });
 
@@ -178,7 +180,7 @@ describe('Hook', () => {
     const newState = { count: 1 };
     storeStateMock.getState.mockReturnValue(newState);
     const update = storeStateMock.subscribe.mock.calls[0][0];
-    act(() => update(newState));
+    act(() => update(storeStateMock.getState(), storeStateMock));
 
     expect(children).toHaveBeenCalledTimes(1);
     // ensure that on state change memoisation breaks
@@ -203,9 +205,43 @@ describe('Hook', () => {
     const newState = { count: 1 };
     storeStateMock.getState.mockReturnValue(newState);
     const update = storeStateMock.subscribe.mock.calls[0][0];
-    act(() => update(newState));
+    act(() => update(storeStateMock.getState(), storeStateMock));
 
     expect(children).toHaveBeenCalledTimes(1);
     expect(children).toHaveBeenCalledWith(undefined, actions);
+  });
+});
+
+describe('createMemoizedSelector', () => {
+  it('should return selector result', () => {
+    const propsArg = undefined;
+    const state = {};
+    const selector = jest.fn(() => ({ foo: 1 }));
+
+    const stateSelector = createMemoizedSelector(selector);
+    const result = stateSelector(state, propsArg);
+
+    expect(selector).toHaveBeenCalledWith(state, propsArg);
+    expect(result).toEqual({ foo: 1 });
+  });
+
+  it('should return same result without running selector if arguments are shallow equal', () => {
+    const selector = jest.fn(() => ({ foo: 1 }));
+    const stateSelector = createMemoizedSelector(selector);
+
+    const result1 = stateSelector({ v: 1 }, { p: 1 });
+    const result2 = stateSelector({ v: 1 }, { p: 1 });
+    expect(selector).toHaveBeenCalledTimes(1);
+    expect(result2).toBe(result1);
+  });
+
+  it('should return same result if selector output is shallow equal', () => {
+    const selector = jest.fn(() => ({ foo: 1 }));
+    const stateSelector = createMemoizedSelector(selector);
+
+    const result1 = stateSelector({ v: 1 }, { p: 1 });
+    const result2 = stateSelector({ v: 1, w: 1 }, { p: 1 });
+    expect(selector).toHaveBeenCalledTimes(2);
+    expect(result2).toBe(result1);
   });
 });

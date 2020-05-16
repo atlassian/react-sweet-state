@@ -30,8 +30,12 @@ export type Store<ST, AC> = {|
 export type StoreState<ST> = {|
   getState: GetState<ST>,
   setState: SetState<ST>,
+  resetState: () => void,
+  notify: () => void,
   key: string[],
-  subscribe: (listener: () => void) => StoreUnsubscribe,
+  subscribe: (
+    listener: (state: ST, storeState: StoreState<ST>) => void
+  ) => StoreUnsubscribe,
   mutator: SetState<ST>,
 |};
 
@@ -91,14 +95,16 @@ declare export var defaultRegistry: Registry;
 
 type MiddlewareResult = any;
 export type Middleware = (
-  store: StoreState<any>
-) => (next: (fn: any) => MiddlewareResult) => (fn: () => *) => MiddlewareResult;
+  storeState: StoreState<any>
+) => (next: (arg: any) => MiddlewareResult) => (arg: any) => MiddlewareResult;
 
 declare export var defaults: {
   devtools: boolean,
   middlewares: Set<Middleware>,
-  mutator: <ST>(prevState: ST, partialState: $Shape<ST>) => ST,
+  mutator: <ST>(currentState: ST, setStateArg: any) => ST,
 };
+
+declare export function batch(callback: () => any): void;
 
 export type ContainerComponent<PR> = React$ComponentType<{|
   scope?: string,

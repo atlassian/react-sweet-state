@@ -18,12 +18,11 @@ const DEFAULT_SELECTOR = state => state;
 // React currently throws a warning when using useLayoutEffect on the server
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect;
-const useUnmount = fn => useIsomorphicLayoutEffect(() => fn, []);
 
 // We memoize both the input and the output
 // so if input args are shallow equal we do not recompute the selector
 // and also when we do, check if output is shallow equal to prevent children update
-const createMemoizedSelector = selector => {
+export const createMemoizedSelector = selector => {
   const memoSelector = memoize(selector);
   let lastResult;
   return (currentState, hookArg) => {
@@ -33,25 +32,6 @@ const createMemoizedSelector = selector => {
     }
     return lastResult;
   };
-};
-
-const handleStoreSubscription = (
-  subscriptionRef,
-  onUpdateRef = null,
-  storeState = null
-) => {
-  if (subscriptionRef.current) {
-    subscriptionRef.current.remove();
-    subscriptionRef.current = null;
-  }
-  if (storeState && onUpdateRef) {
-    // we call the current ref fn so state is fresh
-    const onUpdate = (...args) => onUpdateRef.current(...args);
-    subscriptionRef.current = {
-      storeState,
-      remove: storeState.subscribe(onUpdate),
-    };
-  }
 };
 
 export function createHook(Store, { selector } = {}) {
@@ -73,41 +53,38 @@ export function createHook(Store, { selector } = {}) {
     const currentState = stateSelector(storeState.getState(), propsArg);
     useDebugValue(currentState);
 
-    const [, triggerUpdate] = useState(0);
-    const subscriptionRef = useRef(null);
+    const triggerUpdate = useState(currentState)[1];
+    const propsRef = useRef(propsArg);
+    propsRef.current = propsArg;
 
-    // We store update function into a ref and re-create on each render
-    // so when called gets fresh currentState and props
-    const onUpdateRef = useRef();
-    onUpdateRef.current = (
-      updStoreState = storeState.getState(),
-      forceUpdate = false
-    ) => {
-      // if unsubscribed / unmounted do not set state
-      if (!subscriptionRef.current) return;
+    useIsomorphicLayoutEffect(() => {
+      let subscription = {};
+      const onUpdate = (updatedState, updatedStoreState) => {
+        // if already unmounted ignore the update
+        if (!subscription) return;
+        // if scope changed, force a re-render to trigger new subscription
+        if (updatedStoreState !== storeState) return triggerUpdate({});
+        // if selector null we bail out from normal state updates
+        if (stateSelector === EMPTY_SELECTOR) return;
 
-      const nextState = stateSelector(updStoreState, propsArg);
-      if (nextState !== currentState || forceUpdate) {
-        // we need a different value on each update
-        // otherwise React might optimise the state update and discard it!
-        triggerUpdate(n => n + 0.1);
-      }
-    };
+        const nextState = stateSelector(updatedState, propsRef.current);
+        // cannot call it conditionally as it will fail StrictMode
+        // but if state === nextState then React might skip re-render anyway
+        triggerUpdate(nextState);
+      };
 
-    // On first render or on scope change we subscribe
-    // The inline subscription allows us to ensure:
-    // - the order of updates is always top to bottom
-    // - we get store updates since component inception
-    // - we change subscription on scope change asap
-    if (
-      !subscriptionRef.current ||
-      subscriptionRef.current.storeState !== storeState
-    ) {
-      handleStoreSubscription(subscriptionRef, onUpdateRef, storeState);
-    }
+      subscription.unsubscribe = storeState.subscribe(onUpdate);
 
-    // On component unmount we unsubscribe to storeState updates
-    useUnmount(() => handleStoreSubscription(subscriptionRef));
+      // Because we're subscribing in a passive effect,
+      // it's possible that an update has occurred between render and effect
+      onUpdate(storeState.getState(), storeState);
+
+      return () => {
+        // On component unmount we unsubscribe to storeState updates
+        subscription.unsubscribe();
+        subscription = null;
+      };
+    }, [storeState]);
 
     return [currentState, actions];
   };

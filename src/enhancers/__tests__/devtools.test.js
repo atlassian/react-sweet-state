@@ -27,15 +27,14 @@ describe('withDevtools', () => {
   it('should return an enhanced store object', () => {
     const store = withDevtools(createStoreMock)();
 
-    expect(store).toEqual({
-      key: storeStateMock.key,
-      getState: expect.any(Function),
-      setState: expect.any(Function),
-      resetState: expect.any(Function),
-      subscribe: expect.any(Function),
-      listeners: expect.any(Function),
-      mutator: expect.any(Function),
-    });
+    expect(store).toEqual(
+      expect.objectContaining({
+        key: storeStateMock.key,
+        getState: expect.any(Function),
+        setState: expect.any(Function),
+        mutator: expect.any(Function),
+      })
+    );
   });
 
   it('should enhance mutator, calling original one too', () => {
