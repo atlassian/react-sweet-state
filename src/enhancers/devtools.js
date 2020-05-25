@@ -1,9 +1,10 @@
 import defaults from '../defaults';
 
-const connectDevTools = storeState => {
+const connectDevTools = (storeState, config) => {
   const devTools = window.__REDUX_DEVTOOLS_EXTENSION__.connect({
     name: `Store ${storeState.key}`,
     serialize: true,
+    ...config,
   });
   devTools.init(storeState.getState());
   devTools.subscribe(message => {
@@ -43,7 +44,11 @@ const withDevtools = createStoreState => (...args) => {
       const result = origMutator(arg);
       try {
         if (!devTools) {
-          devTools = connectDevTools(storeState);
+          const config =
+            typeof defaults.devtools === 'function'
+              ? defaults.devtools(storeState)
+              : {};
+          devTools = connectDevTools(storeState, config);
         }
         devTools.send(
           { type: storeState.mutator.actionName, payload: arg },
