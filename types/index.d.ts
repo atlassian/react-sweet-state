@@ -107,7 +107,7 @@ declare module 'react-sweet-state' {
   ) => (next: (arg: any) => MiddlewareResult) => (arg: any) => MiddlewareResult;
 
   const defaults: {
-    devtools: boolean;
+    devtools: boolean | ((storeState: StoreState<any>) => Record<string, any>);
     middlewares: Set<Middleware>;
     mutator: (currentState: any, setStateArg: any) => any;
   };

@@ -4,7 +4,6 @@ import { storeStateMock } from '../../__tests__/mocks';
 import withDevtools from '../devtools';
 import defaults from '../../defaults';
 
-defaults.devtools = true;
 window.__REDUX_DEVTOOLS_EXTENSION__ = {
   connect: jest.fn(),
   send: jest.fn(),
@@ -20,6 +19,7 @@ describe('withDevtools', () => {
   let createStoreMock;
 
   beforeEach(() => {
+    defaults.devtools = true;
     createStoreMock = jest.fn().mockReturnValue({ ...storeStateMock });
     window.__REDUX_DEVTOOLS_EXTENSION__.connect.mockReturnValue(devToolsMock);
   });
@@ -48,9 +48,28 @@ describe('withDevtools', () => {
     const store = withDevtools(createStoreMock)();
     store.mutator({ count: 1 });
 
-    expect(window.__REDUX_DEVTOOLS_EXTENSION__.connect).toHaveBeenCalled();
+    expect(window.__REDUX_DEVTOOLS_EXTENSION__.connect).toHaveBeenCalledWith({
+      name: 'Store store-key',
+      serialize: true,
+    });
     expect(devToolsMock.init).toHaveBeenCalledWith({ count: 0 });
     expect(devToolsMock.subscribe).toHaveBeenCalled();
+  });
+
+  it('should allow to custom devtools settings', () => {
+    defaults.devtools = storeState => ({
+      name: `CustomStore ${storeState.key[0]}`,
+      stateSanitizer: jest.fn(),
+    });
+    storeStateMock.getState.mockReturnValue({ count: 0 });
+    const store = withDevtools(createStoreMock)();
+    store.mutator({ count: 1 });
+
+    expect(window.__REDUX_DEVTOOLS_EXTENSION__.connect).toHaveBeenCalledWith({
+      name: 'CustomStore store-key',
+      serialize: true,
+      stateSanitizer: expect.any(Function),
+    });
   });
 
   it('should send action and store state details to devtools extension on mutator execution', () => {
