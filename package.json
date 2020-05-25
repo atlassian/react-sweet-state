@@ -1,6 +1,6 @@
 {
   "name": "react-sweet-state",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Global + local state combining the best of Redux and Context API",
   "keywords": [
     "React",
