@@ -2,11 +2,13 @@
   <img src="https://user-images.githubusercontent.com/84136/59560300-2fca8e80-9053-11e9-8f90-76d9ef281ca6.png" alt="react-sweet-state logo" height="150" />
 </p>
 <h1 align="center">react-sweet-state</h1>
-
-[![npm](https://img.shields.io/npm/v/react-sweet-state.svg)](https://www.npmjs.com/package/react-sweet-state)
-[![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/react-sweet-state.svg)](https://bundlephobia.com/result?p=react-sweet-state)
-[![License](https://img.shields.io/:license-MIT-blue.svg)](./LICENSE)
-[![codecov](https://codecov.io/gh/atlassian/react-sweet-state/branch/master/graph/badge.svg)](https://codecov.io/gh/atlassian/react-sweet-state)
+<p align="center">
+  <a href="https://www.npmjs.com/package/react-sweet-state"><img src="https://img.shields.io/npm/v/react-sweet-state.svg"></a>
+  <a href="https://bundlephobia.com/result?p=react-sweet-state"><img src="https://img.shields.io/bundlephobia/minzip/react-sweet-state.svg" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <a href="https://codecov.io/gh/atlassian/react-sweet-state"><img src="https://codecov.io/gh/atlassian/react-sweet-state/branch/master/graph/badge.svg" /></a>
+  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" /></a>
+</p>
 
 The good parts of Redux and React Context in a flexible, scalable and easy to use state management solution
 
