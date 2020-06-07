@@ -1,0 +1,30 @@
+name: PUBLISH
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install packages
+        run: npm install
+
+      - name: Verify source
+        run: npm run preversion
+
+      - name: Build source
+        run: npm run build
+
+      - name: Publish packages to npm registry
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.REACT_SWEET_STATE_NPM_TOKEN}}

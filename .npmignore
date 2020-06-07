@@ -2,6 +2,7 @@
 # Ignore dev files
 .vscode
 .circleci
+.github
 .editorconfig
 .eslintrc.js
 .prettierrc.js
