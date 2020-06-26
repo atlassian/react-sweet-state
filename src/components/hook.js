@@ -59,6 +59,7 @@ export function createHook(Store, { selector } = {}) {
 
     useIsomorphicLayoutEffect(() => {
       let subscription = {};
+      let prevState;
       const onUpdate = (updatedState, updatedStoreState) => {
         // if already unmounted ignore the update
         if (!subscription) return;
@@ -66,11 +67,12 @@ export function createHook(Store, { selector } = {}) {
         if (updatedStoreState !== storeState) return triggerUpdate({});
         // if selector null we bail out from normal state updates
         if (stateSelector === EMPTY_SELECTOR) return;
-
         const nextState = stateSelector(updatedState, propsRef.current);
-        // cannot call it conditionally as it will fail StrictMode
-        // but if state === nextState then React might skip re-render anyway
-        triggerUpdate(nextState);
+
+        if (nextState !== prevState) {
+          triggerUpdate(nextState);
+          prevState = nextState;
+        }
       };
 
       subscription.unsubscribe = storeState.subscribe(onUpdate);
