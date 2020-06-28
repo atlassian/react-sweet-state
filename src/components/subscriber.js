@@ -1,11 +1,6 @@
 import { createHook } from './hook';
 
-const defaultSelector = state => state;
-
-export function createSubscriber(
-  Store,
-  { selector = defaultSelector, displayName = '' } = {}
-) {
+export function createSubscriber(Store, { selector, displayName = '' } = {}) {
   const useStore = createHook(Store, { selector });
   const Subscriber = function({ children, ...rest }) {
     const [state, actions] = useStore(rest);

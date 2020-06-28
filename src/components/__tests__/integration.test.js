@@ -35,20 +35,6 @@ const expectActions = {
 describe('Integration', () => {
   beforeEach(() => {
     defaultRegistry.stores.clear();
-    // this is a hack to get useEffect run sync, otherwise it might not get called
-    jest.spyOn(React, 'useEffect').mockImplementation(React.useLayoutEffect);
-    // React warns about hooks not being wrapped in act()
-    // but if we do, react batches state update making tests pass
-    // even if subscription order is wrong
-    const consoleError = console.error;
-    jest.spyOn(console, 'error').mockImplementation((msg, ...rest) => {
-      if (typeof msg === 'string' && msg.includes('act(...)')) return;
-      consoleError.apply(console, msg, ...rest);
-    });
-  });
-
-  afterEach(() => {
-    React.useEffect.mockRestore();
   });
 
   it('should get closer storeState with scope id if matching', () => {
@@ -350,5 +336,45 @@ describe('Integration', () => {
       'SubWrapper',
       'HookWrapper[in-inner]',
     ]);
+  });
+
+  it('should not re-render components if selector returns same value', async () => {
+    const opts = { selector: s => ({ l: s.loading }) };
+    const Subscriber = createSubscriber(Store, opts);
+    const useHook = createHook(Store, opts);
+
+    const calls = [];
+    let acts;
+
+    const SubWrapper = () => (
+      <Subscriber>
+        {(_, action) => {
+          acts = action;
+          calls.push('SubWrapper');
+          return null;
+        }}
+      </Subscriber>
+    );
+
+    const HookWrapper = () => {
+      const [, boundActions] = useHook();
+      acts = boundActions;
+      calls.push('HookWrapper');
+      return null;
+    };
+
+    mount(
+      <>
+        <HookWrapper />
+        <SubWrapper />
+      </>
+    );
+
+    expect(calls).toEqual(['HookWrapper', 'SubWrapper']);
+
+    calls.splice(0);
+    act(() => acts.add('todo2'));
+
+    expect(calls).toEqual([]);
   });
 });
