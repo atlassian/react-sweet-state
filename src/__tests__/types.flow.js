@@ -75,6 +75,8 @@ const actionsDeprecated = {
     acs.increment();
     // $ExpectError action should be correctly typed
     acs.increment('1');
+    // TODO Increment should only accept one argument
+    acs.increment(1, 'foo');
     // $ExpectError action should be correctly typed
     acs.decrement().then();
     // $ExpectError result should be correctly typed
@@ -135,6 +137,8 @@ const actions = {
     dispatch(actions.increment());
     // $ExpectError action should be correctly typed
     dispatch(actions.increment('1'));
+    // $ExpectError Increment should only accept one argument
+    dispatch(actions.increment(1, 'foo'));
     // $ExpectError action should be correctly typed
     dispatch(actions.decrement()).then();
     // $ExpectError result should be correctly typed
@@ -180,8 +184,18 @@ Test = (
 );
 
 Test = (
-  // $ExpectError Actions should be correcly typed
+  // $ExpectError Actions should be correctly typed
   <TypeSubscriber>{(__, { increment }) => increment()}</TypeSubscriber>
+);
+
+Test = (
+  // $ExpectError string is incompatible with number
+  <TypeSubscriber>{(__, { increment }) => increment('1')}</TypeSubscriber>
+);
+
+Test = (
+  // TODO Increment should only accept one argument
+  <TypeSubscriber>{(__, { increment }) => increment(1, 'foo')}</TypeSubscriber>
 );
 
 // Correct
@@ -262,6 +276,9 @@ Test[1].increment();
 
 // $ExpectError Array index 1 should be actions
 Test[1].increment('1');
+
+// TODO Increment should only accept one argument
+Test[1].increment(1, 'foo');
 
 // TODO
 Test[1].decrement().then(v => v);

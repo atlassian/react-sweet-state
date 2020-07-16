@@ -9,17 +9,19 @@ import type { Node } from 'react';
  * SE: Selector output
  * PR: Component props
  * CPR: Container props
+ * SAA: Store action API
  */
 
 type SetState<ST> = (partialState: $Shape<ST>) => void;
 type GetState<ST> = () => $ReadOnly<ST>;
 type StoreUnsubscribe = () => void;
 
-export type RenderPropComponent<S, A> = (
-  state: S,
-  actions: $Exact<BoundActions<A>>
+export type RenderPropComponent<ST, AC> = (
+  state: ST,
+  actions: $Exact<BoundActions<AC>>
 ) => Node;
-export type HookReturnValue<S, A> = [S, $Exact<BoundActions<A>>];
+
+export type HookReturnValue<ST, AC> = [ST, $Exact<BoundActions<AC>>];
 
 export type Store<ST, AC> = {|
   key: string[],
@@ -39,7 +41,9 @@ export type StoreState<ST> = {|
   mutator: SetState<ST>,
 |};
 
-type ExtractReturnType = <R>((api: StoreActionApi<any>, cProps: any) => R) => R;
+type ExtractReturnType = <R>(
+  (api: StoreActionApi<any>, containerProps: any) => R
+) => R;
 
 export type StoreActionApi<ST> = {|
   setState: SetState<ST>,
@@ -59,15 +63,16 @@ export type Action<ST, CPR = *, AC = *> = (
 ) => *;
 
 // prettier-ignore
-type BoundAction<F> =
-  (<A, B, C, D, E>(a: A, b: B, c: C, d: D, e: E) => $Call<$Call<F, A, B, C, D, E>, *, *>) &
-  (<A, B, C, D>(a: A, b: B, c: C, d: D) => $Call<$Call<F, A, B, C, D>, *, *>) &
-  (<A, B, C>(a: A, b: B, c: C) => $Call<$Call<F, A, B, C>, *, *>) &
-  (<A, B>(a: A, b: B) => $Call<$Call<F, A, B>, *, *>) &
-  (<A>(a: A) => $Call<$Call<F, A>, *, *>) &
-  (() => $Call<$Call<F>, *, *>);
+type BoundAction<F, SAA = *, CPR = *> =
+  & (<A, B, C, D, E>(a: A, b: B, c: C, d: D, e: E) => $Call<$Call<F, A, B, C, D, E>, SAA, CPR>)
+  & (<A, B, C, D>(a: A, b: B, c: C, d: D) => $Call<$Call<F, A, B, C, D>, SAA, CPR>)
+  & (<A, B, C>(a: A, b: B, c: C) => $Call<$Call<F, A, B, C>, SAA, CPR>)
+  & (<A, B>(a: A, b: B) => $Call<$Call<F, A, B>, SAA, CPR>)
+  & (<A>(a: A) => $Call<$Call<F, A>, SAA, CPR>)
+  & (() => $Call<$Call<F>, SAA, CPR>);
 
 type MapBoundAction = <F>(F) => BoundAction<F>;
+
 export type BoundActions<AC> = $ObjMap<AC, MapBoundAction>;
 
 export type StoreInstance<ST, AC> = {

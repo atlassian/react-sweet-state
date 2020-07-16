@@ -58,6 +58,12 @@ const actions = {
   setTitle: (title: string) => ({ dispatch }: StoreActionApi<State>) => {
     const v0 = dispatch(actions.decrement());
     // $ExpectError
+    dispatch(actions.increment());
+    // $ExpectError
+    dispatch(actions.increment('1'));
+    // $ExpectError
+    dispatch(actions.increment(1, 'foo'));
+    // $ExpectError
     dispatch(actions.decrement()).then();
     // $ExpectError
     v0.split('');
@@ -107,6 +113,16 @@ Test = (
 Test = (
   // $ExpectError
   <TypeSubscriber>{(__, { increment }) => increment()}</TypeSubscriber>
+);
+
+Test = (
+  // $ExpectError
+  <TypeSubscriber>{(__, { increment }) => increment('1')}</TypeSubscriber>
+);
+
+Test = (
+  // $ExpectError
+  <TypeSubscriber>{(__, { increment }) => increment(1, 'foo')}</TypeSubscriber>
 );
 
 // Correct
@@ -206,6 +222,9 @@ baseReturn[1].increment();
 
 // $ExpectError
 baseReturn[1].increment('1');
+
+// $ExpectError
+baseReturn[1].increment(1, 'foo');
 
 // $ExpectError
 baseReturn[1].decrement().then(v => v);
