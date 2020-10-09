@@ -27,6 +27,9 @@ const Store = createStore<State, Actions>({
 export const TodoContainer = createContainer<State, Actions, ContainerProps>(
   Store,
   {
+    onInit: () => ({ dispatch }, { selectedUser }) => {
+      if (selectedUser) dispatch(actions.load(selectedUser));
+    },
     onUpdate: () => ({ dispatch }, { selectedUser }) => {
       if (selectedUser) dispatch(actions.load(selectedUser));
     },

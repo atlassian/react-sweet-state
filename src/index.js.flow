@@ -127,7 +127,7 @@ export type SubscriberComponent<ST, AC, PR> = React$ComponentType<{|
  * createStore
  */
 
-declare export function createStore<ST: {}, AC>({|
+declare export function createStore<ST: { ... }, AC>({|
   initialState: ST,
   actions: AC,
   name?: string,
