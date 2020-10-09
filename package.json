@@ -39,7 +39,7 @@
   "dependencies": {},
   "peerDependencies": {
     "prop-types": "^15.0.0",
-    "react": "^16.9.0"
+    "react": "^16.9.0 || ^17.0.0-0"
   },
   "peerDependenciesMeta": {
     "react-dom": {
