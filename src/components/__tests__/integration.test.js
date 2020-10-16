@@ -1,6 +1,6 @@
 /* eslint-env jest */
 
-import React, { Fragment, Component, PureComponent } from 'react';
+import React, { Fragment, Component, PureComponent, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { mount } from 'enzyme';
 import { act } from 'react-dom/test-utils';
@@ -21,6 +21,9 @@ const actions = {
     await Promise.resolve();
     setState({ todos: [`todo${v}`], loading: false });
   },
+  setLoading: () => ({ setState }) => {
+    setState({ loading: true });
+  },
 };
 const Store = createStore({
   initialState: { todos: [], loading: false },
@@ -30,6 +33,7 @@ const Store = createStore({
 const expectActions = {
   add: expect.any(Function),
   load: expect.any(Function),
+  setLoading: expect.any(Function),
 };
 
 describe('Integration', () => {
@@ -376,5 +380,23 @@ describe('Integration', () => {
     act(() => acts.add('todo2'));
 
     expect(calls).toEqual([]);
+  });
+
+  it('should not render-loop if state/action returns shallow equal value', async () => {
+    const useHook = createHook(Store);
+    const calls = [];
+
+    const HookWrapper = () => {
+      const [state, boundActions] = useHook();
+      useEffect(() => {
+        boundActions.setLoading();
+      }, [state, boundActions]);
+      calls.push('HookWrapper');
+      return null;
+    };
+
+    mount(<HookWrapper />);
+
+    expect(calls).toHaveLength(2);
   });
 });
