@@ -104,6 +104,7 @@ export type Middleware = (
 ) => (next: (arg: any) => MiddlewareResult) => (arg: any) => MiddlewareResult;
 
 declare export var defaults: {
+  batchUpdates: boolean,
   devtools: boolean | ((storeState: StoreState<any>) => Object),
   middlewares: Set<Middleware>,
   mutator: <ST>(currentState: ST, setStateArg: any) => ST,

@@ -1,6 +1,7 @@
 import applyMiddleware from '../middlewares';
 import withDevtools from '../enhancers/devtools';
 import defaults from '../defaults';
+import schedule from '../utils/schedule';
 
 function createStoreState(key, initialState) {
   let listeners = [];
@@ -12,14 +13,16 @@ function createStoreState(key, initialState) {
     },
     setState(nextState) {
       currentState = nextState;
-      storeState.notify();
+      // Instead of notifying all hooks immediately, we wait next tick
+      // so multiple actions affecting the same store gets combined
+      schedule(storeState.notify);
     },
     resetState() {
       storeState.setState(initialState);
     },
     notify(s = storeState) {
-      for (let listener of listeners) {
-        listener(s.getState(), s);
+      for (let i = 0; i < listeners.length; i++) {
+        listeners[i](s.getState(), s);
       }
     },
     subscribe(listener) {

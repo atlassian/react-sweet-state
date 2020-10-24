@@ -1,7 +1,8 @@
 // Mostly copied from fbjs/packages/fbjs/src/core/shallowEqual.js
-// inlined because fbjs/shallowEqual might get removed from React
+// enhanced with keys cache as might get called multiple times with same args
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
+const CACHE = new WeakMap();
 
 export default function shallowEqual(objA, objB) {
   if (objA === objB) {
@@ -17,8 +18,21 @@ export default function shallowEqual(objA, objB) {
     return false;
   }
 
-  const keysA = Object.keys(objA);
-  const keysB = Object.keys(objB);
+  let keysA;
+  if (CACHE.has(objA)) {
+    keysA = CACHE.get(objA);
+  } else {
+    keysA = Object.keys(objA);
+    CACHE.set(objA, keysA);
+  }
+
+  let keysB;
+  if (CACHE.has(objB)) {
+    keysB = CACHE.get(objB);
+  } else {
+    keysB = Object.keys(objB);
+    CACHE.set(objB, keysB);
+  }
 
   if (keysA.length !== keysB.length) {
     return false;

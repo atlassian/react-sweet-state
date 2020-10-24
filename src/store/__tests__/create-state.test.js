@@ -2,6 +2,7 @@
 
 import { storeStateMock } from '../../__tests__/mocks';
 import createStore from '../create-state';
+import defaults from '../../defaults';
 
 const initialState = { count: 0 };
 
@@ -35,18 +36,32 @@ describe('createStore', () => {
       expect(store.getState()).toBe(newState);
     });
 
-    it('should notify listeners', () => {
+    it('should notify listeners when multiple calls', () => {
       const store = createStore(storeStateMock.key, initialState);
-      const newState = { count: 1 };
       const listener = jest.fn();
       store.subscribe(listener);
-      store.setState(newState);
-      expect(listener).toHaveBeenCalled();
+      store.setState({ count: 1 });
+      store.setState({ count: 2 });
+      store.setState({ count: 3 });
+      expect(listener).toHaveBeenCalledTimes(3);
+    });
+
+    it('should batch notify listeners when setting enabled', async () => {
+      defaults.batchUpdates = true;
+      const store = createStore(storeStateMock.key, initialState);
+      const listener = jest.fn();
+      store.subscribe(listener);
+      store.setState({ count: 1 });
+      store.setState({ count: 2 });
+      store.setState({ count: 3 });
+      await Promise.resolve();
+      expect(listener).toHaveBeenCalledTimes(1);
+      defaults.batchUpdates = false;
     });
   });
 
   describe('resetState()', () => {
-    it('should replace current state with initial state', () => {
+    it('should replace current state with initial state', async () => {
       const store = createStore(storeStateMock.key, initialState);
       store.setState({ count: 1 });
       const listener = jest.fn();
