@@ -32,10 +32,10 @@ let TypeSelector;
 const actionsDeprecated = {
   // setState tests
   increment: (n: number): Action<State> => ({ setState }) => {
-    // $ExpectError setState should be of type State
+    // $FlowExpectedError setState should be of type State
     setState('');
 
-    // $ExpectError Partial state should be of type State
+    // $FlowExpectedError Partial state should be of type State
     setState({
       foo: 1,
     });
@@ -50,9 +50,9 @@ const actionsDeprecated = {
   // GetState tests
   decrement: (): Action<State> => ({ setState, getState }) => {
     const state = getState();
-    // $ExpectError State should be of type State
+    // $FlowExpectedError State should be of type State
     const bla = state.bla;
-    // $ExpectError State should not be considered writable
+    // $FlowExpectedError State should not be considered writable
     state.count = 1;
 
     // correct
@@ -71,15 +71,15 @@ const actionsDeprecated = {
   }) => {
     // TODO: action should be correctly typed (not supported for no arg fn)
     const v0 = acs.decrement(1);
-    // $ExpectError action should be correctly typed
+    // $FlowExpectedError action should be correctly typed
     acs.increment();
-    // $ExpectError action should be correctly typed
+    // $FlowExpectedError action should be correctly typed
     acs.increment('1');
     // TODO Increment should only accept one argument
     acs.increment(1, 'foo');
-    // $ExpectError action should be correctly typed
+    // $FlowExpectedError action should be correctly typed
     acs.decrement().then();
-    // $ExpectError result should be correctly typed
+    // $FlowExpectedError result should be correctly typed
     v0.split('');
 
     // Correct
@@ -97,10 +97,10 @@ const actionsDeprecated = {
 const actions = {
   // setState tests
   increment: (n: number) => ({ setState }: StoreActionApi<State>) => {
-    // $ExpectError setState should be of type State
+    // $FlowExpectedError setState should be of type State
     setState('');
 
-    // $ExpectError Partial state should be of type State
+    // $FlowExpectedError Partial state should be of type State
     setState({
       foo: 1,
     });
@@ -115,9 +115,9 @@ const actions = {
   // GetState tests
   decrement: () => ({ setState, getState }: StoreActionApi<State>) => {
     const state = getState();
-    // $ExpectError State should be of type State
+    // $FlowExpectedError State should be of type State
     const bla = state.bla;
-    // $ExpectError State should not be considered writable
+    // $FlowExpectedError State should not be considered writable
     state.count = 1;
 
     // correct
@@ -133,15 +133,15 @@ const actions = {
   // Actions tests
   setTitle: (title: string) => ({ dispatch }: StoreActionApi<State>) => {
     const v0 = dispatch(actions.decrement());
-    // $ExpectError action should be correctly typed
+    // $FlowExpectedError action should be correctly typed
     dispatch(actions.increment());
-    // $ExpectError action should be correctly typed
+    // $FlowExpectedError action should be correctly typed
     dispatch(actions.increment('1'));
-    // $ExpectError Increment should only accept one argument
+    // $FlowExpectedError Increment should only accept one argument
     dispatch(actions.increment(1, 'foo'));
-    // $ExpectError action should be correctly typed
+    // $FlowExpectedError action should be correctly typed
     dispatch(actions.decrement()).then();
-    // $ExpectError result should be correctly typed
+    // $FlowExpectedError result should be correctly typed
     v0.split('');
 
     // Correct
@@ -153,16 +153,16 @@ const actions = {
   },
 };
 
-// $ExpectError Store should be created with a valid argument
+// $FlowExpectedError Store should be created with a valid argument
 TypeStore = createStore<State, Actions>({ count: 0 });
 
-// $ExpectError Store should have initialState of type state
+// $FlowExpectedError Store should have initialState of type state
 TypeStore = createStore<State, Actions>({ initialState: { bla: 0 }, actions });
 
-// $ExpectError Store should have actions
+// $FlowExpectedError Store should have actions
 TypeStore = createStore<State, Actions>({ initialState: { count: 0 } });
 
-// $ExpectError Store type should be object
+// $FlowExpectedError Store type should be object
 TypeStore = createStore<string, Actions>({ initialState: '', actions });
 
 // Correct
@@ -179,17 +179,17 @@ TypeStore = createStore<State, Actions>({
 TypeSubscriber = createSubscriber<State, Actions>(TypeStore);
 
 Test = (
-  // $ExpectError Child arg shape should be state + actions
+  // $FlowExpectedError Child arg shape should be state + actions
   <TypeSubscriber>{({ foo }) => foo}</TypeSubscriber>
 );
 
 Test = (
-  // $ExpectError Actions should be correctly typed
+  // $FlowExpectedError Actions should be correctly typed
   <TypeSubscriber>{(__, { increment }) => increment()}</TypeSubscriber>
 );
 
 Test = (
-  // $ExpectError string is incompatible with number
+  // $FlowExpectedError string is incompatible with number
   <TypeSubscriber>{(__, { increment }) => increment('1')}</TypeSubscriber>
 );
 
@@ -210,12 +210,12 @@ TypeSelector = createSubscriber<State, Actions, _, void>(TypeStore, {
 });
 
 Test = (
-  // $ExpectError Child arg shape should be pick + actions
+  // $FlowExpectedError Child arg shape should be pick + actions
   <TypeSelector>{({ count }) => count}</TypeSelector>
 );
 
 Test = (
-  // $ExpectError Should not accept props
+  // $FlowExpectedError Should not accept props
   <TypeSelector min={3}>{({ baz }) => baz}</TypeSelector>
 );
 
@@ -228,11 +228,11 @@ TypeSelector = createSubscriber<State, Actions, void, void>(TypeStore, {
 });
 
 Test = (
-  // $ExpectError Child arg shape should be just actions
+  // $FlowExpectedError Child arg shape should be just actions
   <TypeSelector>{({ count }) => count}</TypeSelector>
 );
 
-// $ExpectError Should not accept props
+// $FlowExpectedError Should not accept props
 Test = <TypeSelector myProp>{state => !state}</TypeSelector>;
 
 // Correct
@@ -243,17 +243,17 @@ TypeSelector = createSubscriber<State, Actions, _, SelectorProps>(TypeStore, {
 });
 
 Test = (
-  // $ExpectError Should require props
+  // $FlowExpectedError Should require props
   <TypeSelector>{({ baz }) => baz}</TypeSelector>
 );
 
 Test = (
-  // $ExpectError Should require correct prop types
+  // $FlowExpectedError Should require correct prop types
   <TypeSelector min="2">{({ baz }) => baz}</TypeSelector>
 );
 
 Test = (
-  // $ExpectError Should have correct selector types
+  // $FlowExpectedError Should have correct selector types
   <TypeSelector min={2}>{({ min }) => min.split('')}</TypeSelector>
 );
 
@@ -268,20 +268,20 @@ typeHook = createHook<State, Actions>(TypeStore);
 
 Test = typeHook();
 
-// $ExpectError Array index 0 should be state
+// $FlowExpectedError Array index 0 should be state
 Test[0].foo;
 
-// $ExpectError Array index 1 should be actions
+// $FlowExpectedError Array index 1 should be actions
 Test[1].increment();
 
-// $ExpectError Array index 1 should be actions
+// $FlowExpectedError Array index 1 should be actions
 Test[1].increment('1');
+
+// $FlowExpectedError Action return type is number
+Test[1].decrement().then(v => v);
 
 // TODO Increment should only accept one argument
 Test[1].increment(1, 'foo');
-
-// TODO
-Test[1].decrement().then(v => v);
 
 // Correct
 Test[0].count + 0;
@@ -298,10 +298,10 @@ typeHook = createHook<State, Actions, _, void>(TypeStore, {
 
 Test = typeHook();
 
-// $ExpectError Array index 0 shape should be selector output
+// $FlowExpectedError Array index 0 shape should be selector output
 Test[0].count;
 
-// $ExpectError Should not accept props
+// $FlowExpectedError Should not accept props
 Test = typeHook({ min: 3 });
 
 // Correct
@@ -314,7 +314,7 @@ typeHook = createHook<State, Actions, void, void>(TypeStore, {
 
 Test = typeHook();
 
-// $ExpectError Array 0 shape should be undefined
+// $FlowExpectedError Array 0 shape should be undefined
 Test[0].count;
 
 // Correct
@@ -327,11 +327,11 @@ typeHook = createHook<State, Actions, _, SelectorProps>(TypeStore, {
 // TODO: Should require props
 Test = typeHook();
 
-// $ExpectError Should require correct prop types
+// $FlowExpectedError Should require correct prop types
 Test = typeHook({ min: '2' });
 
 Test = typeHook({ min: 2 });
-// $ExpectError Should have correct selector types
+// $FlowExpectedError Should have correct selector types
 Test[0].min.split('');
 
 // Correct
@@ -343,12 +343,12 @@ Test[0].min + Test[0].baz;
 TypeContainer = createContainer<State, Actions, {||}>(TypeStore);
 
 Test = (
-  // $ExpectError Container is not a render-prop
+  // $FlowExpectedError Container is not a render-prop
   <TypeContainer>{({ count }) => count}</TypeContainer>
 );
 
 Test = (
-  // $ExpectError Does not accept extra props
+  // $FlowExpectedError Does not accept extra props
   <TypeContainer foo="1">bla</TypeContainer>
 );
 
@@ -364,11 +364,11 @@ const TypePropsContainer = createContainer<State, Actions, ContainerProps>(
   TypeStore
 );
 
-// $ExpectError Requires typed props
+// $FlowExpectedError Requires typed props
 Test = <TypePropsContainer isGlobal>bla</TypePropsContainer>;
 
 Test = (
-  // $ExpectError Only allows typed extra props
+  // $FlowExpectedError Only allows typed extra props
   <TypePropsContainer foo="1">bla</TypePropsContainer>
 );
 
