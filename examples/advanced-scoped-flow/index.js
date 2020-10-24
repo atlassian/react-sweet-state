@@ -69,5 +69,4 @@ class App extends Component<
   }
 }
 
-// $FlowFixMe
 ReactDOM.render(<App />, document.getElementById('root'));

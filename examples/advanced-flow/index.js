@@ -58,6 +58,5 @@ ReactDOM.render(
   <StrictMode>
     <App />
   </StrictMode>,
-  // $FlowFixMe
   document.getElementById('root')
 );
