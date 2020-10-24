@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Performance test</title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+      hr {
+        margin: 1em;
+      }
+      #fps {
+        background: #333;
+        color: #fff;
+        padding: 1em;
+      }
+      #fps::before {
+        content: 'FPS: ';
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="fps">0</div>
+    <div id="root"></div>
+    <script src="./bundle.js" type="text/javascript"></script>
+    <script>
+      let counter = 0;
+      let start = Date.now();
+      const el = document.querySelector('#fps');
+      function fps() {
+        const now = Date.now();
+        counter++;
+        if (now - start > 1000) {
+          el.innerHTML = counter;
+          counter = 0;
+          start = now;
+        }
+        window.requestAnimationFrame(fps);
+      }
+      fps();
+    </script>
+  </body>
+</html>
