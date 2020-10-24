@@ -1,5 +1,5 @@
 // Mostly copied from fbjs/packages/fbjs/src/core/shallowEqual.js
-// inlined because fbjs/shallowEqual might get removed from React
+// enhanced with keys cache as might get called multiple times with same args
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 const CACHE = new WeakMap();
