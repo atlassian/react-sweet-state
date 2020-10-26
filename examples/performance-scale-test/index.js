@@ -1,8 +1,14 @@
 // @flow
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
+import { defaults } from 'react-sweet-state';
 
 import { useTodo } from './controllers/todos';
+
+/**
+ * Enable Batch updates
+ */
+defaults.batchUpdates = true;
 
 const COLLECTION = Array.from({ length: 500 });
 

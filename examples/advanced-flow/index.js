@@ -26,6 +26,11 @@ defaults.middlewares.add(mw);
 defaults.devtools = true;
 
 /**
+ * Enable Batch updates
+ */
+defaults.batchUpdates = true;
+
+/**
  * Main App
  */
 const App = () => {
