@@ -161,7 +161,7 @@ export default class Container extends Component {
   deleteScopedStore(scopeId = this.props.scope) {
     const { storeType } = this.constructor;
     const { storeState } = this.getScopedStore(storeType, scopeId);
-    if (!storeState.listeners().length) {
+    if (scopeId != null && !storeState.listeners().length) {
       this.getRegistry().deleteStore(storeType, scopeId);
     }
   }

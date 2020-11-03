@@ -173,13 +173,14 @@ describe('Container', () => {
       expect(mockOnContainerCleanupInner).toHaveBeenCalledTimes(1);
     });
 
-    it('should not cleanup from global on unmount if still listeners', () => {
+    it('should not cleanup from global on unmount if still listeners', async () => {
       storeStateMock.subscribe.mockReturnValue(jest.fn());
       storeStateMock.listeners.mockReturnValue([jest.fn()]);
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
       const wrapper = mount(<Container scope="s1">{children}</Container>);
       wrapper.unmount();
+      await Promise.resolve();
       expect(defaultRegistry.deleteStore).not.toHaveBeenCalled();
     });
 
@@ -191,6 +192,14 @@ describe('Container', () => {
       const wrapper = mount(<Container scope="s1">{children}</Container>);
       wrapper.setProps({ scope: 's2' });
       expect(defaultRegistry.deleteStore).toHaveBeenCalledWith(Store, 's1');
+    });
+
+    it('should not cleanup from global on unmount if not scoped', async () => {
+      storeStateMock.listeners.mockReturnValue([]);
+      const wrapper = mount(<Container isGlobal>Content</Container>);
+      wrapper.unmount();
+      await Promise.resolve();
+      expect(defaultRegistry.deleteStore).not.toHaveBeenCalled();
     });
 
     it('should call Container onInit on first render', () => {
