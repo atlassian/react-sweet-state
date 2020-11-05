@@ -210,6 +210,19 @@ describe('Hook', () => {
     expect(children).toHaveBeenCalledTimes(1);
     expect(children).toHaveBeenCalledWith(undefined, actions);
   });
+
+  it('should support selectors returning a function on init and update', () => {
+    const selector = state => ({ id }) => state[id];
+    const { getMount, children } = setup({}, selector);
+    getMount();
+
+    const newState = { count: 1 };
+    storeStateMock.getState.mockReturnValue(newState);
+    const update = storeStateMock.subscribe.mock.calls[0][0];
+    act(() => update(storeStateMock.getState(), storeStateMock));
+
+    expect(children).toHaveBeenCalledWith(expect.any(Function), actions);
+  });
 });
 
 describe('createMemoizedSelector', () => {

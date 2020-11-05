@@ -53,7 +53,7 @@ export function createHook(Store, { selector } = {}) {
     const currentState = stateSelector(storeState.getState(), propsArg);
     useDebugValue(currentState);
 
-    const triggerUpdate = useState(currentState)[1];
+    const triggerUpdate = useState(() => currentState)[1];
     const propsRef = useRef(propsArg);
     propsRef.current = propsArg;
 
@@ -70,7 +70,7 @@ export function createHook(Store, { selector } = {}) {
         const nextState = stateSelector(updatedState, propsRef.current);
 
         if (nextState !== prevState) {
-          triggerUpdate(nextState);
+          triggerUpdate(() => nextState);
           prevState = nextState;
         }
       };
