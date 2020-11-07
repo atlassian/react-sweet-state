@@ -1,5 +1,3 @@
-// import isNodeEnv from './utils/is-node';
-
 const defaultMutator = (prevState, partialState) => {
   // Merge the partial state and the previous state.
   return Object.assign({}, prevState, partialState);
