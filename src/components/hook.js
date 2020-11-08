@@ -8,7 +8,7 @@ import {
   useDebugValue,
 } from 'react';
 import { Context } from '../context';
-import { createSelector } from '../utils/create-selector';
+import { getSelectorInstance } from '../utils/create-selector';
 
 const EMPTY_SELECTOR = () => undefined;
 const DEFAULT_SELECTOR = state => state;
@@ -18,25 +18,20 @@ const DEFAULT_SELECTOR = state => state;
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
-export function createMemoizedSelector(selector) {
-  const isReselector = typeof selector.resultFunc === 'function';
-  const dependencies = isReselector
-    ? selector.dependencies
-    : [s => s, (_, p) => p];
-  const resultFunc = isReselector ? selector.resultFunc : selector;
-  return createSelector(dependencies, resultFunc);
-}
-
 export function createHook(Store, { selector } = {}) {
   return function useSweetState(propsArg) {
     const { getStore } = useContext(Context);
     const { storeState, actions } = getStore(Store);
+    const hasPropsArg = propsArg !== undefined;
 
     // If selector is not null, create a ref to the memoized version of it
     // Otherwise always return same value, as we ignore state
     const stateSelector = selector
       ? // eslint-disable-next-line react-hooks/rules-of-hooks
-        useMemo(() => createMemoizedSelector(selector), [])
+        useMemo(() => getSelectorInstance(selector, storeState, hasPropsArg), [
+          hasPropsArg,
+          storeState,
+        ])
       : selector === null
       ? EMPTY_SELECTOR
       : DEFAULT_SELECTOR;

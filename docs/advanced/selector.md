@@ -28,13 +28,14 @@ export const CurrentUserSubscriber = createSubscriber(Store, {
 ```
 
 The memoisation takes places on both the inputs and the outputs. If the arguments (state and props/args) are the same then the previous value will be returned without running the selector function. If one of the two is different, the selector function will be executed but the output checked for shallow equalilty, and if so the previous result will be returned.
+Also, if your hook/subscriber does not receive any argument/props, Sweet-state will optimise the selector execution even more, by running it once across all hooks/selectors.
 
 If you have complex transformations, you might want to use `createSelector` [API](#improve-memoisation-with-createSelector)
 so you can reduce the amount of times the output selector runs on state change.
 
-#### Selectors with props
+#### Selectors with props/argument
 
-`selector` also receives a second argument: the first argument of the hook call or the props on the subscriber
+`selector` could also receive a second argument: that is either the first passed to the hook call or the props set on the subscriber. This allows hooks to return different results based on some context values (at the cost of a small deoptimisation as selectors will no longer be shared).
 
 ```js
 import { createStore, createSubscriber, createHook } from 'react-sweet-state';
@@ -97,7 +98,7 @@ export const RefetchButton = () => {
 
 #### Improve memoisation with createSelector
 
-In case `selector` is expensive or returns complex mutated data every single time it is executed, it can be enhanced thanks to `createSelector`. This way, you ensure it gets recomputed only when relevant parts of state/props change:
+In case a `selector` is expensive or returns complex mutated data every single time it is executed, it can be enhanced thanks to `createSelector`. This way, you ensure it gets recomputed only when relevant parts of state/props change:
 
 ```js
 import {
@@ -130,6 +131,6 @@ export const TodoList = ({ status }) => {
 };
 ```
 
-In the example above, if some other state key changes (eg: `loading`), the output selector that filters the todos will not run, as its arguments have not changed yet. If a new todo gets added but the status will not match the provided one, the oputput selector will run, but your component will not re-render as the two arrays will be shallow equal anyway.
+In the example above, if some other state key changes (eg: `loading`), the output selector that filters the todos will not run, as its arguments have not changed yet. If a new todo gets added but the status will not match the provided one, the output selector will run, but your component will not re-render as the two arrays will be shallow equal anyway.
 
 Note: you might be already familiar with such API if you used [reselect](https://github.com/reduxjs/reselect). Sweet-state provides a sligly optimised version of it (but you can also use `reselect`@^4 if you like).
