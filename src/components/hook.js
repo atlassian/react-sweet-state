@@ -8,8 +8,7 @@ import {
   useDebugValue,
 } from 'react';
 import { Context } from '../context';
-import memoize from '../utils/memoize';
-import shallowEqual from '../utils/shallow-equal';
+import { createSelector } from '../utils/create-selector';
 
 const EMPTY_SELECTOR = () => undefined;
 const DEFAULT_SELECTOR = state => state;
@@ -19,20 +18,14 @@ const DEFAULT_SELECTOR = state => state;
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
-// We memoize both the input and the output
-// so if input args are shallow equal we do not recompute the selector
-// and also when we do, check if output is shallow equal to prevent children update
-export const createMemoizedSelector = selector => {
-  const memoSelector = memoize(selector);
-  let lastResult;
-  return (currentState, hookArg) => {
-    const result = memoSelector(currentState, hookArg);
-    if (!shallowEqual(result, lastResult)) {
-      lastResult = result;
-    }
-    return lastResult;
-  };
-};
+export function createMemoizedSelector(selector) {
+  const isReselector = typeof selector.resultFunc === 'function';
+  const dependencies = isReselector
+    ? selector.dependencies
+    : [s => s, (_, p) => p];
+  const resultFunc = isReselector ? selector.resultFunc : selector;
+  return createSelector(dependencies, resultFunc);
+}
 
 export function createHook(Store, { selector } = {}) {
   return function useSweetState(propsArg) {

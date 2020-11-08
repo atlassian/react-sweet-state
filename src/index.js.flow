@@ -197,3 +197,100 @@ declare export function createHook<ST, AC, SE, PR>(
     selector: null | ((state: ST, props: PR) => SE),
   |}
 ): (props?: PR) => HookReturnValue<SE, AC>;
+
+/**
+ * createSelector
+ */
+declare type InputSelector<-ST, PR, SE> = (state: ST, props: PR) => SE;
+
+declare type OutputSelector<-ST, PR, SE> = {
+  (state: ST, props: PR): SE,
+  resultFunc(...args: any[]): SE,
+  dependencies: any[],
+};
+
+declare export function createSelector<ST, PR, SE, T1>(
+  selector1: InputSelector<ST, PR, T1>,
+  resultFn: (arg1: T1) => SE
+): OutputSelector<ST, PR, SE>;
+declare export function createSelector<ST, PR, SE, T1>(
+  selectors: [InputSelector<ST, PR, T1>],
+  resultFn: (arg1: T1) => SE
+): OutputSelector<ST, PR, SE>;
+declare export function createSelector<ST, PR, SE, T1, T2>(
+  selector1: InputSelector<ST, PR, T1>,
+  selector2: InputSelector<ST, PR, T2>,
+  resultFn: (arg1: T1, arg2: T2) => SE
+): OutputSelector<ST, PR, SE>;
+declare export function createSelector<ST, PR, SE, T1, T2>(
+  selectors: [InputSelector<ST, PR, T1>, InputSelector<ST, PR, T2>],
+  resultFn: (arg1: T1, arg2: T2) => SE
+): OutputSelector<ST, PR, SE>;
+declare export function createSelector<ST, PR, SE, T1, T2, T3>(
+  selector1: InputSelector<ST, PR, T1>,
+  selector2: InputSelector<ST, PR, T2>,
+  selector3: InputSelector<ST, PR, T3>,
+  resultFn: (arg1: T1, arg2: T2, arg3: T3) => SE
+): OutputSelector<ST, PR, SE>;
+declare export function createSelector<ST, PR, SE, T1, T2, T3>(
+  selectors: [
+    InputSelector<ST, PR, T1>,
+    InputSelector<ST, PR, T2>,
+    InputSelector<ST, PR, T3>
+  ],
+  resultFn: (arg1: T1, arg2: T2, arg3: T3) => SE
+): OutputSelector<ST, PR, SE>;
+declare export function createSelector<ST, PR, SE, T1, T2, T3, T4>(
+  selector1: InputSelector<ST, PR, T1>,
+  selector2: InputSelector<ST, PR, T2>,
+  selector3: InputSelector<ST, PR, T3>,
+  selector4: InputSelector<ST, PR, T4>,
+  resultFn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4) => SE
+): OutputSelector<ST, PR, SE>;
+declare export function createSelector<ST, PR, SE, T1, T2, T3, T4>(
+  selectors: [
+    InputSelector<ST, PR, T1>,
+    InputSelector<ST, PR, T2>,
+    InputSelector<ST, PR, T3>,
+    InputSelector<ST, PR, T4>
+  ],
+  resultFn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4) => SE
+): OutputSelector<ST, PR, SE>;
+declare export function createSelector<ST, PR, SE, T1, T2, T3, T4, T5>(
+  selector1: InputSelector<ST, PR, T1>,
+  selector2: InputSelector<ST, PR, T2>,
+  selector3: InputSelector<ST, PR, T3>,
+  selector4: InputSelector<ST, PR, T4>,
+  selector5: InputSelector<ST, PR, T5>,
+  resultFn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5) => SE
+): OutputSelector<ST, PR, SE>;
+declare export function createSelector<ST, PR, SE, T1, T2, T3, T4, T5>(
+  selectors: [
+    InputSelector<ST, PR, T1>,
+    InputSelector<ST, PR, T2>,
+    InputSelector<ST, PR, T3>,
+    InputSelector<ST, PR, T4>,
+    InputSelector<ST, PR, T5>
+  ],
+  resultFn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5) => SE
+): OutputSelector<ST, PR, SE>;
+declare export function createSelector<ST, PR, SE, T1, T2, T3, T4, T5, T6>(
+  selector1: InputSelector<ST, PR, T1>,
+  selector2: InputSelector<ST, PR, T2>,
+  selector3: InputSelector<ST, PR, T3>,
+  selector4: InputSelector<ST, PR, T4>,
+  selector5: InputSelector<ST, PR, T5>,
+  selector6: InputSelector<ST, PR, T6>,
+  resultFn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5, arg6: T6) => SE
+): OutputSelector<ST, PR, SE>;
+declare export function createSelector<ST, PR, SE, T1, T2, T3, T4, T5, T6>(
+  selectors: [
+    InputSelector<ST, PR, T1>,
+    InputSelector<ST, PR, T2>,
+    InputSelector<ST, PR, T3>,
+    InputSelector<ST, PR, T4>,
+    InputSelector<ST, PR, T5>,
+    InputSelector<ST, PR, T6>
+  ],
+  resultFn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5, arg6: T6) => SE
+): OutputSelector<ST, PR, SE>;

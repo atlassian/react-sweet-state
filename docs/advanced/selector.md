@@ -1,6 +1,6 @@
-## Creating Subscribers/hooks with selectors
+## Creating subscribers/hooks with selectors
 
-**sweet-state** allows you to create Subscribers and hooks that return a specific (or transformed) part of the state, and they re-render only if the output is not shallow equal. Creating such components is extremely easy as you only need to specify a `selector` function on creation:
+**sweet-state** allows you to create hooks/subscribers that return a specific (or transformed) part of the state, and they re-render only if some condition change. Creating them is extremely easy as you only need to specify a `selector` function on creation:
 
 ```js
 import { createStore, createSubscriber, createHook } from 'react-sweet-state';
@@ -18,20 +18,23 @@ const Store = createStore({
 const getCurrentUser = state =>
   state.users.find(user => user.id === state.currentUserId);
 
-export const CurrentUserSubscriber = createSubscriber(Store, {
+export const useCurrentUser = createHook(Store, {
   selector: getCurrentUser,
 });
-
-export const useCurrentUser = createHook(Store, {
+// or
+export const CurrentUserSubscriber = createSubscriber(Store, {
   selector: getCurrentUser,
 });
 ```
 
-As long as the user returned by `find` is shallow equal to the previews one, `CurrentUserSubscriber` will not re-render it's children, but the selector will still be executed every time the state is mutated. If you need the selector to selectively recompute, read the [section below about reselect](#adding-reselect-to-memoize-selectors).
+The memoisation takes places on both the inputs and the outputs. If the arguments (state and props/args) are the same then the previous value will be returned without running the selector function. If one of the two is different, the selector function will be executed but the output checked for shallow equalilty, and if so the previous result will be returned.
+
+If you have complex transformations, you might want to use `createSelector` [API](#improve-memoisation-with-createSelector)
+so you can reduce the amount of times the output selector runs on state change.
 
 #### Selectors with props
 
-The `selector` also receives a second argument (`props`) that are the custom props passed to the Subscriber:
+`selector` also receives a second argument: the first argument of the hook call or the props on the subscriber
 
 ```js
 import { createStore, createSubscriber, createHook } from 'react-sweet-state';
@@ -43,31 +46,25 @@ const Store = createStore({
   },
 });
 
-const getTodosByStatus = (state, props) => ({ todos: state.todos.filter(t => t.status === props.status) });
-
-export const TodosByStatusSubscriber = createSubscriber(Store, {
-  selector: getTodosByStatus,
+const getTodosByStatus = (state, arg) => ({
+  todos: state.todos.filter(t => t.status === arg),
 });
 
 export const useTodosByStatus = createHook(Store, {
   selector: getTodosByStatus,
 });
 
-export const TodoList = ({ status }) => (
-  <TodosByStatusSubscriber status={status}>
-    {({ todos }) => /* render... */}
-  </TodosByStatusSubscriber>
-);
-// or
 export const TodoList = ({ status }) => {
-  const [todos, actions] = useTodosByStatus({ status });
+  const [todos, actions] = useTodosByStatus(status);
   return todos.map(/* render... */);
-}
+};
 ```
 
-#### Stateless selectors
+Note that if you need to pass more data to the hook as argument, you can use an object or array structure. It will checked for shallow equality so you don't need to worry about invalidating the selector inputs.
 
-A useful value for the `selector` option is `null`. This will create a `Subscriber` that will:
+#### Stateless hooks/subscribers
+
+A useful value for the `selector` option is `null`. This will create a hook/subscriber that will:
 
 - not re-render on any store state change.
 - only expose access to the actions
@@ -88,56 +85,51 @@ const Store = createStore({
   },
 });
 
-export const TodosActions = createSubscriber(Store, {
-  selector: null,
-});
-
 export const useTodosActions = createHook(Store, {
   selector: null,
 });
 
-export const RefetchButton = () => (
-  <TodosActions>
-    {(__, { actions }) => <button onClick={actions.refetch}>Refetch</button>}
-  </TodosActions>
-);
-// or
 export const RefetchButton = () => {
   const [, actions] = useTodosActions();
   return <button onClick={actions.refetch}>Refetch</button>;
 };
 ```
 
-#### Adding reselect to memoize selectors
+#### Improve memoisation with createSelector
 
-In case `selector` is expensive or returns complex mutated data every single time it is executed, it can be enhanced with [reselect](https://github.com/reduxjs/reselect) `createSelector`. This way, you ensure it gets recomputed only when relevant parts of state/props change:
+In case `selector` is expensive or returns complex mutated data every single time it is executed, it can be enhanced thanks to `createSelector`. This way, you ensure it gets recomputed only when relevant parts of state/props change:
 
 ```js
-import { createStore, createSubscriber, createHook } from 'react-sweet-state';
-import { createSelector } from 'reselect';
+import {
+  createStore,
+  createHook,
+  createHook,
+  createSelector,
+} from 'react-sweet-state';
 
 const Store = createStore({
-  initialState: { todos: [], loading: false, error: null, statusFilter: '' },
+  initialState: { todos: [], loading: false },
   actions: {
-    // fetch todos, ecc...
+    // fetch todos, set status filter, ecc...
   },
 });
 
 const getFilteredTodos = createSelector(
-  state => state.data.todos,
-  state => state.statusFilter,
-  (todos, status) => ({ todos: todos.filter(t => t.status === status) })
+  state => state.todos,
+  (__, props) => props.status,
+  (todos, status) => todos.filter(t => t.status === status)
 );
 
-export const TodosFilteredSubscriber = createSubscriber(Store, {
+export const useTodosFiltered = createHook(Store, {
   selector: getFilteredTodos,
 });
 
-export const TodoList = ({ status }) => (
-  <TodosFilteredSubscriber status={status}>
-    {({ todos }) => /* render... */}
-  </TodosFilteredSubscriber>
-);
+export const TodoList = ({ status }) => {
+  const [todos, actions] = useTodosByStatus(status);
+  return todos.map(/* render... */);
+};
 ```
 
-In the example above, if other attributes of the state change (eg: `loading`), `TodosFilteredSubscriber` will not re-render.
+In the example above, if some other state key changes (eg: `loading`), the output selector that filters the todos will not run, as its arguments have not changed yet. If a new todo gets added but the status will not match the provided one, the oputput selector will run, but your component will not re-render as the two arrays will be shallow equal anyway.
+
+Note: you might be already familiar with such API if you used [reselect](https://github.com/reduxjs/reselect). Sweet-state provides a sligly optimised version of it (but you can also use `reselect`@^4 if you like).

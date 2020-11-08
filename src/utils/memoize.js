@@ -1,28 +1,47 @@
-// Mostly copied from https://github.com/alexreardon/memoize-one
-// manually optimised shallow check 2 args
-
 import shallowEqual from './shallow-equal';
 
-// Shallow comparing 2 arguments, so if arg objects instances are different
-// but contents are the same we still get the memoized value
-const argumentsEqual = (newArgs, lastArgs) =>
-  shallowEqual(newArgs[0], lastArgs[0]) &&
-  shallowEqual(newArgs[1], lastArgs[1]);
+function exactEqual(objA, objB) {
+  return objA === objB;
+}
 
-export default function(resultFn) {
+function areArgumentsEqual(propsMode, prev, next) {
+  if (prev === null || next === null || prev.length !== next.length)
+    return false;
+
+  // If propsMode and 2 arguments, means it is an input selector
+  // and we check for shallow equality on 2nd one to optimise props
+  if (propsMode && prev.length === 2) {
+    return prev[0] === next[0] && shallowEqual(prev[1], next[1]);
+  }
+
+  for (let i = 0; i < prev.length; i++) {
+    if (!exactEqual(prev[i], next[i])) return false;
+  }
+
+  return true;
+}
+
+/**
+ * Tailor made memoisation
+ */
+export default function(resultFn, propsMode = false) {
   let lastArgs = [];
   let lastResult;
   let calledOnce = false;
 
-  const result = function(argA, argB) {
-    const newArgs = [argA, argB];
-    if (calledOnce && argumentsEqual(newArgs, lastArgs)) {
+  const result = function() {
+    if (calledOnce && areArgumentsEqual(propsMode, arguments, lastArgs)) {
       return lastResult;
     }
 
-    lastResult = resultFn.apply(this, newArgs);
+    const nextResult = resultFn.apply(this, arguments);
+    if (!propsMode && shallowEqual(nextResult, lastResult)) {
+      return lastResult;
+    }
+
+    lastResult = nextResult;
     calledOnce = true;
-    lastArgs = newArgs;
+    lastArgs = arguments;
     return lastResult;
   };
 

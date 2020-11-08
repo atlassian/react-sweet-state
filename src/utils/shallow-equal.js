@@ -18,35 +18,49 @@ export default function shallowEqual(objA, objB) {
     return false;
   }
 
-  let keysA;
-  if (CACHE.has(objA)) {
-    keysA = CACHE.get(objA);
-  } else {
-    keysA = Object.keys(objA);
-    CACHE.set(objA, keysA);
-  }
-
-  let keysB;
-  if (CACHE.has(objB)) {
-    keysB = CACHE.get(objB);
-  } else {
-    keysB = Object.keys(objB);
-    CACHE.set(objB, keysB);
-  }
-
-  if (keysA.length !== keysB.length) {
-    return false;
-  }
-
-  // Test for A's keys different from B.
-  for (let i = 0; i < keysA.length; i++) {
-    if (
-      !hasOwnProperty.call(objB, keysA[i]) ||
-      objA[keysA[i]] !== objB[keysA[i]]
-    ) {
+  if (Array.isArray(objA) && Array.isArray(objB)) {
+    // do array comparison
+    if (objA.length !== objB.length) {
       return false;
     }
-  }
 
-  return true;
+    for (let i = 0; i < objA.length; i++) {
+      if (objA[i] !== objB[i]) {
+        return false;
+      }
+    }
+  } else {
+    // do object comparison
+    let keysA;
+    if (CACHE.has(objA)) {
+      keysA = CACHE.get(objA);
+    } else {
+      keysA = Object.keys(objA);
+      CACHE.set(objA, keysA);
+    }
+
+    let keysB;
+    if (CACHE.has(objB)) {
+      keysB = CACHE.get(objB);
+    } else {
+      keysB = Object.keys(objB);
+      CACHE.set(objB, keysB);
+    }
+
+    if (keysA.length !== keysB.length) {
+      return false;
+    }
+
+    // Test for A's keys different from B.
+    for (let i = 0; i < keysA.length; i++) {
+      if (
+        !hasOwnProperty.call(objB, keysA[i]) ||
+        objA[keysA[i]] !== objB[keysA[i]]
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }

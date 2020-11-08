@@ -38,7 +38,7 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-/** Subscribers / Hooks */
+/** Hooks */
 
 const getAllTodosSelector = state => ({
   data: Object.keys(state).map(v => state[v]),
