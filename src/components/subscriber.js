@@ -8,10 +8,8 @@ function hasAdditionalProps(props) {
 export function createSubscriber(Store, { selector, displayName = '' } = {}) {
   const useStore = createHook(Store, { selector });
   const Subscriber = function({ children, ...rest }) {
-    const [state, actions] = useStore(
-      hasAdditionalProps(rest) ? rest : undefined
-    );
-    return children(state, actions);
+    const api = useStore(hasAdditionalProps(rest) ? rest : undefined);
+    return children(...api);
   };
   Subscriber.displayName = displayName || `Subscriber(${Store.key[0]})`;
   return Subscriber;
