@@ -1,3 +1,4 @@
+/* @jest-environment jsdom */
 /* eslint-env jest */
 
 import React, { Fragment, Component, PureComponent, useEffect } from 'react';

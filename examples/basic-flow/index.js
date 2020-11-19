@@ -1,13 +1,21 @@
 // @flow
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { defaults } from 'react-sweet-state';
 
-import '@babel/polyfill';
+import { useCounter } from './components';
 
-import { CounterSubscriber, useCounter } from './components';
+/**
+ * Enable Batch updates
+ */
+defaults.batchUpdates = true;
 
+/**
+ * Components
+ */
 const CounterHook = () => {
   const [{ count }, { increment }] = useCounter();
+
   return (
     <div>
       <h3>With Hooks</h3>
@@ -17,18 +25,6 @@ const CounterHook = () => {
   );
 };
 
-const CounterRpc = () => (
-  <CounterSubscriber>
-    {({ count }, { increment }) => (
-      <div>
-        <h3>With Render-props</h3>
-        <p>{count}</p>
-        <button onClick={increment}>+1</button>
-      </div>
-    )}
-  </CounterSubscriber>
-);
-
 /**
  * Main App
  */
@@ -36,8 +32,6 @@ const App = () => (
   <div>
     <h1>Simple counter example</h1>
     <main>
-      <CounterRpc />
-      <hr />
       <CounterHook />
     </main>
   </div>
