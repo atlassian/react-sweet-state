@@ -5,8 +5,7 @@ Actions are functions that can mutate data in a Store.
 ```js
 const actions = {
   reset: () => ({ setState }) => {
-      setState({ count: 0 });
-    };
+    setState({ count: 0 });
   },
 };
 ```
