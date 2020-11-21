@@ -29,7 +29,9 @@ export function createSelector(...funcs) {
 }
 
 export function createMemoizedSelector(selector) {
-  const isReselector = typeof selector.resultFunc === 'function';
+  const isReselector =
+    typeof selector.resultFunc === 'function' &&
+    Array.isArray(selector.dependencies);
   const dependencies = isReselector
     ? selector.dependencies
     : [s => s, (_, p) => p];
