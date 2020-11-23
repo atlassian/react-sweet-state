@@ -15,7 +15,7 @@ export default function schedule(fn) {
     return batch(() => fn());
 
   // Add to queue if not already there
-  // so we avoid multiple notifications to same store
+  // so we avoid multiple notifications to same store listeners
   if (!QUEUE.includes(fn)) QUEUE.push(fn);
 
   // if something already started schedule, skip
@@ -25,11 +25,9 @@ export default function schedule(fn) {
   // https://github.com/facebook/react/blob/master/packages/scheduler/src/forks/SchedulerNoDOM.js#L47
   scheduled = scheduleCallback(UserBlockingPriority, function runNotifyQueue() {
     batch(() => {
-      for (let i = 0; i < QUEUE.length; i++) {
-        QUEUE[i]();
-      }
+      let queueFn;
+      while ((queueFn = QUEUE.shift())) queueFn();
+      scheduled = null;
     });
-    QUEUE.length = 0;
-    scheduled = null;
   });
 }
