@@ -1,11 +1,9 @@
 import defaults from '../defaults';
 
 const connectDevTools = (storeState, config) => {
-  const devTools = window.__REDUX_DEVTOOLS_EXTENSION__.connect({
-    name: `Store ${storeState.key}`,
-    serialize: true,
-    ...config,
-  });
+  const devTools = window.__REDUX_DEVTOOLS_EXTENSION__.connect(
+    Object.assign({ name: `Store ${storeState.key}`, serialize: true }, config)
+  );
   devTools.init(storeState.getState());
   devTools.subscribe(message => {
     if (message.type === 'DISPATCH') {

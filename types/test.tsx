@@ -22,10 +22,10 @@ let Test;
 const actions = {
   // setState tests
   increment: (n: number) => ({ setState }: StoreActionApi<State>) => {
-    // $ExpectError
+    // @ts-expect-error
     setState('');
 
-    // $ExpectError
+    // @ts-expect-error
     setState({ foo: 1 });
 
     // Correct
@@ -39,9 +39,9 @@ const actions = {
   // GetState tests
   decrement: () => ({ setState, getState }: StoreActionApi<State>) => {
     const state = getState();
-    // $ExpectError
+    // @ts-expect-error
     const bla = state.bla;
-    // $ExpectError
+    // @ts-expect-error
     state.count = 1;
 
     // correct
@@ -57,15 +57,15 @@ const actions = {
   // Dispatch tests
   setTitle: (title: string) => ({ dispatch }: StoreActionApi<State>) => {
     const v0 = dispatch(actions.decrement());
-    // $ExpectError
+    // @ts-expect-error
     dispatch(actions.increment());
-    // $ExpectError
+    // @ts-expect-error
     dispatch(actions.increment('1'));
-    // $ExpectError
+    // @ts-expect-error
     dispatch(actions.increment(1, 'foo'));
-    // $ExpectError
+    // @ts-expect-error
     dispatch(actions.decrement()).then();
-    // $ExpectError
+    // @ts-expect-error
     v0.split('');
 
     // Correct
@@ -77,19 +77,19 @@ const actions = {
   },
 };
 
-// $ExpectError
+// @ts-expect-error
 const TypeStore0 = createStore<State, Actions>({ count: 0 });
 
 const TypeStore1 = createStore<State, Actions>({
-  // $ExpectError
+  // @ts-expect-error
   initialState: { bla: 0 },
   actions,
 });
 
-// $ExpectError
+// @ts-expect-error
 const TypeStore2 = createStore<State, Actions>({ initialState: { count: 0 } });
 
-// $ExpectError
+// @ts-expect-error
 const TypeStore3 = createStore<string, Actions>({ initialState: '', actions });
 
 // Correct
@@ -106,22 +106,22 @@ const TypeStore = createStore<State, Actions>({
 const TypeSubscriber = createSubscriber(TypeStore);
 
 Test = (
-  // $ExpectError
+  // @ts-expect-error
   <TypeSubscriber>{({ foo }) => foo}</TypeSubscriber>
 );
 
 Test = (
-  // $ExpectError
+  // @ts-expect-error
   <TypeSubscriber>{(__, { increment }) => increment()}</TypeSubscriber>
 );
 
 Test = (
-  // $ExpectError
+  // @ts-expect-error
   <TypeSubscriber>{(__, { increment }) => increment('1')}</TypeSubscriber>
 );
 
 Test = (
-  // $ExpectError
+  // @ts-expect-error
   <TypeSubscriber>{(__, { increment }) => increment(1, 'foo')}</TypeSubscriber>
 );
 
@@ -140,12 +140,12 @@ const TypeSelector = createSubscriber<State, Actions, { baz: number }>(
 );
 
 Test = (
-  // $ExpectError
+  // @ts-expect-error
   <TypeSelector>{({ count }) => count}</TypeSelector>
 );
 
 Test = (
-  // $ExpectError
+  // @ts-expect-error
   <TypeSelector min={3}>{({ baz }) => baz}</TypeSelector>
 );
 
@@ -158,12 +158,12 @@ const TypeSelectorNull = createSubscriber<State, Actions, void>(TypeStore, {
 });
 
 Test = (
-  // $ExpectError
+  // @ts-expect-error
   <TypeSelectorNull>{({ count }) => count}</TypeSelectorNull>
 );
 
 Test = (
-  // $ExpectError
+  // @ts-expect-error
   <TypeSelectorNull myProp>{state => state === undefined}</TypeSelectorNull>
 );
 
@@ -184,17 +184,17 @@ const TypeSelectorProp = createSubscriber<
 });
 
 Test = (
-  // $ExpectError
+  // @ts-expect-error
   <TypeSelectorProp>{({ baz }) => baz}</TypeSelectorProp>
 );
 
 Test = (
-  // $ExpectError
+  // @ts-expect-error
   <TypeSelectorProp min="2">{({ baz }) => baz}</TypeSelectorProp>
 );
 
 Test = (
-  // $ExpectError
+  // @ts-expect-error
   <TypeSelectorProp min={2}>{({ min }) => min.split('')}</TypeSelectorProp>
 );
 
@@ -211,22 +211,22 @@ const typeBaseHook = createHook<State, Actions>(TypeStore);
 
 const baseReturn = typeBaseHook();
 
-// $ExpectError
+// @ts-expect-error
 typeBaseHook({});
 
-// $ExpectError
+// @ts-expect-error
 baseReturn[0].foo;
 
-// $ExpectError
+// @ts-expect-error
 baseReturn[1].increment();
 
-// $ExpectError
+// @ts-expect-error
 baseReturn[1].increment('1');
 
-// $ExpectError
+// @ts-expect-error
 baseReturn[1].increment(1, 'foo');
 
-// $ExpectError
+// @ts-expect-error
 baseReturn[1].decrement().then(v => v);
 
 // Correct
@@ -245,10 +245,10 @@ const typeSelectorHook = createHook<State, Actions, { baz: number }>(
 
 const selectorReturn = typeSelectorHook();
 
-// $ExpectError
+// @ts-expect-error
 selectorReturn[0].count;
 
-// $ExpectError
+// @ts-expect-error
 typeSelectorHook({ min: 3 });
 
 // Correct
@@ -261,7 +261,7 @@ const typeNullHook = createHook<State, Actions, void>(TypeStore, {
 
 const nullReturn = typeNullHook();
 
-// $ExpectError
+// @ts-expect-error
 nullReturn[0].count;
 
 // Correct
@@ -272,14 +272,14 @@ const typeArgHook = createHook<State, Actions, SelectorState, SelectorProps>(
   { selector: (state, props) => ({ baz: 1, min: props.min }) }
 );
 
-// $ExpectError
+// @ts-expect-error
 typeArgHook();
 
-// $ExpectError
+// @ts-expect-error
 typeArgHook({ min: '2' });
 
 const argReturn = typeArgHook({ min: 2 });
-// $ExpectError
+// @ts-expect-error
 argReturn[0].min.split('');
 
 // Correct
@@ -292,12 +292,12 @@ argReturn[0].min + argReturn[0].baz;
 const TypeContainer = createContainer<State, Actions>(TypeStore);
 
 Test = (
-  // $ExpectError
+  // @ts-expect-error
   <TypeContainer>{({ count }) => count}</TypeContainer>
 );
 
 Test = (
-  // $ExpectError
+  // @ts-expect-error
   <TypeContainer foo="1">bla</TypeContainer>
 );
 
@@ -310,11 +310,11 @@ const TypePropsContainer = createContainer<State, Actions, { url: string }>(
   TypeStore
 );
 
-// $ExpectError
+// @ts-expect-error
 Test = <TypePropsContainer isGlobal>bla</TypePropsContainer>;
 
 Test = (
-  // $ExpectError
+  // @ts-expect-error
   <TypePropsContainer foo="1">bla</TypePropsContainer>
 );
 

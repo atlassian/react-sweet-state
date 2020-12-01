@@ -400,4 +400,32 @@ describe('Integration', () => {
 
     expect(calls).toHaveLength(2);
   });
+
+  it('should not re-compute selector if no arguments are passed', async () => {
+    const selector = jest.fn(s => s);
+    const useHook = createHook(Store, { selector });
+
+    const HookWrapper = () => {
+      useHook();
+      useHook();
+      return null;
+    };
+    mount(<HookWrapper />);
+
+    expect(selector).toHaveBeenCalledTimes(1);
+  });
+
+  it('should re-compute selector if arguments are passed', async () => {
+    const selector = jest.fn(s => s);
+    const useHook = createHook(Store, { selector });
+
+    const HookWrapper = () => {
+      useHook(1);
+      useHook(1);
+      return null;
+    };
+    mount(<HookWrapper />);
+
+    expect(selector).toHaveBeenCalledTimes(2);
+  });
 });

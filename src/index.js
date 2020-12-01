@@ -6,3 +6,4 @@ export { createHook } from './components/hook';
 export { default as defaults } from './defaults';
 export { createStore, defaultRegistry } from './store';
 export { unstable_batchedUpdates as batch } from './utils/batched-updates';
+export { createSelector } from './utils/create-selector';

@@ -4,7 +4,12 @@ module.exports = {
   presets: [
     [
       '@babel/preset-env',
-      { targets: { ie: '11' }, modules: false, exclude: ['transform-typeof-symbol'] },
+      {
+        targets: { edge: '16' },
+        modules: false,
+        exclude: ['transform-typeof-symbol'],
+        loose: true,
+      },
     ],
     '@babel/preset-react',
     '@babel/preset-flow',
