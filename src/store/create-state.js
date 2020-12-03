@@ -28,7 +28,7 @@ function createStoreState(key, initialState) {
     subscribe(listener) {
       listeners = listeners.concat(listener);
       return function unsubscribe() {
-        listeners = listeners.filter(fn => fn !== listener);
+        listeners = listeners.filter((fn) => fn !== listener);
       };
     },
     listeners() {

@@ -5,7 +5,10 @@ import {
   createContainer,
   createSubscriber,
   createHook,
-  type StoreActionApi,
+  type Action,
+  type ContainerComponent,
+  type SubscriberComponent,
+  type HookFunction,
 } from 'react-sweet-state';
 
 type State = {
@@ -14,7 +17,6 @@ type State = {
   isSending: boolean,
   toUsers: number,
 };
-type StoreApi = StoreActionApi<State>;
 type Actions = typeof actions;
 
 type ContainerProps = {|
@@ -29,23 +31,22 @@ const initialState: State = {
 };
 
 const actions = {
-  input: (value: string) => ({ setState }: StoreApi) => {
+  input: (value: string): Action<State> => ({ setState }) => {
     setState({
       message: value,
       isValid: value.length > 0,
     });
   },
 
-  send: (message: string) => async ({ setState }: StoreApi) => {
+  send: (): Action<State, {}, Promise<void>> => async ({ setState }) => {
     setState({
       isSending: true,
     });
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 1000));
     setState({
       isSending: false,
       message: '',
     });
-    return message;
   },
 };
 
@@ -55,7 +56,7 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-export const FormContainer = createContainer<State, Actions, ContainerProps>(
+export const FormContainer: ContainerComponent<ContainerProps> = createContainer(
   Store,
   {
     onUpdate: () => ({ setState }, { remoteUsers }) => {
@@ -64,14 +65,18 @@ export const FormContainer = createContainer<State, Actions, ContainerProps>(
   }
 );
 
-export const FormSubscriber = createSubscriber<State, Actions>(Store);
+export const FormSubscriber: SubscriberComponent<
+  State,
+  Actions
+> = createSubscriber(Store);
 
-export const useForm = createHook<State, Actions>(Store);
+export const useForm: HookFunction<State, Actions> = createHook(Store);
 
-export const FormActions = createSubscriber<State, Actions, void, void>(Store, {
-  selector: null,
-});
+export const FormActions: SubscriberComponent<
+  void,
+  Actions
+> = createSubscriber(Store, { selector: null });
 
-export const useFormActions = createHook<State, Actions, void, void>(Store, {
+export const useFormActions: HookFunction<void, Actions> = createHook(Store, {
   selector: null,
 });

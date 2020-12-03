@@ -4,7 +4,9 @@ import {
   createStore,
   createSubscriber,
   createHook,
-  type StoreActionApi,
+  type Action,
+  type SubscriberComponent,
+  type HookFunction,
 } from 'react-sweet-state';
 
 type State = {
@@ -20,7 +22,7 @@ const initialState: State = {
 };
 
 const actions = {
-  add: (message: string) => ({ setState, getState }: StoreActionApi<State>) => {
+  add: (message: string): Action<State> => ({ setState, getState }) => {
     setState({
       data: [...getState().data, message],
     });
@@ -33,6 +35,9 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-export const MessagesSubscriber = createSubscriber<State, Actions>(Store);
+export const MessagesSubscriber: SubscriberComponent<
+  State,
+  Actions
+> = createSubscriber(Store);
 
-export const useMessages = createHook<State, Actions>(Store);
+export const useMessages: HookFunction<State, Actions> = createHook(Store);

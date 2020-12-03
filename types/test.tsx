@@ -8,6 +8,7 @@ import {
   createSubscriber,
   createHook,
   StoreActionApi,
+  Action,
 } from 'react-sweet-state';
 
 /**
@@ -18,6 +19,63 @@ type Actions = typeof actions;
 type SelectorProps = { min: number };
 
 let Test;
+
+const actionsGeneric = {
+  // setState tests
+  increment: (n: number): Action<State, void, string> => ({ setState }) => {
+    // @ts-expect-error
+    setState('');
+
+    // @ts-expect-error
+    setState({ foo: 1 });
+
+    // Correct
+    setState({
+      count: 2,
+    });
+
+    return '';
+  },
+
+  // GetState tests
+  decrement: (): Action<State, {}, number> => ({ setState, getState }) => {
+    const state = getState();
+    // @ts-expect-error
+    const bla = state.bla;
+    // @ts-expect-error
+    state.count = 1;
+
+    // correct
+    const { count } = state;
+
+    return count;
+  },
+
+  fetch: (): Action<State, {}, Promise<string>> => async () => {
+    return '';
+  },
+
+  // Dispatch tests
+  setTitle: (title: string): Action<State> => ({ dispatch }) => {
+    const v0 = dispatch(actions.decrement());
+    // @ts-expect-error
+    dispatch(actions.increment());
+    // @ts-expect-error
+    dispatch(actions.increment('1'));
+    // @ts-expect-error
+    dispatch(actions.increment(1, 'foo'));
+    // @ts-expect-error
+    dispatch(actions.decrement()).then();
+    // @ts-expect-error
+    v0.split('');
+
+    // Correct
+    batch(() => dispatch(actions.decrement()));
+    dispatch(actions.increment(1));
+    dispatch(actions.fetch()).then((v) => v.split(''));
+    v0 + 1;
+  },
+};
 
 const actions = {
   // setState tests
@@ -70,10 +128,9 @@ const actions = {
 
     // Correct
     batch(() => dispatch(actions.decrement()));
-    dispatch(actions.fetch()).then(v => v + 1);
-    dispatch(actions.fetch()).then(v => v.split(''));
+    dispatch(actions.increment(1));
+    dispatch(actions.fetch()).then((v) => v.split(''));
     v0 + 1;
-    return title;
   },
 };
 
@@ -135,7 +192,7 @@ Test = <TypeSubscriber>{(__, { increment }) => increment(1)}</TypeSubscriber>;
 const TypeSelector = createSubscriber<State, Actions, { baz: number }>(
   TypeStore,
   {
-    selector: state => ({ baz: 1 }),
+    selector: (state) => ({ baz: 1 }),
   }
 );
 
@@ -164,7 +221,7 @@ Test = (
 
 Test = (
   // @ts-expect-error
-  <TypeSelectorNull myProp>{state => state === undefined}</TypeSelectorNull>
+  <TypeSelectorNull myProp>{(state) => state === undefined}</TypeSelectorNull>
 );
 
 // Correct
@@ -227,20 +284,20 @@ baseReturn[1].increment('1');
 baseReturn[1].increment(1, 'foo');
 
 // @ts-expect-error
-baseReturn[1].decrement().then(v => v);
+baseReturn[1].decrement().then((v) => v);
 
 // Correct
 baseReturn[0].count + 0;
 baseReturn[1].increment(1);
 baseReturn[1].decrement();
-baseReturn[1].fetch().then(v => v);
+baseReturn[1].fetch().then((v) => v);
 
 /**
  * createHook with selector types tests
  */
 const typeSelectorHook = createHook<State, Actions, { baz: number }>(
   TypeStore,
-  { selector: state => ({ baz: 1 }) }
+  { selector: (state) => ({ baz: 1 }) }
 );
 
 const selectorReturn = typeSelectorHook();

@@ -24,12 +24,12 @@ function areArgumentsEqual(propsMode, prev, next) {
 /**
  * Tailor made memoisation
  */
-export default function(resultFn, propsMode = false) {
+export default function (resultFn, propsMode = false) {
   let lastArgs = [];
   let lastResult;
   let calledOnce = false;
 
-  const result = function() {
+  const result = function () {
     if (calledOnce && areArgumentsEqual(propsMode, arguments, lastArgs)) {
       return lastResult;
     }

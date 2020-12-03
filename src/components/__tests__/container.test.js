@@ -141,7 +141,7 @@ describe('Container', () => {
 
     it('should cleanup from global on unmount if no more listeners', async () => {
       const listeners = [];
-      const subscribe = fn => {
+      const subscribe = (fn) => {
         listeners.push(fn);
         return () => (listeners.length = 0);
       };
@@ -158,7 +158,7 @@ describe('Container', () => {
 
     it('should call Container onCleanup on unmount', async () => {
       const listeners = [];
-      const subscribe = fn => {
+      const subscribe = (fn) => {
         listeners.push(fn);
         return () => (listeners.length = 0);
       };

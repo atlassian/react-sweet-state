@@ -212,7 +212,7 @@ describe('Hook', () => {
   });
 
   it('should support selectors returning a function on init and update', () => {
-    const selector = state => ({ id }) => state[id];
+    const selector = (state) => ({ id }) => state[id];
     const { getMount, children } = setup({}, selector);
     getMount();
 

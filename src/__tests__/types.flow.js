@@ -29,13 +29,13 @@ let TypeSubscriber;
 let typeHook;
 let TypeSelector;
 
-const actionsDeprecated = {
+const actionsGeneric = {
   // setState tests
-  increment: (n: number): Action<State> => ({ setState }) => {
-    // $FlowExpectedError setState should be of type State
+  increment: (n: number): Action<State, {}, string> => ({ setState }) => {
+    // $FlowExpectedError[incompatible-shape] setState should be of type State
     setState('');
 
-    // $FlowExpectedError Partial state should be of type State
+    // $FlowExpectedError[prop-missing] Partial state should be of type State
     setState({
       foo: 1,
     });
@@ -48,11 +48,11 @@ const actionsDeprecated = {
   },
 
   // GetState tests
-  decrement: (): Action<State> => ({ setState, getState }) => {
+  decrement: (): Action<State, {}, number> => ({ setState, getState }) => {
     const state = getState();
-    // $FlowExpectedError State should be of type State
+    // $FlowExpectedError[prop-missing] State should be of type State
     const bla = state.bla;
-    // $FlowExpectedError State should not be considered writable
+    // $FlowExpectedError[cannot-write] State should not be considered writable
     state.count = 1;
 
     // correct
@@ -61,46 +61,39 @@ const actionsDeprecated = {
     return count;
   },
 
-  fetch: (): Action<State> => async (): Promise<string> => {
+  fetch: (): Action<State, {}, Promise<string>> => async () => {
     return '';
   },
 
   // Actions tests
-  setTitle: (title: string): Action<State, void, typeof actions> => ({
-    actions: acs,
-  }) => {
-    // TODO: action should be correctly typed (not supported for no arg fn)
-    const v0 = acs.decrement(1);
-    // $FlowExpectedError action should be correctly typed
-    acs.increment();
-    // $FlowExpectedError action should be correctly typed
-    acs.increment('1');
-    // TODO Increment should only accept one argument
-    acs.increment(1, 'foo');
-    // $FlowExpectedError action should be correctly typed
-    acs.decrement().then();
-    // $FlowExpectedError result should be correctly typed
+  setTitle: (title: string): Action<State> => ({ dispatch }) => {
+    const v0 = dispatch(actions.decrement());
+    // $FlowExpectedError[incompatible-call] action should be correctly typed
+    dispatch(actions.increment());
+    // $FlowExpectedError[incompatible-call] action should be correctly typed
+    dispatch(actions.increment('1'));
+    // $FlowExpectedError[extra-arg] Increment should only accept one argument
+    dispatch(actions.increment(1, 'foo'));
+    // $FlowExpectedError[prop-missing] action should be correctly typed
+    dispatch(actions.decrement()).then();
+    // $FlowExpectedError[prop-missing] result should be correctly typed
     v0.split('');
 
     // Correct
-    batch(() => {
-      acs.decrement();
-    });
-    acs.increment(1);
-    acs.fetch().then(v => v + 1);
-    acs.fetch().then(v => v.split(''));
+    batch(() => dispatch(actions.decrement()));
+    dispatch(actions.increment(1));
+    dispatch(actions.fetch()).then((v) => v.split(''));
     v0 + 1;
-    return title;
   },
 };
 
 const actions = {
   // setState tests
   increment: (n: number) => ({ setState }: StoreActionApi<State>) => {
-    // $FlowExpectedError setState should be of type State
+    // $FlowExpectedError[incompatible-shape] setState should be of type State
     setState('');
 
-    // $FlowExpectedError Partial state should be of type State
+    // $FlowExpectedError[prop-missing] Partial state should be of type State
     setState({
       foo: 1,
     });
@@ -115,9 +108,9 @@ const actions = {
   // GetState tests
   decrement: () => ({ setState, getState }: StoreActionApi<State>) => {
     const state = getState();
-    // $FlowExpectedError State should be of type State
+    // $FlowExpectedError[prop-missing] State should be of type State
     const bla = state.bla;
-    // $FlowExpectedError State should not be considered writable
+    // $FlowExpectedError[cannot-write] State should not be considered writable
     state.count = 1;
 
     // correct
@@ -133,36 +126,35 @@ const actions = {
   // Actions tests
   setTitle: (title: string) => ({ dispatch }: StoreActionApi<State>) => {
     const v0 = dispatch(actions.decrement());
-    // $FlowExpectedError action should be correctly typed
+    // $FlowExpectedError[incompatible-call] action should be correctly typed
     dispatch(actions.increment());
-    // $FlowExpectedError action should be correctly typed
+    // $FlowExpectedError[incompatible-call] action should be correctly typed
     dispatch(actions.increment('1'));
-    // $FlowExpectedError Increment should only accept one argument
+    // $FlowExpectedError[extra-arg] Increment should only accept one argument
     dispatch(actions.increment(1, 'foo'));
-    // $FlowExpectedError action should be correctly typed
+    // $FlowExpectedError[prop-missing] action should be correctly typed
     dispatch(actions.decrement()).then();
-    // $FlowExpectedError result should be correctly typed
+    // $FlowExpectedError[prop-missing] result should be correctly typed
     v0.split('');
 
     // Correct
     batch(() => dispatch(actions.decrement()));
     dispatch(actions.increment(1));
-    dispatch(actions.fetch()).then(v => v.split(''));
+    dispatch(actions.fetch()).then((v) => v.split(''));
     v0 + 1;
-    return title;
   },
 };
 
-// $FlowExpectedError Store should be created with a valid argument
+// $FlowExpectedError[prop-missing] Store should be created with a valid argument
 TypeStore = createStore<State, Actions>({ count: 0 });
 
-// $FlowExpectedError Store should have initialState of type state
+// $FlowExpectedError[prop-missing] Store should have initialState of type state
 TypeStore = createStore<State, Actions>({ initialState: { bla: 0 }, actions });
 
-// $FlowExpectedError Store should have actions
+// $FlowExpectedError[prop-missing] Store should have actions
 TypeStore = createStore<State, Actions>({ initialState: { count: 0 } });
 
-// $FlowExpectedError Store type should be object
+// $FlowExpectedError[incompatible-call] Store type should be object
 TypeStore = createStore<string, Actions>({ initialState: '', actions });
 
 // Correct
@@ -179,17 +171,17 @@ TypeStore = createStore<State, Actions>({
 TypeSubscriber = createSubscriber<State, Actions>(TypeStore);
 
 Test = (
-  // $FlowExpectedError Child arg shape should be state + actions
+  // $FlowExpectedError[prop-missing] Child arg shape should be state + actions
   <TypeSubscriber>{({ foo }) => foo}</TypeSubscriber>
 );
 
 Test = (
-  // $FlowExpectedError Actions should be correctly typed
+  // $FlowExpectedError[incompatible-call] Actions should be correctly typed
   <TypeSubscriber>{(__, { increment }) => increment()}</TypeSubscriber>
 );
 
 Test = (
-  // $FlowExpectedError string is incompatible with number
+  // $FlowExpectedError[incompatible-call] string is incompatible with number
   <TypeSubscriber>{(__, { increment }) => increment('1')}</TypeSubscriber>
 );
 
@@ -206,16 +198,16 @@ Test = <TypeSubscriber>{(__, { increment }) => increment(1)}</TypeSubscriber>;
  * createSubscriber with selector types tests
  */
 TypeSelector = createSubscriber<State, Actions, _, void>(TypeStore, {
-  selector: state => ({ baz: 1 }),
+  selector: (state) => ({ baz: 1 }),
 });
 
 Test = (
-  // $FlowExpectedError Child arg shape should be pick + actions
+  // $FlowExpectedError[prop-missing] Child arg shape should be pick + actions
   <TypeSelector>{({ count }) => count}</TypeSelector>
 );
 
 Test = (
-  // $FlowExpectedError Should not accept props
+  // $FlowExpectedError[prop-missing] Should not accept props
   <TypeSelector min={3}>{({ baz }) => baz}</TypeSelector>
 );
 
@@ -228,12 +220,12 @@ TypeSelector = createSubscriber<State, Actions, void, void>(TypeStore, {
 });
 
 Test = (
-  // $FlowExpectedError Child arg shape should be just actions
+  // $FlowExpectedError[incompatible-use] Child arg shape should be just actions
   <TypeSelector>{({ count }) => count}</TypeSelector>
 );
 
-// $FlowExpectedError Should not accept props
-Test = <TypeSelector myProp>{state => !state}</TypeSelector>;
+// $FlowExpectedError[prop-missing] Should not accept props
+Test = <TypeSelector myProp>{(state) => !state}</TypeSelector>;
 
 // Correct
 Test = <TypeSelector>{(state, { increment }) => increment(1)}</TypeSelector>;
@@ -243,17 +235,17 @@ TypeSelector = createSubscriber<State, Actions, _, SelectorProps>(TypeStore, {
 });
 
 Test = (
-  // $FlowExpectedError Should require props
+  // $FlowExpectedError[prop-missing] Should require props
   <TypeSelector>{({ baz }) => baz}</TypeSelector>
 );
 
 Test = (
-  // $FlowExpectedError Should require correct prop types
+  // $FlowExpectedError[incompatible-type] Should require correct prop types
   <TypeSelector min="2">{({ baz }) => baz}</TypeSelector>
 );
 
 Test = (
-  // $FlowExpectedError Should have correct selector types
+  // $FlowExpectedError[prop-missing] Should have correct selector types
   <TypeSelector min={2}>{({ min }) => min.split('')}</TypeSelector>
 );
 
@@ -268,17 +260,17 @@ typeHook = createHook<State, Actions>(TypeStore);
 
 Test = typeHook();
 
-// $FlowExpectedError Array index 0 should be state
+// $FlowExpectedError[prop-missing] Array index 0 should be state
 Test[0].foo;
 
-// $FlowExpectedError Array index 1 should be actions
+// $FlowExpectedError[incompatible-call] Array index 1 should be actions
 Test[1].increment();
 
-// $FlowExpectedError Array index 1 should be actions
+// $FlowExpectedError[incompatible-call] Array index 1 should be actions
 Test[1].increment('1');
 
-// $FlowExpectedError Action return type is number
-Test[1].decrement().then(v => v);
+// $FlowExpectedError[prop-missing] Action return type is number
+Test[1].decrement().then((v) => v);
 
 // TODO Increment should only accept one argument
 Test[1].increment(1, 'foo');
@@ -287,21 +279,21 @@ Test[1].increment(1, 'foo');
 Test[0].count + 0;
 Test[1].increment(1);
 Test[1].decrement();
-Test[1].fetch().then(v => v);
+Test[1].fetch().then((v) => v);
 
 /**
  * createHook with selector types tests
  */
 typeHook = createHook<State, Actions, _, void>(TypeStore, {
-  selector: state => ({ baz: 1 }),
+  selector: (state) => ({ baz: 1 }),
 });
 
 Test = typeHook();
 
-// $FlowExpectedError Array index 0 shape should be selector output
+// $FlowExpectedError[prop-missing] Array index 0 shape should be selector output
 Test[0].count;
 
-// $FlowExpectedError Should not accept props
+// $FlowExpectedError[incompatible-call] Should not accept props
 Test = typeHook({ min: 3 });
 
 // Correct
@@ -314,7 +306,7 @@ typeHook = createHook<State, Actions, void, void>(TypeStore, {
 
 Test = typeHook();
 
-// $FlowExpectedError Array 0 shape should be undefined
+// $FlowExpectedError[incompatible-use] Array 0 shape should be undefined
 Test[0].count;
 
 // Correct
@@ -327,11 +319,11 @@ typeHook = createHook<State, Actions, _, SelectorProps>(TypeStore, {
 // TODO: Should require props
 Test = typeHook();
 
-// $FlowExpectedError Should require correct prop types
+// $FlowExpectedError[incompatible-call] Should require correct prop types
 Test = typeHook({ min: '2' });
 
 Test = typeHook({ min: 2 });
-// $FlowExpectedError Should have correct selector types
+// $FlowExpectedError[prop-missing] Should have correct selector types
 Test[0].min.split('');
 
 // Correct
@@ -343,12 +335,12 @@ Test[0].min + Test[0].baz;
 TypeContainer = createContainer<State, Actions, {||}>(TypeStore);
 
 Test = (
-  // $FlowExpectedError Container is not a render-prop
+  // $FlowExpectedError[incompatible-type] Container is not a render-prop
   <TypeContainer>{({ count }) => count}</TypeContainer>
 );
 
 Test = (
-  // $FlowExpectedError Does not accept extra props
+  // $FlowExpectedError[prop-missing] Does not accept extra props
   <TypeContainer foo="1">bla</TypeContainer>
 );
 
@@ -364,11 +356,11 @@ const TypePropsContainer = createContainer<State, Actions, ContainerProps>(
   TypeStore
 );
 
-// $FlowExpectedError Requires typed props
+// $FlowExpectedError[prop-missing] Requires typed props
 Test = <TypePropsContainer isGlobal>bla</TypePropsContainer>;
 
 Test = (
-  // $FlowExpectedError Only allows typed extra props
+  // $FlowExpectedError[prop-missing] Only allows typed extra props
   <TypePropsContainer foo="1">bla</TypePropsContainer>
 );
 

@@ -7,7 +7,7 @@ describe('createMemoizedSelector', () => {
     it('should return selector result', () => {
       const propsArg = undefined;
       const state = { foo: 1 };
-      const selector = jest.fn(v => ({ bar: v.foo }));
+      const selector = jest.fn((v) => ({ bar: v.foo }));
 
       const stateSelector = createMemoizedSelector(selector);
       const result = stateSelector(state, propsArg);
@@ -17,7 +17,7 @@ describe('createMemoizedSelector', () => {
     });
 
     it('should return same result without running selector if 2nd argument is shallow equal', () => {
-      const selector = jest.fn(v => ({ bar: v.foo }));
+      const selector = jest.fn((v) => ({ bar: v.foo }));
       const stateSelector = createMemoizedSelector(selector);
 
       const state = { foo: 1 };
@@ -28,7 +28,7 @@ describe('createMemoizedSelector', () => {
     });
 
     it('should return same result if selector output is shallow equal', () => {
-      const selector = jest.fn(v => ({ bar: v.foo }));
+      const selector = jest.fn((v) => ({ bar: v.foo }));
       const stateSelector = createMemoizedSelector(selector);
 
       const result1 = stateSelector({ foo: 1 }, { baz: 1 });
@@ -42,11 +42,11 @@ describe('createMemoizedSelector', () => {
     it('should return selector result', () => {
       const propsArg = undefined;
       const state = { foo: 1 };
-      const selector = jest.fn(v => ({ bar: v.foo }));
+      const selector = jest.fn((v) => ({ bar: v.foo }));
 
       const stateSelector = createMemoizedSelector(
         createSelector(
-          s => s,
+          (s) => s,
           (_, p) => p,
           selector
         )
@@ -62,7 +62,7 @@ describe('createMemoizedSelector', () => {
     const selector = jest.fn((v1, v2) => ({ bar: v1 + v2 }));
     const stateSelector = createMemoizedSelector(
       createSelector(
-        s => s.foo,
+        (s) => s.foo,
         (_, p) => p.baz,
         selector
       )
@@ -78,7 +78,7 @@ describe('createMemoizedSelector', () => {
     const selector = jest.fn((v1, v2) => ({ bar: v1 + v2 }));
     const stateSelector = createMemoizedSelector(
       createSelector(
-        s => s.foo,
+        (s) => s.foo,
         (_, p) => p.baz,
         selector
       )
@@ -93,7 +93,7 @@ describe('createMemoizedSelector', () => {
   it('should work with nested selectors', () => {
     const selector = jest.fn(([v1, v2]) => ({ bar: v1 + v2 }));
     const firstSelector = createSelector(
-      s => s.foo,
+      (s) => s.foo,
       (_, p) => p.baz,
       (v1, v2) => [v1, v2]
     );

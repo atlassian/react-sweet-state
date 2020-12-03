@@ -32,7 +32,7 @@ const setLoading = () => ({ setState }) => {
   setState({ loading: true });
 };
 
-const setData = data => ({ setState }) => {
+const setData = (data) => ({ setState }) => {
   setState({ loading: false, data });
 };
 

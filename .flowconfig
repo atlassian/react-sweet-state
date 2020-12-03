@@ -10,5 +10,6 @@
 module.name_mapper='^react-sweet-state' ->'<PROJECT_ROOT>/src'
 include_warnings=true
 server.max_workers=1
+exact_by_default=true
 
 [strict]

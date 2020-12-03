@@ -11,7 +11,7 @@ import { TodoListRpc, TodoListHook } from './views/todo-list';
 /**
  * Add simple logger middleware
  */
-const mw: Middleware = storeState => next => arg => {
+const mw: Middleware = (storeState) => (next) => (arg) => {
   /* eslint-disable no-console */
   console.log(storeState.key, 'changing', arg);
   const result = next(arg);

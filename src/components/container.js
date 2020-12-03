@@ -83,7 +83,7 @@ export default class Container extends Component {
     });
   }
 
-  bindContainerActions = scope => {
+  bindContainerActions = (scope) => {
     const { storeType, hooks } = this.constructor;
     const { api } = this.state;
     // we explicitly pass scope as it might be changed
@@ -107,7 +107,7 @@ export default class Container extends Component {
     return actions;
   };
 
-  triggerContainerAction = nextProps => {
+  triggerContainerAction = (nextProps) => {
     // eslint-disable-next-line no-unused-vars
     const { children, scope, isGlobal, ...restProps } = nextProps;
     if (shallowEqual(this.actionProps, restProps)) return;

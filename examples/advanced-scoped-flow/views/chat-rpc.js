@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import React, { Component, type Node } from 'react';
 
 import { FormSubscriber, FormContainer } from '../components/form';
 import { MessagesSubscriber } from '../components/messages';
@@ -22,7 +22,7 @@ export class ChatRpc extends Component<{
   remoteUsers: number,
   defaultColor: string,
 }> {
-  render() {
+  render(): Node {
     let { id, defaultColor, remoteUsers } = this.props;
     return (
       <ThemeContainer scope={id} defaultColor={defaultColor}>
@@ -47,7 +47,7 @@ export class ChatRpc extends Component<{
                         ) => (
                           <form
                             action="#"
-                            onSubmit={ev => {
+                            onSubmit={(ev) => {
                               ev.preventDefault();
                               send(message).then(() => add(message));
                             }}
@@ -55,7 +55,7 @@ export class ChatRpc extends Component<{
                             <textarea
                               value={message}
                               disabled={isSending}
-                              onChange={ev => input(ev.target.value)}
+                              onChange={(ev) => input(ev.target.value)}
                             />
                             <button disabled={!isValid || isSending}>
                               {isSending ? '...' : `Send to ${toUsers}`}

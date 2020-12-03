@@ -6,12 +6,12 @@ export function createSelector(...funcs) {
   const resultFunc = funcs.pop();
   const dependencies = Array.isArray(funcs[0]) ? funcs[0] : funcs;
 
-  const memoizedResultFunc = memoize(function() {
+  const memoizedResultFunc = memoize(function () {
     return resultFunc.apply(null, arguments);
   });
 
   // this memoisation is optimised for 2 arguments (state, props)
-  const selector = memoize(function() {
+  const selector = memoize(function () {
     // calculate all dependencies results
     const params = [];
     for (let i = 0; i < dependencies.length; i++) {
@@ -34,7 +34,7 @@ export function createMemoizedSelector(selector) {
     Array.isArray(selector.dependencies);
   const dependencies = isReselector
     ? selector.dependencies
-    : [s => s, (_, p) => p];
+    : [(s) => s, (_, p) => p];
   const resultFunc = isReselector ? selector.resultFunc : selector;
   return createSelector(dependencies, resultFunc);
 }

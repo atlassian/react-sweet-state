@@ -5,6 +5,9 @@ import {
   createContainer,
   createSubscriber,
   createHook,
+  type ContainerComponent,
+  type SubscriberComponent,
+  type HookFunction,
 } from 'react-sweet-state';
 import type { State } from './types';
 
@@ -12,7 +15,6 @@ import * as actions from './actions';
 import * as selectors from './selectors';
 
 type Actions = typeof actions;
-type ContainerProps = {||};
 type UserSelectedState = $Call<typeof selectors.getSelected, State>;
 
 const initialState: State = {
@@ -27,29 +29,25 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-export const UserContainer = createContainer<State, Actions, ContainerProps>(
-  Store,
-  {
-    onInit: actions.load,
-  }
-);
+export const UserContainer: ContainerComponent<void> = createContainer(Store, {
+  onInit: actions.load,
+});
 
-export const UserSubscriber = createSubscriber<State, Actions>(Store);
-
-export const UserSelectedSubscriber = createSubscriber<
+export const UserSubscriber: SubscriberComponent<
   State,
-  Actions,
+  Actions
+> = createSubscriber(Store);
+
+export const UserSelectedSubscriber: SubscriberComponent<
   UserSelectedState,
-  void
->(Store, {
+  Actions
+> = createSubscriber(Store, {
   selector: selectors.getSelected,
 });
 
-export const useUser = createHook<State, Actions>(Store);
+export const useUser: HookFunction<State, Actions> = createHook(Store);
 
-export const useUserSelected = createHook<
-  State,
-  Actions,
+export const useUserSelected: HookFunction<
   UserSelectedState,
-  void
->(Store, { selector: selectors.getSelected });
+  Actions
+> = createHook(Store, { selector: selectors.getSelected });

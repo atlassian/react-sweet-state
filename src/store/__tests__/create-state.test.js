@@ -61,7 +61,7 @@ describe('createStore', () => {
       store.setState({ count: 2 });
       store.setState({ count: 3 });
       // scheduler uses timeouts on non-browser envs
-      await new Promise(r => setTimeout(r, 10));
+      await new Promise((r) => setTimeout(r, 10));
 
       expect(listener).toHaveBeenCalledTimes(1);
 

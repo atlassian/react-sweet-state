@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { type AbstractComponent } from 'react';
 
 import { FormContainer, useForm } from '../components/form';
 import { useMessages } from '../components/messages';
@@ -33,7 +33,7 @@ const FormComponent = ({ onSubmitSuccess }: any) => {
   return (
     <form
       action="#"
-      onSubmit={ev => {
+      onSubmit={(ev) => {
         ev.preventDefault();
         send(message).then(() => onSubmitSuccess(message));
       }}
@@ -41,7 +41,7 @@ const FormComponent = ({ onSubmitSuccess }: any) => {
       <textarea
         value={message}
         disabled={isSending}
-        onChange={ev => input(ev.target.value)}
+        onChange={(ev) => input(ev.target.value)}
       />
       <button disabled={!isValid || isSending}>
         {isSending ? '...' : `Send to ${toUsers}`}
@@ -50,8 +50,9 @@ const FormComponent = ({ onSubmitSuccess }: any) => {
   );
 };
 
-export const ChatHook = React.memo<any>(
-  ({ id, defaultColor, remoteUsers }: any) => {
+type Props = { id: string, defaultColor: string, remoteUsers: any };
+export const ChatHook: AbstractComponent<Props> = React.memo(
+  ({ id, defaultColor, remoteUsers }: Props) => {
     const [{ data }, { add }] = useMessages();
     return (
       <ThemeContainer scope={id} defaultColor={defaultColor}>

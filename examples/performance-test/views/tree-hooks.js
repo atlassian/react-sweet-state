@@ -1,6 +1,6 @@
 // @flow
 
-import React from 'react';
+import React, { type Node } from 'react';
 import {
   TodosContainer,
   useTodos,
@@ -8,6 +8,7 @@ import {
   useTodosFiltered,
 } from '../components/todos';
 
+// eslint-disable-next-line react/prop-types
 const RenderBlocker = React.memo<*>(({ children }: any) => children);
 
 function TodosHeader({ children }: any) {
@@ -62,7 +63,7 @@ function TodosApp({ n, depth, children }: any) {
   );
 }
 
-export function TreeHooks({ n, depth = 0 }: any) {
+export function TreeHooks({ n, depth = 0 }: any): Node {
   return (
     <RenderBlocker>
       <TodosApp n={n} depth={depth}>

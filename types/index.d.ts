@@ -13,15 +13,12 @@ declare module 'react-sweet-state' {
     actions: TActions
   ) => ReactNode;
 
-  type HookReturnValue<
-    TState,
-    TActions extends Record<string, ActionThunk<TState, TActions>>
-  > = [TState, BoundActions<TState, TActions>];
+  type HookReturnValue<TState, TActions> = [TState, TActions];
 
   type ActionThunk<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>
-  > = (...args: any[]) => ActionAny<TState, any>;
+  > = (...args: any[]) => Action<TState, any, any>;
 
   type Store<
     TState,
@@ -47,12 +44,16 @@ declare module 'react-sweet-state' {
   type StoreActionApi<TState> = {
     setState: SetState<TState>;
     getState: GetState<TState>;
-    dispatch: <T extends ActionAny<TState, any>>(
+    dispatch: <T extends Action<TState, any, any>>(
       actionThunk: T
     ) => ReturnType<T>;
   };
 
-  type ActionAny<TState, TContainerProps = void, TReturnValue = any> = (
+  type Action<
+    TState,
+    TContainerProps = void,
+    TReturnValue = void | Promise<void>
+  > = (
     api: StoreActionApi<TState>,
     containerProps: TContainerProps
   ) => TReturnValue;
@@ -132,6 +133,10 @@ declare module 'react-sweet-state' {
     } & TProps
   >;
 
+  type HookFunction<TState, TActions, TArg = undefined> = (
+    ...args: TArg extends undefined ? [] : [TArg]
+  ) => HookReturnValue<TState, TActions>;
+
   /**
    * createStore
    */
@@ -156,9 +161,9 @@ declare module 'react-sweet-state' {
   >(
     store: Store<TState, TActions>,
     options?: {
-      onInit?: () => ActionAny<TState, TContainerProps>;
-      onUpdate?: () => ActionAny<TState, TContainerProps>;
-      onCleanup?: () => ActionAny<TState, TContainerProps>;
+      onInit?: () => Action<TState, TContainerProps>;
+      onUpdate?: () => Action<TState, TContainerProps>;
+      onCleanup?: () => Action<TState, TContainerProps>;
       displayName?: string;
     }
   ): ContainerComponent<TContainerProps>;
@@ -203,9 +208,7 @@ declare module 'react-sweet-state' {
     options?: {
       selector?: Selector<TState, THookArg, TSelectedState> | null;
     }
-  ): (
-    ...args: THookArg extends undefined ? [] : [THookArg]
-  ) => [TSelectedState, BoundActions<TState, TActions>];
+  ): HookFunction<TSelectedState, BoundActions<TState, TActions>, THookArg>;
 
   /**
    * createSelector
