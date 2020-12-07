@@ -52,7 +52,7 @@ export type StoreActionApi<ST> = {|
   dispatch: <F>(actionThunk: F) => $Call<ExtractReturnType, F>,
 |};
 
-export type Action<ST, CPR = void, R = void | Promise<void>> = (
+export type Action<ST, CPR = void, R = *> = (
   api: StoreActionApi<ST>,
   containerProps: CPR
 ) => R;
