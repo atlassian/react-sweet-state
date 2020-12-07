@@ -36,19 +36,15 @@ const CounterSubscriber = createSubscriber(Store);
 // or
 const useCounter = createHook(Store);
 
-const App = () => (
-  <div>
-    <h1>My counter</h1>
-    <CounterSubscriber>
-      {/* Store state is the first argument and actions are the second one */}
-      {(state, actions) => (
-        <div>
-          {state.count}
-          <button onClick={() => actions.increment()}>Add +1</button>
-          <button onClick={() => actions.increment(2)}>Add +2</button>
-        </div>
-      )}
-    </CounterSubscriber>
-  </div>
-);
+const CounterApp = () => {
+  const [state, actions] = useCounter();
+  return (
+    <div>
+      <h1>My counter</h1>
+      {state.count}
+      <button onClick={() => actions.increment()}>Add +1</button>
+      <button onClick={() => actions.increment(2)}>Add +2</button>
+    </div>
+  );
+};
 ```
