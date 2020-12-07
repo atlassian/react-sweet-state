@@ -52,15 +52,10 @@ export type StoreActionApi<ST> = {|
   dispatch: <F>(actionThunk: F) => $Call<ExtractReturnType, F>,
 |};
 
-export type Action<ST, CPR = *, AC = *> = (
-  {|
-    setState: SetState<ST>,
-    getState: GetState<ST>,
-    actions: BoundActions<AC>,
-    dispatch: <F>(actionThunk: F) => *,
-  |},
+export type Action<ST, CPR = void, R = void | Promise<void>> = (
+  api: StoreActionApi<ST>,
   containerProps: CPR
-) => *;
+) => R;
 
 // prettier-ignore
 type BoundAction<F, SAA = *, CPR = *> =
@@ -81,9 +76,6 @@ export type StoreInstance<ST, AC> = {
 };
 
 declare export class Registry {
-  configure: ({
-    initialStates?: { [key: string]: Object },
-  }) => void;
   stores: Map<string, StoreInstance<any, any>>;
   initStore: <ST, AC>(
     store: Store<ST, AC>,
@@ -112,17 +104,21 @@ declare export var defaults: {
 
 declare export function batch(callback: () => any): void;
 
-export type ContainerComponent<PR> = React$ComponentType<{|
+export type ContainerComponent<PR = void> = React$ComponentType<{|
   scope?: string,
   isGlobal?: boolean,
   children: Node,
   ...PR,
 |}>;
 
-export type SubscriberComponent<ST, AC, PR> = React$ComponentType<{|
+export type SubscriberComponent<ST, AC, PR = void> = React$ComponentType<{|
   children: RenderPropComponent<ST, AC>,
   ...PR,
 |}>;
+
+export type HookFunction<ST, AC, PR = void> = (
+  props?: PR
+) => HookReturnValue<ST, AC>;
 
 /**
  * createStore
@@ -181,7 +177,7 @@ declare export function createSubscriber<ST, AC, SE, PR>(
  */
 declare export function createHook<ST, AC>(
   store: Store<ST, AC>
-): () => HookReturnValue<ST, AC>;
+): HookFunction<ST, AC, void>;
 
 // Flow does not support null properly to refine override :(
 // declare export function createHook<ST, AC>(
@@ -196,7 +192,7 @@ declare export function createHook<ST, AC, SE, PR>(
   options: {|
     selector: null | ((state: ST, props: PR) => SE),
   |}
-): (props?: PR) => HookReturnValue<SE, AC>;
+): HookFunction<SE, AC, PR>;
 
 /**
  * createSelector

@@ -5,7 +5,10 @@ import {
   createContainer,
   createSubscriber,
   createHook,
-  type StoreActionApi,
+  type Action,
+  type ContainerComponent,
+  type SubscriberComponent,
+  type HookFunction,
 } from 'react-sweet-state';
 
 type State = {
@@ -23,9 +26,9 @@ const initialState: State = {
 };
 
 const actions = {
-  change: (value?: string) => (
-    { setState }: StoreActionApi<State>,
-    { defaultColor }: ContainerProps
+  change: (value?: string): Action<State, ContainerProps> => (
+    { setState },
+    { defaultColor }
   ) => {
     setState({
       color: value || defaultColor,
@@ -39,7 +42,7 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-export const ThemeContainer = createContainer<State, Actions, ContainerProps>(
+export const ThemeContainer: ContainerComponent<ContainerProps> = createContainer(
   Store,
   {
     onInit: () => ({ getState, dispatch }) => {
@@ -53,6 +56,9 @@ export const ThemeContainer = createContainer<State, Actions, ContainerProps>(
   }
 );
 
-export const ThemeSubscriber = createSubscriber<State, Actions>(Store);
+export const ThemeSubscriber: SubscriberComponent<
+  State,
+  Actions
+> = createSubscriber(Store);
 
-export const useTheme = createHook<State, Actions>(Store);
+export const useTheme: HookFunction<State, Actions> = createHook(Store);

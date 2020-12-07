@@ -5,7 +5,10 @@ import {
   createContainer,
   createSubscriber,
   createHook,
-  type StoreActionApi,
+  type Action,
+  type ContainerComponent,
+  type SubscriberComponent,
+  type HookFunction,
 } from 'react-sweet-state';
 
 let currentId = 0;
@@ -17,7 +20,6 @@ type State = {
   order: number[],
   loading: boolean,
 };
-type StoreApi = StoreActionApi<State>;
 type Actions = typeof actions;
 
 const initialState: State = {
@@ -27,7 +29,7 @@ const initialState: State = {
 };
 
 const actions = {
-  add: (title: string) => ({ setState, getState }: StoreApi) => {
+  add: (title: string): Action<State> => ({ setState, getState }) => {
     currentId++;
     const newTodo = { id: currentId, title, isDone: false };
     setState({
@@ -36,7 +38,7 @@ const actions = {
     });
   },
 
-  toggle: (todoId: number) => ({ setState, getState }: StoreApi) => {
+  toggle: (todoId: number): Action<State> => ({ setState, getState }) => {
     const todo = getState().byId[todoId];
     setState({
       byId: {
@@ -55,8 +57,8 @@ const Store = createStore<State, Actions>({
 
 /** Container */
 
-type ContainerProps = {| n: number |};
-export const TodosContainer = createContainer<State, Actions, ContainerProps>(
+type ContainerProps = { n: number };
+export const TodosContainer: ContainerComponent<ContainerProps> = createContainer(
   Store,
   {
     onInit: () => ({ getState, dispatch }, { n }) => {
@@ -71,64 +73,62 @@ export const TodosContainer = createContainer<State, Actions, ContainerProps>(
 
 /** Subscribers / Hooks */
 
-const getAllTodosSelector = state => ({
-  data: state.order.map(v => state.byId[v]),
+type GetAllTodos = { data: TodoModel[], loading: boolean };
+const getAllTodosSelector = (state) => ({
+  data: state.order.map((v) => state.byId[v]),
   loading: state.loading,
 });
 
-export const TodosSubscriber = createSubscriber<State, Actions, *, {||}>(
-  Store,
-  {
-    selector: getAllTodosSelector,
-  }
-);
-
-export const useTodos = createHook<State, Actions, *, empty>(Store, {
+export const TodosSubscriber: SubscriberComponent<
+  GetAllTodos,
+  Actions
+> = createSubscriber(Store, {
   selector: getAllTodosSelector,
 });
 
-const getTodosCountSelector = state => ({ count: state.order.length });
+export const useTodos: HookFunction<GetAllTodos, Actions> = createHook(Store, {
+  selector: getAllTodosSelector,
+});
 
-export const TodosCountSubscriber = createSubscriber<State, Actions, *, {||}>(
+type TodosCount = { count: number };
+const getTodosCountSelector = (state) => ({ count: state.order.length });
+
+export const TodosCountSubscriber: SubscriberComponent<
+  TodosCount,
+  Actions
+> = createSubscriber(Store, {
+  selector: getTodosCountSelector,
+});
+
+export const useTodosCount: HookFunction<TodosCount, Actions> = createHook(
   Store,
   {
     selector: getTodosCountSelector,
   }
 );
 
-export const useTodosCount = createHook<State, Actions, *, empty>(Store, {
-  selector: getTodosCountSelector,
-});
+type TodosFilteredProps = { isDone: boolean };
+type FilteredTodos = { data: TodoModel[], loading: boolean };
 
-type TodosFilteredProps = {| isDone: boolean |};
-
-const getFilteredTodosSelector = (state: State, props: TodosFilteredProps) => ({
+const getFilteredTodosSelector = (state, props) => ({
   data: state.order
-    .map(v => state.byId[v])
-    .filter(t => t.isDone === props.isDone),
+    .map((v) => state.byId[v])
+    .filter((t) => t.isDone === props.isDone),
   loading: state.loading,
 });
 
-type FilteredTodosState = $Call<
-  typeof getFilteredTodosSelector,
-  State,
-  TodosFilteredProps
->;
-
-export const TodosFilteredSubscriber = createSubscriber<
-  State,
+export const TodosFilteredSubscriber: SubscriberComponent<
+  FilteredTodos,
   Actions,
-  FilteredTodosState,
   TodosFilteredProps
->(Store, {
+> = createSubscriber(Store, {
   selector: getFilteredTodosSelector,
 });
 
-export const useTodosFiltered = createHook<
-  State,
+export const useTodosFiltered: HookFunction<
+  FilteredTodos,
   Actions,
-  FilteredTodosState,
   TodosFilteredProps
->(Store, {
+> = createHook(Store, {
   selector: getFilteredTodosSelector,
 });

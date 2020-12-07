@@ -57,7 +57,7 @@ describe('withDevtools', () => {
   });
 
   it('should allow to custom devtools settings', () => {
-    defaults.devtools = storeState => ({
+    defaults.devtools = (storeState) => ({
       name: `CustomStore ${storeState.key[0]}`,
       stateSanitizer: jest.fn(),
     });

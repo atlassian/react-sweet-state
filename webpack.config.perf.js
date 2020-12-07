@@ -9,4 +9,10 @@ module.exports = Object.assign({}, baseConfig, {
   module: {
     rules: [{ test: /\.(t|j)sx?$/, loader: 'babel-loader' }],
   },
+
+  devServer: Object.assign({}, baseConfig.devServer, {
+    hot: false,
+    inline: false,
+    liveReload: false,
+  }),
 });

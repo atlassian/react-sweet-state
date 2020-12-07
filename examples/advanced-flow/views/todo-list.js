@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { type AbstractComponent } from 'react';
 
 import { UserSelectedSubscriber, useUserSelected } from '../components/user';
 import { TodoContainer, TodoSubscriber, useTodo } from '../components/todo';
@@ -26,13 +26,13 @@ const TodoList = ({ todos, loading, selectedUser }: TodoListProps) =>
     </div>
   ) : (
     <ul className="TodoList">
-      {todos.map(todo => (
+      {todos.map((todo) => (
         <TodoItem key={todo.title} todo={todo} />
       ))}
     </ul>
   );
 
-export const TodoListRpc = () => (
+export const TodoListRpc: AbstractComponent<{}> = () => (
   <UserSelectedSubscriber>
     {({ sel }) => (
       <TodoContainer selectedUser={sel}>
@@ -55,7 +55,7 @@ const UserTodos = ({ selectedUser }: UserTodosProps) => {
   );
 };
 
-export const TodoListHook = () => {
+export const TodoListHook: AbstractComponent<{}> = () => {
   const [{ sel }] = useUserSelected();
   return (
     <TodoContainer selectedUser={sel}>

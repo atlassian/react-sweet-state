@@ -11,7 +11,7 @@ import { Context } from '../context';
 import { getSelectorInstance } from '../utils/create-selector';
 
 const EMPTY_SELECTOR = () => undefined;
-const DEFAULT_SELECTOR = state => state;
+const DEFAULT_SELECTOR = (state) => state;
 
 // As we want to subscribe ASAP and useEffect happens on next tick, but
 // React currently throws a warning when using useLayoutEffect on the server

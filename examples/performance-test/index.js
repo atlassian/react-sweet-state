@@ -26,14 +26,14 @@ class App extends Component<{}, any> {
     depth: Number(DEPTH),
   };
 
-  onChangeType = ev => {
+  onChangeType = (ev) => {
     const { depth } = this.state;
     const type = ev.target.value;
     this.setState({ type });
     window.location.hash = type + '|' + depth;
   };
 
-  onChangeDepth = ev => {
+  onChangeDepth = (ev) => {
     const { type } = this.state;
     const depth = Number(ev.target.value);
     this.setState({ depth });
@@ -47,7 +47,7 @@ class App extends Component<{}, any> {
         <h1>Performance ({type})</h1>
         Type:{' '}
         <select onChange={this.onChangeType} value={type}>
-          {['', 'rpc', 'hooks'].map(v => (
+          {['', 'rpc', 'hooks'].map((v) => (
             <option key={v} value={v}>
               {v}
             </option>
@@ -55,7 +55,7 @@ class App extends Component<{}, any> {
         </select>
         Depth:{' '}
         <select onChange={this.onChangeDepth} value={depth}>
-          {['2', '5', '10'].map(v => (
+          {['2', '5', '10'].map((v) => (
             <option key={v} value={v}>
               {v}
             </option>

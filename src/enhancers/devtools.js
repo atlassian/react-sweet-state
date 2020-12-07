@@ -5,7 +5,7 @@ const connectDevTools = (storeState, config) => {
     Object.assign({ name: `Store ${storeState.key}`, serialize: true }, config)
   );
   devTools.init(storeState.getState());
-  devTools.subscribe(message => {
+  devTools.subscribe((message) => {
     if (message.type === 'DISPATCH') {
       switch (message.payload.type) {
         case 'RESET':
@@ -32,13 +32,13 @@ const connectDevTools = (storeState, config) => {
   return devTools;
 };
 
-const withDevtools = createStoreState => (...args) => {
+const withDevtools = (createStoreState) => (...args) => {
   const storeState = createStoreState(...args);
 
   if (defaults.devtools && window && window.__REDUX_DEVTOOLS_EXTENSION__) {
     const origMutator = storeState.mutator;
     let devTools;
-    const devtoolMutator = arg => {
+    const devtoolMutator = (arg) => {
       const result = origMutator(arg);
       try {
         if (!devTools) {

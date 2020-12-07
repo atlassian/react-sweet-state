@@ -8,11 +8,10 @@ import {
   createSubscriber,
   createHook,
   createContainer,
-  StoreActionApi,
+  Action,
 } from 'react-sweet-state';
 
 type State = { count: number };
-type StoreApi = StoreActionApi<State>;
 type Actions = typeof actions;
 
 const initialState: State = {
@@ -20,7 +19,7 @@ const initialState: State = {
 };
 
 const actions = {
-  increment: (by = 1) => ({ setState, getState }: StoreApi) => {
+  increment: (by = 1): Action<State> => ({ setState, getState }) => {
     setState({
       count: getState().count + by,
     });
@@ -37,7 +36,7 @@ const useCounter = createHook(Store);
 const CounterContainer = createContainer(Store);
 ```
 
-You don't have to manually type all the `create*` methods, as they can be inferred for the simpler use cases.
+You don't have to manually type all the `create*` methods, as they can be inferred for most use cases.
 
 #### Actions patterns
 
@@ -47,9 +46,9 @@ If your actions require `Container` props:
 type ContainerProps = { multiplier: number };
 
 const actions = {
-  increment: (by = 1) => (
-    { setState, getState }: StoreApi,
-    { multiplier }: ContainerProps
+  increment: (by = 1): Action<State, ContainerProps> => (
+    { setState, getState },
+    { multiplier }
   ) => {
     setState({ count: getState().count + by * multiplier });
   },

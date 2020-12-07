@@ -2,7 +2,7 @@ import {
   createStore,
   createSubscriber,
   createHook,
-  StoreActionApi,
+  Action,
 } from 'react-sweet-state';
 
 type State = {
@@ -14,7 +14,7 @@ const initialState: State = {
 };
 
 const actions = {
-  increment: () => ({ setState, getState }: StoreActionApi<State>) => {
+  increment: (): Action<State> => ({ setState, getState }) => {
     setState({
       count: getState().count + 1,
     });

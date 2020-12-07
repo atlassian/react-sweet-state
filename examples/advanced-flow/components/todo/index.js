@@ -5,13 +5,16 @@ import {
   createContainer,
   createSubscriber,
   createHook,
+  type ContainerComponent,
+  type SubscriberComponent,
+  type HookFunction,
 } from 'react-sweet-state';
 import type { State } from './types';
 
 import * as actions from './actions';
 
 type Actions = typeof actions;
-type ContainerProps = {| selectedUser: string | null |};
+type ContainerProps = { selectedUser: string | null };
 
 const initialState: State = {
   data: null,
@@ -24,7 +27,7 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-export const TodoContainer = createContainer<State, Actions, ContainerProps>(
+export const TodoContainer: ContainerComponent<ContainerProps> = createContainer(
   Store,
   {
     onInit: () => ({ dispatch }, { selectedUser }) => {
@@ -39,6 +42,10 @@ export const TodoContainer = createContainer<State, Actions, ContainerProps>(
   }
 );
 
-export const TodoSubscriber = createSubscriber<State, Actions>(Store);
+export const TodoSubscriber: SubscriberComponent<
+  State,
+  Actions,
+  {||}
+> = createSubscriber(Store);
 
-export const useTodo = createHook<State, Actions>(Store);
+export const useTodo: HookFunction<State, Actions, void> = createHook(Store);

@@ -18,7 +18,7 @@ describe('applyMiddleware', () => {
   it('should build combined middlewares', () => {
     const mutation = {};
     const middlewareSpy = jest.fn();
-    const middleware = storeState => next => fn => {
+    const middleware = (storeState) => (next) => (fn) => {
       const result = next(fn);
       middlewareSpy(storeState, next, fn, result);
       return result;

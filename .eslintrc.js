@@ -8,6 +8,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:prettier/recommended',
+    'plugin:flowtype/recommended',
     'prettier/react',
   ],
   parserOptions: {
@@ -26,7 +27,7 @@ module.exports = {
     // fix for eslint-plugin-flowtype/384 not supporting wildcard
     _: 'readonly'
   },
-  plugins: ['react', 'react-hooks', 'import'],
+  plugins: ['react', 'react-hooks', 'import', 'flowtype'],
   rules: {
     'no-shadow': ['error'],
     indent: ['off'],

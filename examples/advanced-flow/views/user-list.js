@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { type AbstractComponent } from 'react';
 
 import { UserContainer, UserSubscriber, useUser } from '../components/user';
 import { type UserModel } from '../components/user/types';
@@ -31,7 +31,7 @@ const UserList = ({ users, selected, loading, onSelect }: UserListProps) =>
     <div className="UserList">Loading...</div>
   ) : (
     <ul className="UserList">
-      {users.map(user => (
+      {users.map((user) => (
         <UserItem
           key={user.id}
           user={user}
@@ -42,7 +42,7 @@ const UserList = ({ users, selected, loading, onSelect }: UserListProps) =>
     </ul>
   );
 
-export const UserListRpc = () => (
+export const UserListRpc: AbstractComponent<{}> = () => (
   <UserContainer isGlobal>
     <UserSubscriber>
       {({ data, loading, selected }, { select }) => (
@@ -69,7 +69,7 @@ const UserListComponent = () => {
   );
 };
 
-export const UserListHook = () => (
+export const UserListHook: AbstractComponent<{}> = () => (
   <UserContainer isGlobal>
     <UserListComponent />
   </UserContainer>

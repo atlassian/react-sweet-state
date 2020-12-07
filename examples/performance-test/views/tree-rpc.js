@@ -1,6 +1,6 @@
 // @flow
 
-import React, { PureComponent } from 'react';
+import React, { PureComponent, type Node } from 'react';
 import {
   TodosContainer,
   TodosSubscriber,
@@ -73,7 +73,7 @@ function TodosApp({ n, depth, children }: any) {
   );
 }
 
-export function TreeRpc({ n, depth = 0 }: any) {
+export function TreeRpc({ n, depth = 0 }: any): Node {
   return (
     <RenderBlocker>
       <TodosApp n={n} depth={depth}>

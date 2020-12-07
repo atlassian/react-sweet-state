@@ -14,7 +14,7 @@ import { createHook } from '../hook';
 const actTick = () => act(async () => await Promise.resolve());
 
 const actions = {
-  add: todo => ({ setState, getState }) =>
+  add: (todo) => ({ setState, getState }) =>
     setState({ todos: [...getState().todos, todo] }),
   load: (v = '') => async ({ setState, getState }) => {
     if (getState().loading) return;
@@ -344,7 +344,7 @@ describe('Integration', () => {
   });
 
   it('should not re-render components if selector returns same value', async () => {
-    const opts = { selector: s => ({ l: s.loading }) };
+    const opts = { selector: (s) => ({ l: s.loading }) };
     const Subscriber = createSubscriber(Store, opts);
     const useHook = createHook(Store, opts);
 
@@ -402,7 +402,7 @@ describe('Integration', () => {
   });
 
   it('should not re-compute selector if no arguments are passed', async () => {
-    const selector = jest.fn(s => s);
+    const selector = jest.fn((s) => s);
     const useHook = createHook(Store, { selector });
 
     const HookWrapper = () => {
@@ -416,7 +416,7 @@ describe('Integration', () => {
   });
 
   it('should re-compute selector if arguments are passed', async () => {
-    const selector = jest.fn(s => s);
+    const selector = jest.fn((s) => s);
     const useHook = createHook(Store, { selector });
 
     const HookWrapper = () => {

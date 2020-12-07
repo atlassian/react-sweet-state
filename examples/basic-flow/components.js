@@ -4,7 +4,9 @@ import {
   createStore,
   createSubscriber,
   createHook,
-  type StoreActionApi,
+  type Action,
+  type SubscriberComponent,
+  type HookFunction,
 } from 'react-sweet-state';
 
 type State = {|
@@ -18,7 +20,7 @@ const initialState: State = {
 };
 
 const actions = {
-  increment: () => ({ setState, getState }: StoreActionApi<State>) => {
+  increment: (): Action<State> => ({ setState, getState }) => {
     setState({
       count: getState().count + 1,
     });
@@ -30,6 +32,9 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-export const CounterSubscriber = createSubscriber<State, Actions>(Store);
+export const CounterSubscriber: SubscriberComponent<
+  State,
+  Actions
+> = createSubscriber(Store);
 
-export const useCounter = createHook<State, Actions>(Store);
+export const useCounter: HookFunction<State, Actions> = createHook(Store);
