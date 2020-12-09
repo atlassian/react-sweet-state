@@ -29,6 +29,8 @@ export default function shallowEqual(objA, objB) {
         return false;
       }
     }
+
+    return true;
   } else {
     // do object comparison
     let keysA;

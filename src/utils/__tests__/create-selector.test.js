@@ -36,6 +36,27 @@ describe('createMemoizedSelector', () => {
       expect(selector).toHaveBeenCalledTimes(2);
       expect(result2).toBe(result1);
     });
+
+    it('should return same result if selector output is a shallow equal array', () => {
+      const selector = jest.fn((v) => v.foo);
+      const stateSelector = createMemoizedSelector(selector);
+
+      const item = { id: 1 };
+      const result1 = stateSelector({ foo: [item] });
+      const result2 = stateSelector({ foo: [item], w: 1 });
+      expect(selector).toHaveBeenCalledTimes(2);
+      expect(result2).toBe(result1);
+    });
+
+    it('should return different result if selector output is not a shallow equal array', () => {
+      const selector = jest.fn((v) => v.foo);
+      const stateSelector = createMemoizedSelector(selector);
+
+      const result1 = stateSelector({ foo: [{ id: 1 }] });
+      const result2 = stateSelector({ foo: [{ id: 1 }] });
+      expect(selector).toHaveBeenCalledTimes(2);
+      expect(result2).not.toBe(result1);
+    });
   });
 
   describe('with created selector', () => {
