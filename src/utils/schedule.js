@@ -1,9 +1,5 @@
-import {
-  unstable_scheduleCallback as scheduleCallback,
-  unstable_UserBlockingPriority as UserBlockingPriority,
-} from 'scheduler';
 import defaults from '../defaults';
-import { unstable_batchedUpdates as batch } from './batched-updates';
+import { batch } from './batched-updates';
 import supports from './supported-features';
 
 const QUEUE = [];
@@ -20,14 +16,9 @@ export default function schedule(fn) {
 
   // if something already started schedule, skip
   if (scheduled) return;
-
-  // Use UserBlockingPriority as it has max 250ms timeout
-  // https://github.com/facebook/react/blob/master/packages/scheduler/src/forks/SchedulerNoDOM.js#L47
-  scheduled = scheduleCallback(UserBlockingPriority, function runNotifyQueue() {
-    batch(() => {
-      let queueFn;
-      while ((queueFn = QUEUE.shift())) queueFn();
-      scheduled = null;
-    });
+  scheduled = batch(() => {
+    let queueFn;
+    while ((queueFn = QUEUE.shift())) queueFn();
+    scheduled = null;
   });
 }

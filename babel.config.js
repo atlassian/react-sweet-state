@@ -5,9 +5,15 @@ module.exports = {
     [
       '@babel/preset-env',
       {
-        targets: { edge: '16' },
+        targets: [
+          'last 2 chrome versions',
+          'last 2 firefox versions',
+          'last 2 safari versions',
+          'last 2 and_chr versions',
+          'last 2 ios_saf versions',
+          'edge >= 18',
+        ],
         modules: false,
-        exclude: ['transform-typeof-symbol'],
         loose: true,
       },
     ],

@@ -1,2 +1,2 @@
 /* eslint-disable import/no-unresolved */
-export { unstable_batchedUpdates } from 'react-native';
+export { unstable_batchedUpdates as batch } from 'react-native';
