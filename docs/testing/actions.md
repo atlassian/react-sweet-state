@@ -35,7 +35,7 @@ it('should not setState if the count is 0', () => {
 
 it('should reset state if the current count is not 0', () => {
   getState.mockImplementation(() => {
-    count: 0;
+    count: 1;
   });
   thunk({ setState, getState });
   expect(setState).toHaveBeenCalledTimes(1);
@@ -51,7 +51,7 @@ When your action contains some asynchronous logic, calls to endpoints for exampl
 import { fetchUser } from './rest/user';
 
 const actions = {
-  fetchUserData: userId => async ({ setState, getState }) => {
+  fetchUserData: (userId) => async ({ setState, getState }) => {
     const currentUser = getState().user;
 
     // Return if data exists
