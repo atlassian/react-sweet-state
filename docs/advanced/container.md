@@ -1,6 +1,6 @@
 ## Containers
 
-By default, you are allowed to have a single Store instance, globally accessible. However, you might want to have multiple instances of the same Store type. That's where `Container` components come into play. They allow you to create multiple Store instances, making them either global (available app-wide) or local (only accessible to children Subscribers/hooks).
+While sweet-state promotes independent, globally accessible micro-Stores, such behaviour only allows one instance for each Store type. Sometimes though you might want to have multiple instances of the same Store, and that's where `Container` components come into play. They allow you to create independent Store instances of the same type, making them either globally available (app-wide) or just locally (so only accessible to children Subscribers/hooks).
 
 ```js
 // components/counter.js
