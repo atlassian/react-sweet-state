@@ -1,0 +1,8 @@
+// See https://aka.ms/vscode-remote/devcontainer.json for format details.
+{
+  "dockerFile": "Dockerfile",
+  "extensions": ["esbenp.prettier-vscode"],
+  "appPort": [
+    "5337:8080"
+  ]
+}
