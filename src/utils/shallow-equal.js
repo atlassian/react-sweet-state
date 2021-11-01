@@ -18,6 +18,10 @@ export default function shallowEqual(objA, objB) {
     return false;
   }
 
+  if (objA instanceof Date && objB instanceof Date) {
+    return objA.getTime() === objB.getTime();
+  }
+
   if (Array.isArray(objA) && Array.isArray(objB)) {
     // do array comparison
     if (objA.length !== objB.length) {
