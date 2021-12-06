@@ -2,6 +2,8 @@ import React from 'react';
 
 import { defaultRegistry } from './store';
 
+let crap =1;
+
 // Provide static calculateChangedBit to opt-out from context updates
 // as we use our own subscription model
 export const Context = React.createContext(
