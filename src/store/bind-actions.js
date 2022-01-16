@@ -1,9 +1,11 @@
 import defaults from '../defaults';
 
-const namedMutator = (storeState, actionName) => (...arg) => {
-  storeState.mutator.actionName = actionName;
-  return storeState.mutator(...arg);
-};
+const namedMutator =
+  (storeState, actionName) =>
+  (...arg) => {
+    storeState.mutator.actionName = actionName;
+    return storeState.mutator(...arg);
+  };
 
 export const bindAction = (
   storeState,

@@ -12,9 +12,11 @@ import { batch } from '../batched-updates';
 const Store = createStore({
   initialState: { count: 0 },
   actions: {
-    increment: () => ({ getState, setState }) => {
-      setState({ count: getState().count + 1 });
-    },
+    increment:
+      () =>
+      ({ getState, setState }) => {
+        setState({ count: getState().count + 1 });
+      },
   },
 });
 

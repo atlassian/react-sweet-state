@@ -1,5 +1,5 @@
 module.exports = {
-  parser: 'babel-eslint',
+  parser: '@babel/eslint-parser',
   env: {
     browser: true,
     es6: true,
@@ -9,7 +9,6 @@ module.exports = {
     'plugin:react/recommended',
     'plugin:prettier/recommended',
     'plugin:flowtype/recommended',
-    'prettier/react',
   ],
   parserOptions: {
     ecmaFeatures: {
@@ -25,7 +24,7 @@ module.exports = {
   },
   globals: {
     // fix for eslint-plugin-flowtype/384 not supporting wildcard
-    _: 'readonly'
+    _: 'readonly',
   },
   plugins: ['react', 'react-hooks', 'import', 'flowtype'],
   rules: {
@@ -45,7 +44,7 @@ module.exports = {
     {
       // Flow specific rules
       files: ['src/index.js.flow', '*/*flow.js', 'examples/*-flow/*/*.js'],
-      extends: ['plugin:flowtype/recommended'],
+      // extends: ['plugin:flowtype/recommended'],
       plugins: ['flowtype'],
       rules: {
         'flowtype/generic-spacing': ['off'],
@@ -54,10 +53,7 @@ module.exports = {
     {
       // TypeScript specific rules
       files: ['*.{ts,tsx}'],
-      extends: [
-        'plugin:@typescript-eslint/recommended',
-        'prettier/@typescript-eslint',
-      ],
+      extends: ['plugin:@typescript-eslint/recommended'],
       rules: {
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/no-use-before-define': 'off',

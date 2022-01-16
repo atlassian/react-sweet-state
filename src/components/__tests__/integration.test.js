@@ -14,17 +14,23 @@ import { createHook } from '../hook';
 const actTick = () => act(async () => await Promise.resolve());
 
 const actions = {
-  add: (todo) => ({ setState, getState }) =>
-    setState({ todos: [...getState().todos, todo] }),
-  load: (v = '') => async ({ setState, getState }) => {
-    if (getState().loading) return;
-    setState({ loading: true });
-    await Promise.resolve();
-    setState({ todos: [`todo${v}`], loading: false });
-  },
-  setLoading: () => ({ setState }) => {
-    setState({ loading: true });
-  },
+  add:
+    (todo) =>
+    ({ setState, getState }) =>
+      setState({ todos: [...getState().todos, todo] }),
+  load:
+    (v = '') =>
+    async ({ setState, getState }) => {
+      if (getState().loading) return;
+      setState({ loading: true });
+      await Promise.resolve();
+      setState({ todos: [`todo${v}`], loading: false });
+    },
+  setLoading:
+    () =>
+    ({ setState }) => {
+      setState({ loading: true });
+    },
 };
 const Store = createStore({
   initialState: { todos: [], loading: false },
@@ -82,7 +88,10 @@ describe('Integration', () => {
 
   it('should share scoped state across multiple subscribers', async () => {
     const Container = createContainer(Store, {
-      onInit: () => ({ dispatch }) => dispatch(actions.load()),
+      onInit:
+        () =>
+        ({ dispatch }) =>
+          dispatch(actions.load()),
     });
     const Subscriber = createSubscriber(Store);
 
@@ -123,7 +132,10 @@ describe('Integration', () => {
 
   it('should update all subscribers on scope change', async () => {
     const Container = createContainer(Store, {
-      onInit: () => ({ dispatch }, { v }) => dispatch(actions.load(v)),
+      onInit:
+        () =>
+        ({ dispatch }, { v }) =>
+          dispatch(actions.load(v)),
     });
     const Subscriber = createSubscriber(Store);
     const useHook = createHook(Store);

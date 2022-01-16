@@ -3,8 +3,6 @@ import React, { useState, StrictMode } from 'react';
 import ReactDOM from 'react-dom';
 import { defaults, type Middleware } from 'react-sweet-state';
 
-import '@babel/polyfill';
-
 import { UserListRpc, UserListHook } from './views/user-list';
 import { TodoListRpc, TodoListHook } from './views/todo-list';
 
