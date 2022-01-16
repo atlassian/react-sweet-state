@@ -22,7 +22,7 @@ const Store = createStore({
   // actions that trigger store mutation
   actions: {
     increment: (by = 1) => ({ setState, getState }) => {
-      // mutate state syncronously
+      // mutate state synchronously
       setState({
         count: getState().count + by
       });
