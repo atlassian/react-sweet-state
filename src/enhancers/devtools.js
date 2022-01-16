@@ -32,37 +32,39 @@ const connectDevTools = (storeState, config) => {
   return devTools;
 };
 
-const withDevtools = (createStoreState) => (...args) => {
-  const storeState = createStoreState(...args);
+const withDevtools =
+  (createStoreState) =>
+  (...args) => {
+    const storeState = createStoreState(...args);
 
-  if (defaults.devtools && window && window.__REDUX_DEVTOOLS_EXTENSION__) {
-    const origMutator = storeState.mutator;
-    let devTools;
-    const devtoolMutator = (arg) => {
-      const result = origMutator(arg);
-      try {
-        if (!devTools) {
-          const config =
-            typeof defaults.devtools === 'function'
-              ? defaults.devtools(storeState)
-              : {};
-          devTools = connectDevTools(storeState, config);
+    if (defaults.devtools && window && window.__REDUX_DEVTOOLS_EXTENSION__) {
+      const origMutator = storeState.mutator;
+      let devTools;
+      const devtoolMutator = (arg) => {
+        const result = origMutator(arg);
+        try {
+          if (!devTools) {
+            const config =
+              typeof defaults.devtools === 'function'
+                ? defaults.devtools(storeState)
+                : {};
+            devTools = connectDevTools(storeState, config);
+          }
+          devTools.send(
+            { type: storeState.mutator.actionName, payload: arg },
+            storeState.getState(),
+            {},
+            storeState.key
+          );
+        } catch (err) {
+          /* ignore devtools errors */
         }
-        devTools.send(
-          { type: storeState.mutator.actionName, payload: arg },
-          storeState.getState(),
-          {},
-          storeState.key
-        );
-      } catch (err) {
-        /* ignore devtools errors */
-      }
-      return result;
-    };
-    storeState.mutator = devtoolMutator;
-  }
+        return result;
+      };
+      storeState.mutator = devtoolMutator;
+    }
 
-  return storeState;
-};
+    return storeState;
+  };
 
 export default withDevtools;

@@ -31,118 +31,130 @@ let TypeSelector;
 
 const actionsGeneric = {
   // setState tests
-  increment: (n: number): Action<State, {}, string> => ({ setState }) => {
-    // $FlowExpectedError[incompatible-shape] setState should be of type State
-    setState('');
+  increment:
+    (n: number): Action<State, {}, string> =>
+    ({ setState }) => {
+      // $FlowExpectedError[incompatible-shape] setState should be of type State
+      setState('');
 
-    // $FlowExpectedError[prop-missing] Partial state should be of type State
-    setState({
-      foo: 1,
-    });
+      // $FlowExpectedError[prop-missing] Partial state should be of type State
+      setState({
+        foo: 1,
+      });
 
-    // correct
-    setState({
-      count: 2,
-    });
-    return '';
-  },
+      // correct
+      setState({
+        count: 2,
+      });
+      return '';
+    },
 
   // GetState tests
-  decrement: (): Action<State, {}, number> => ({ setState, getState }) => {
-    const state = getState();
-    // $FlowExpectedError[prop-missing] State should be of type State
-    const bla = state.bla;
-    // $FlowExpectedError[cannot-write] State should not be considered writable
-    state.count = 1;
+  decrement:
+    (): Action<State, {}, number> =>
+    ({ setState, getState }) => {
+      const state = getState();
+      // $FlowExpectedError[prop-missing] State should be of type State
+      const bla = state.bla;
+      // $FlowExpectedError[cannot-write] State should not be considered writable
+      state.count = 1;
 
-    // correct
-    const { count } = state;
+      // correct
+      const { count } = state;
 
-    return count;
-  },
+      return count;
+    },
 
   fetch: (): Action<State, {}, Promise<string>> => async () => {
     return '';
   },
 
   // Actions tests
-  setTitle: (title: string): Action<State> => ({ dispatch }) => {
-    const v0 = dispatch(actions.decrement());
-    // $FlowExpectedError[incompatible-call] action should be correctly typed
-    dispatch(actions.increment());
-    // $FlowExpectedError[incompatible-call] action should be correctly typed
-    dispatch(actions.increment('1'));
-    // $FlowExpectedError[extra-arg] Increment should only accept one argument
-    dispatch(actions.increment(1, 'foo'));
-    // $FlowExpectedError[prop-missing] action should be correctly typed
-    dispatch(actions.decrement()).then();
-    // $FlowExpectedError[prop-missing] result should be correctly typed
-    v0.split('');
+  setTitle:
+    (title: string): Action<State> =>
+    ({ dispatch }) => {
+      const v0 = dispatch(actions.decrement());
+      // $FlowExpectedError[incompatible-call] action should be correctly typed
+      dispatch(actions.increment());
+      // $FlowExpectedError[incompatible-call] action should be correctly typed
+      dispatch(actions.increment('1'));
+      // $FlowExpectedError[extra-arg] Increment should only accept one argument
+      dispatch(actions.increment(1, 'foo'));
+      // $FlowExpectedError[prop-missing] action should be correctly typed
+      dispatch(actions.decrement()).then();
+      // $FlowExpectedError[prop-missing] result should be correctly typed
+      v0.split('');
 
-    // Correct
-    batch(() => dispatch(actions.decrement()));
-    dispatch(actions.increment(1));
-    dispatch(actions.fetch()).then((v) => v.split(''));
-    v0 + 1;
-  },
+      // Correct
+      batch(() => dispatch(actions.decrement()));
+      dispatch(actions.increment(1));
+      dispatch(actions.fetch()).then((v) => v.split(''));
+      v0 + 1;
+    },
 };
 
 const actions = {
   // setState tests
-  increment: (n: number) => ({ setState }: StoreActionApi<State>) => {
-    // $FlowExpectedError[incompatible-shape] setState should be of type State
-    setState('');
+  increment:
+    (n: number) =>
+    ({ setState }: StoreActionApi<State>) => {
+      // $FlowExpectedError[incompatible-shape] setState should be of type State
+      setState('');
 
-    // $FlowExpectedError[prop-missing] Partial state should be of type State
-    setState({
-      foo: 1,
-    });
+      // $FlowExpectedError[prop-missing] Partial state should be of type State
+      setState({
+        foo: 1,
+      });
 
-    // correct
-    setState({
-      count: 2,
-    });
-    return '';
-  },
+      // correct
+      setState({
+        count: 2,
+      });
+      return '';
+    },
 
   // GetState tests
-  decrement: () => ({ setState, getState }: StoreActionApi<State>) => {
-    const state = getState();
-    // $FlowExpectedError[prop-missing] State should be of type State
-    const bla = state.bla;
-    // $FlowExpectedError[cannot-write] State should not be considered writable
-    state.count = 1;
+  decrement:
+    () =>
+    ({ setState, getState }: StoreActionApi<State>) => {
+      const state = getState();
+      // $FlowExpectedError[prop-missing] State should be of type State
+      const bla = state.bla;
+      // $FlowExpectedError[cannot-write] State should not be considered writable
+      state.count = 1;
 
-    // correct
-    const { count } = state;
+      // correct
+      const { count } = state;
 
-    return count;
-  },
+      return count;
+    },
 
   fetch: () => async (): Promise<string> => {
     return '';
   },
 
   // Actions tests
-  setTitle: (title: string) => ({ dispatch }: StoreActionApi<State>) => {
-    const v0 = dispatch(actions.decrement());
-    // $FlowExpectedError[incompatible-call] action should be correctly typed
-    dispatch(actions.increment());
-    // $FlowExpectedError[incompatible-call] action should be correctly typed
-    dispatch(actions.increment('1'));
-    // $FlowExpectedError[extra-arg] Increment should only accept one argument
-    dispatch(actions.increment(1, 'foo'));
-    // $FlowExpectedError[prop-missing] action should be correctly typed
-    dispatch(actions.decrement()).then();
-    // $FlowExpectedError[prop-missing] result should be correctly typed
-    v0.split('');
+  setTitle:
+    (title: string) =>
+    ({ dispatch }: StoreActionApi<State>) => {
+      const v0 = dispatch(actions.decrement());
+      // $FlowExpectedError[incompatible-call] action should be correctly typed
+      dispatch(actions.increment());
+      // $FlowExpectedError[incompatible-call] action should be correctly typed
+      dispatch(actions.increment('1'));
+      // $FlowExpectedError[extra-arg] Increment should only accept one argument
+      dispatch(actions.increment(1, 'foo'));
+      // $FlowExpectedError[prop-missing] action should be correctly typed
+      dispatch(actions.decrement()).then();
+      // $FlowExpectedError[prop-missing] result should be correctly typed
+      v0.split('');
 
-    // Correct
-    batch(() => dispatch(actions.decrement()));
-    dispatch(actions.increment(1));
-    dispatch(actions.fetch()).then((v) => v.split(''));
-    v0 + 1;
-  },
+      // Correct
+      batch(() => dispatch(actions.decrement()));
+      dispatch(actions.increment(1));
+      dispatch(actions.fetch()).then((v) => v.split(''));
+      v0 + 1;
+    },
 };
 
 // $FlowExpectedError[prop-missing] Store should be created with a valid argument

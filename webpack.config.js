@@ -5,17 +5,17 @@ const { resolve, basename } = require('path');
 
 // This function generates configuration for files in the
 // ./src/examples/ folder
-const generateExampleEntries = function() {
+const generateExampleEntries = function () {
   const src = './examples';
 
   // Get all subdirectories in the ./src/apps,
   // so we can just add a new folder there and
   // have automatically the entry points updated
 
-  const getDirectories = source =>
+  const getDirectories = (source) =>
     readdirSync(source)
-      .map(name => resolve(source, name))
-      .filter(s => lstatSync(s).isDirectory());
+      .map((name) => resolve(source, name))
+      .filter((s) => lstatSync(s).isDirectory());
 
   const exampleDirs = getDirectories(src);
 
@@ -32,6 +32,7 @@ module.exports = {
 
   output: {
     path: resolve(__dirname, 'dist'),
+    publicPath: '/',
 
     // [name] here will be used from the "entry" object.
     // As each key in "entry" object forms a file path,
@@ -60,8 +61,7 @@ module.exports = {
   },
 
   devServer: {
-    contentBase: resolve(__dirname, 'examples'),
-    publicPath: '/',
+    static: resolve(__dirname, 'examples'),
     // hot: true,
   },
 };

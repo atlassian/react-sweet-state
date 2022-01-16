@@ -38,7 +38,10 @@ describe('bindAction', () => {
 
   it('should expose action name to devtools on action call', () => {
     defaults.devtools = true;
-    const action = () => ({ setState }) => setState();
+    const action =
+      () =>
+      ({ setState }) =>
+        setState();
     const result = bindAction(storeStateMock, action, 'myAction');
     result();
 
@@ -47,8 +50,14 @@ describe('bindAction', () => {
 
   it('should expose action name to devtools on dispatch call', () => {
     defaults.devtools = true;
-    const action2 = () => ({ setState }) => setState();
-    const action = () => ({ dispatch }) => dispatch(action2());
+    const action2 =
+      () =>
+      ({ setState }) =>
+        setState();
+    const action =
+      () =>
+      ({ dispatch }) =>
+        dispatch(action2());
     const result = bindAction(storeStateMock, action, 'myAction2');
     result();
 

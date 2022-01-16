@@ -3,8 +3,6 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { defaults } from 'react-sweet-state';
 
-import '@babel/polyfill';
-
 import { ChatRpc } from './views/chat-rpc';
 import { ChatHook } from './views/chat-hook';
 /**

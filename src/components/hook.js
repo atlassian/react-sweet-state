@@ -28,10 +28,10 @@ export function createHook(Store, { selector } = {}) {
     // Otherwise always return same value, as we ignore state
     const stateSelector = selector
       ? // eslint-disable-next-line react-hooks/rules-of-hooks
-        useMemo(() => getSelectorInstance(selector, storeState, hasPropsArg), [
-          hasPropsArg,
-          storeState,
-        ])
+        useMemo(
+          () => getSelectorInstance(selector, storeState, hasPropsArg),
+          [hasPropsArg, storeState]
+        )
       : selector === null
       ? EMPTY_SELECTOR
       : DEFAULT_SELECTOR;

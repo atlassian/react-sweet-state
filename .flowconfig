@@ -1,4 +1,6 @@
 [ignore]
+# Parse errors in JSON files are not ignored. See https://github.com/facebook/flow/issues/2364
+.*/node_modules/.*\.json
 
 [include]
 
