@@ -29,24 +29,28 @@ const initialState: State = {
 };
 
 const actions = {
-  add: (title: string): Action<State> => ({ setState, getState }) => {
-    currentId++;
-    const newTodo = { id: currentId, title, isDone: false };
-    setState({
-      byId: { ...getState().byId, [newTodo.id]: newTodo },
-      order: getState().order.concat(newTodo.id),
-    });
-  },
+  add:
+    (title: string): Action<State> =>
+    ({ setState, getState }) => {
+      currentId++;
+      const newTodo = { id: currentId, title, isDone: false };
+      setState({
+        byId: { ...getState().byId, [newTodo.id]: newTodo },
+        order: getState().order.concat(newTodo.id),
+      });
+    },
 
-  toggle: (todoId: number): Action<State> => ({ setState, getState }) => {
-    const todo = getState().byId[todoId];
-    setState({
-      byId: {
-        ...getState().byId,
-        [todo.id]: { ...todo, isDone: !todo.isDone },
-      },
-    });
-  },
+  toggle:
+    (todoId: number): Action<State> =>
+    ({ setState, getState }) => {
+      const todo = getState().byId[todoId];
+      setState({
+        byId: {
+          ...getState().byId,
+          [todo.id]: { ...todo, isDone: !todo.isDone },
+        },
+      });
+    },
 };
 
 const Store = createStore<State, Actions>({
@@ -58,18 +62,18 @@ const Store = createStore<State, Actions>({
 /** Container */
 
 type ContainerProps = { n: number };
-export const TodosContainer: ContainerComponent<ContainerProps> = createContainer(
-  Store,
-  {
-    onInit: () => ({ getState, dispatch }, { n }) => {
-      if (getState().order.length) return;
-      Array.from({ length: 10 * n }).map((__, i) => {
-        const title = `Todo ${n}-${i + 1}`;
-        dispatch(actions.add(title));
-      });
-    },
-  }
-);
+export const TodosContainer: ContainerComponent<ContainerProps> =
+  createContainer(Store, {
+    onInit:
+      () =>
+      ({ getState, dispatch }, { n }) => {
+        if (getState().order.length) return;
+        Array.from({ length: 10 * n }).map((__, i) => {
+          const title = `Todo ${n}-${i + 1}`;
+          dispatch(actions.add(title));
+        });
+      },
+  });
 
 /** Subscribers / Hooks */
 
@@ -79,12 +83,10 @@ const getAllTodosSelector = (state) => ({
   loading: state.loading,
 });
 
-export const TodosSubscriber: SubscriberComponent<
-  GetAllTodos,
-  Actions
-> = createSubscriber(Store, {
-  selector: getAllTodosSelector,
-});
+export const TodosSubscriber: SubscriberComponent<GetAllTodos, Actions> =
+  createSubscriber(Store, {
+    selector: getAllTodosSelector,
+  });
 
 export const useTodos: HookFunction<GetAllTodos, Actions> = createHook(Store, {
   selector: getAllTodosSelector,
@@ -93,12 +95,10 @@ export const useTodos: HookFunction<GetAllTodos, Actions> = createHook(Store, {
 type TodosCount = { count: number };
 const getTodosCountSelector = (state) => ({ count: state.order.length });
 
-export const TodosCountSubscriber: SubscriberComponent<
-  TodosCount,
-  Actions
-> = createSubscriber(Store, {
-  selector: getTodosCountSelector,
-});
+export const TodosCountSubscriber: SubscriberComponent<TodosCount, Actions> =
+  createSubscriber(Store, {
+    selector: getTodosCountSelector,
+  });
 
 export const useTodosCount: HookFunction<TodosCount, Actions> = createHook(
   Store,

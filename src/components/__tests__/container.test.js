@@ -27,6 +27,7 @@ jest.mock('../../store/registry', () => ({
 
 const mockOnContainerInitInner = jest.fn();
 const mockOnContainerUpdateInner = jest.fn();
+const mockOnContainerUpdate = jest.fn();
 const mockOnContainerCleanupInner = jest.fn();
 const Store = createStore({
   name: 'test',
@@ -35,7 +36,7 @@ const Store = createStore({
 });
 const Container = createContainer(Store, {
   onInit: () => mockOnContainerInitInner,
-  onUpdate: () => mockOnContainerUpdateInner,
+  onUpdate: mockOnContainerUpdate,
   onCleanup: () => mockOnContainerCleanupInner,
 });
 
@@ -49,6 +50,7 @@ describe('Container', () => {
     StoreRegistry.mockImplementation(() => mockRegistry);
     mockRegistry.getStore.mockReturnValue(getStoreReturn);
     storeStateMock.getState.mockReturnValue(StoreMock.initialState);
+    mockOnContainerUpdate.mockReturnValue(mockOnContainerUpdateInner);
   });
 
   describe('createContainer', () => {
@@ -227,6 +229,7 @@ describe('Container', () => {
       const wrapper = mount(<Container defaultCount={5}>{children}</Container>);
       wrapper.setProps({ defaultCount: 6 });
       expect(mockOnContainerInitInner).toHaveBeenCalledTimes(1);
+      expect(mockOnContainerUpdate).toHaveBeenCalled();
       expect(mockOnContainerUpdateInner).toHaveBeenCalledWith(
         {
           getState: expect.any(Function),

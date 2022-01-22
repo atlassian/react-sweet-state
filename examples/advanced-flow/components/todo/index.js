@@ -27,25 +27,26 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-export const TodoContainer: ContainerComponent<ContainerProps> = createContainer(
-  Store,
-  {
-    onInit: () => ({ dispatch }, { selectedUser }) => {
-      if (selectedUser) dispatch(actions.load(selectedUser));
-    },
-    onUpdate: () => ({ dispatch }, { selectedUser }) => {
-      if (selectedUser) dispatch(actions.load(selectedUser));
-    },
-    onCleanup: () => ({ setState }) => {
-      setState(initialState);
-    },
-  }
-);
+export const TodoContainer: ContainerComponent<ContainerProps> =
+  createContainer(Store, {
+    onInit:
+      () =>
+      ({ dispatch }, { selectedUser }) => {
+        if (selectedUser) dispatch(actions.load(selectedUser));
+      },
+    onUpdate:
+      () =>
+      ({ dispatch }, { selectedUser }) => {
+        if (selectedUser) dispatch(actions.load(selectedUser));
+      },
+    onCleanup:
+      () =>
+      ({ setState }) => {
+        setState(initialState);
+      },
+  });
 
-export const TodoSubscriber: SubscriberComponent<
-  State,
-  Actions,
-  {||}
-> = createSubscriber(Store);
+export const TodoSubscriber: SubscriberComponent<State, Actions, {||}> =
+  createSubscriber(Store);
 
 export const useTodo: HookFunction<State, Actions, void> = createHook(Store);

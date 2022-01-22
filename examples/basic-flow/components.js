@@ -20,11 +20,13 @@ const initialState: State = {
 };
 
 const actions = {
-  increment: (): Action<State> => ({ setState, getState }) => {
-    setState({
-      count: getState().count + 1,
-    });
-  },
+  increment:
+    (): Action<State> =>
+    ({ setState, getState }) => {
+      setState({
+        count: getState().count + 1,
+      });
+    },
 };
 
 const Store = createStore<State, Actions>({
@@ -32,9 +34,7 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-export const CounterSubscriber: SubscriberComponent<
-  State,
-  Actions
-> = createSubscriber(Store);
+export const CounterSubscriber: SubscriberComponent<State, Actions> =
+  createSubscriber(Store);
 
 export const useCounter: HookFunction<State, Actions> = createHook(Store);

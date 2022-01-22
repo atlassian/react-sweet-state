@@ -9,20 +9,19 @@ const TODOS: { [id: string]: TodoModel[] } = {
   '2': [{ title: 'Do the dishes' }],
 };
 
-export const load = (uid: string): Action<State> => async ({
-  setState,
-  getState,
-}) => {
-  if (getState().loading) return;
+export const load =
+  (uid: string): Action<State> =>
+  async ({ setState, getState }) => {
+    if (getState().loading) return;
 
-  setState({
-    loading: true,
-    data: null, // reset
-  });
-  // simulate async call
-  await new Promise((r) => setTimeout(r, 1000));
-  setState({
-    loading: false,
-    data: TODOS[uid],
-  });
-};
+    setState({
+      loading: true,
+      data: null, // reset
+    });
+    // simulate async call
+    await new Promise((r) => setTimeout(r, 1000));
+    setState({
+      loading: false,
+      data: TODOS[uid],
+    });
+  };
