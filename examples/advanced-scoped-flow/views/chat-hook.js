@@ -2,7 +2,7 @@
 import React, { type AbstractComponent } from 'react';
 
 import { FormContainer, useForm } from '../components/form';
-import { useMessages } from '../components/messages';
+import { useMessagesActions, useMessagesValue } from '../components/messages';
 import { ThemeContainer, useTheme } from '../components/theme';
 
 const ThemeWrapper = React.memo(({ children }: any) => {
@@ -18,15 +18,18 @@ const ThemeWrapper = React.memo(({ children }: any) => {
   );
 });
 
-const MessagesList = ({ messages }: any) => (
-  <div>
-    <ul>
-      {messages.map((m, i) => (
-        <li key={i}>{m}</li>
-      ))}
-    </ul>
-  </div>
-);
+const MessagesList = () => {
+  const { data } = useMessagesValue();
+  return (
+    <div>
+      <ul>
+        {data.map((m, i) => (
+          <li key={i}>{m}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 const FormComponent = ({ onSubmitSuccess }: any) => {
   const [{ isValid, message, isSending, toUsers }, { input, send }] = useForm();
@@ -53,11 +56,11 @@ const FormComponent = ({ onSubmitSuccess }: any) => {
 type Props = { id: string, defaultColor: string, remoteUsers: any };
 export const ChatHook: AbstractComponent<Props> = React.memo(
   ({ id, defaultColor, remoteUsers }: Props) => {
-    const [{ data }, { add }] = useMessages();
+    const { add } = useMessagesActions();
     return (
       <ThemeContainer scope={id} defaultColor={defaultColor}>
         <ThemeWrapper>
-          <MessagesList messages={data} />
+          <MessagesList />
           <FormContainer remoteUsers={remoteUsers}>
             <FormComponent onSubmitSuccess={add} />
           </FormContainer>

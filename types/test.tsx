@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/ban-ts-comment */
 import React from 'react';
 
 import {
@@ -7,6 +7,8 @@ import {
   createContainer,
   createSubscriber,
   createHook,
+  createActionsHook,
+  createValueHook,
   StoreActionApi,
   Action,
 } from 'react-sweet-state';
@@ -22,116 +24,128 @@ let Test;
 
 const actionsGeneric = {
   // setState tests
-  increment: (n: number): Action<State, void, string> => ({ setState }) => {
-    // @ts-expect-error
-    setState('');
+  increment:
+    (n: number): Action<State, void, string> =>
+    ({ setState }) => {
+      // @ts-expect-error Ensure store type
+      setState('');
 
-    // @ts-expect-error
-    setState({ foo: 1 });
+      // @ts-expect-error Ensure store shape
+      setState({ foo: 1 });
 
-    // Correct
-    setState({
-      count: 2,
-    });
+      // Correct
+      setState({
+        count: 2,
+      });
 
-    return '';
-  },
+      return '';
+    },
 
   // GetState tests
-  decrement: (): Action<State, {}, number> => ({ setState, getState }) => {
-    const state = getState();
-    // @ts-expect-error
-    const bla = state.bla;
-    // @ts-expect-error
-    state.count = 1;
+  decrement:
+    (): Action<State, unknown, number> =>
+    ({ setState, getState }) => {
+      const state = getState();
+      // @ts-expect-error Ensure property exists
+      const bla = state.bla;
+      // @ts-expect-error Ensure readonly
+      state.count = 1;
 
-    // correct
-    const { count } = state;
+      // correct
+      const { count } = state;
 
-    return count;
-  },
+      return count;
+    },
 
-  fetch: (): Action<State, {}, Promise<string>> => async () => {
+  fetch: (): Action<State, unknown, Promise<string>> => async () => {
     return '';
   },
 
   // Dispatch tests
-  setTitle: (title: string): Action<State> => ({ dispatch }) => {
-    const v0 = dispatch(actions.decrement());
-    // @ts-expect-error
-    dispatch(actions.increment());
-    // @ts-expect-error
-    dispatch(actions.increment('1'));
-    // @ts-expect-error
-    dispatch(actions.increment(1, 'foo'));
-    // @ts-expect-error
-    dispatch(actions.decrement()).then();
-    // @ts-expect-error
-    v0.split('');
+  setTitle:
+    (title: string): Action<State> =>
+    ({ dispatch }) => {
+      const v0 = dispatch(actions.decrement());
+      // @ts-expect-error Ensure action type
+      dispatch(actions.increment());
+      // @ts-expect-error Ensure action arg type
+      dispatch(actions.increment('1'));
+      // @ts-expect-error Ensure action arg length
+      dispatch(actions.increment(1, 'foo'));
+      // @ts-expect-error Ensure action return type
+      dispatch(actions.decrement()).then();
+      // @ts-expect-error Ensure action return type
+      v0.split('');
 
-    // Correct
-    batch(() => dispatch(actions.decrement()));
-    dispatch(actions.increment(1));
-    dispatch(actions.fetch()).then((v) => v.split(''));
-    v0 + 1;
-  },
+      // Correct
+      batch(() => dispatch(actions.decrement()));
+      dispatch(actions.increment(1));
+      dispatch(actions.fetch()).then((v) => v.split(''));
+      v0 + 1;
+    },
 };
 
 const actions = {
   // setState tests
-  increment: (n: number) => ({ setState }: StoreActionApi<State>) => {
-    // @ts-expect-error
-    setState('');
+  increment:
+    (n: number) =>
+    ({ setState }: StoreActionApi<State>) => {
+      // @ts-expect-error Ensure store type
+      setState('');
 
-    // @ts-expect-error
-    setState({ foo: 1 });
+      // @ts-expect-error Ensure store shape
+      setState({ foo: 1 });
 
-    // Correct
-    setState({
-      count: 2,
-    });
+      // Correct
+      setState({
+        count: 2,
+      });
 
-    return '';
-  },
+      return '';
+    },
 
   // GetState tests
-  decrement: () => ({ setState, getState }: StoreActionApi<State>) => {
-    const state = getState();
-    // @ts-expect-error
-    const bla = state.bla;
-    // @ts-expect-error
-    state.count = 1;
+  decrement:
+    () =>
+    ({ setState, getState }: StoreActionApi<State>) => {
+      const state = getState();
+      // @ts-expect-error Ensure property exists
+      const bla = state.bla;
+      // @ts-expect-error Ensure readonly
+      state.count = 1;
 
-    // correct
-    const { count } = state;
+      // correct
+      const { count } = state;
 
-    return count;
-  },
+      return count;
+    },
 
   fetch: () => async (): Promise<string> => {
     return '';
   },
 
   // Dispatch tests
-  setTitle: (title: string) => ({ dispatch }: StoreActionApi<State>) => {
-    const v0 = dispatch(actions.decrement());
-    // @ts-expect-error
-    dispatch(actions.increment());
-    // @ts-expect-error
-    dispatch(actions.increment('1'));
-    // @ts-expect-error
-    dispatch(actions.increment(1, 'foo'));
-    // @ts-expect-error
-    dispatch(actions.decrement()).then();
-    // @ts-expect-error
-    v0.split('');
+  setTitle:
+    (title: string) =>
+    ({ dispatch }: StoreActionApi<State>) => {
+      const v0 = dispatch(actions.decrement());
+      // @ts-expect-error Ensure action type
+      dispatch(actions.increment());
+      // @ts-expect-error Ensure action arg type
+      dispatch(actions.increment('1'));
+      // @ts-expect-error Ensure action arg length
+      dispatch(actions.increment(1, 'foo'));
+      // @ts-expect-error Ensure action return type
+      dispatch(actions.decrement()).then();
+      // @ts-expect-error Ensure action return type
+      v0.split('');
 
-    // Correct
-    batch(() => dispatch(actions.decrement()));
-    dispatch(actions.increment(1));
-    dispatch(actions.fetch()).then((v) => v.split(''));
-    v0 + 1;
-  },
+      // Correct
+      batch(() => dispatch(actions.decrement()));
+      dispatch(actions.increment(1));
+      dispatch(actions.fetch()).then((v) => v.split(''));
+      v0 + 1;
+    },
 };
 
 // @ts-expect-error
@@ -341,6 +355,52 @@ argReturn[0].min.split('');
 
 // Correct
 argReturn[0].min + argReturn[0].baz;
+
+/**
+ * createActionsHook types tests
+ */
+
+const typeActionsHook = createActionsHook<State, Actions>(TypeStore);
+
+const actionsReturn = typeActionsHook();
+
+// @ts-expect-error
+actionsReturn.length;
+
+// @ts-expect-error
+actionsReturn.count;
+
+// Correct
+actionsReturn.increment(1);
+actionsReturn.decrement();
+actionsReturn.fetch().then((v) => v);
+
+/**
+ * createActionsHook types tests
+ */
+
+const typeValueHook = createValueHook<
+  State,
+  Actions,
+  SelectorState,
+  SelectorProps
+>(TypeStore, {
+  selector: (state, props) => ({ baz: 1, min: props.min }),
+});
+
+const valueReturn = typeValueHook({ min: 2 });
+
+// @ts-expect-error
+valueReturn.length;
+
+// @ts-expect-error
+valueReturn.count;
+
+// @ts-expect-error
+valueReturn.decrement();
+
+// Correct
+valueReturn.min + valueReturn.baz + 1;
 
 /**
  * Container types tests

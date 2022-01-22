@@ -7,6 +7,8 @@ import {
   createContainer,
   createSubscriber,
   createHook,
+  createActionsHook,
+  createValueHook,
   type Action,
   type StoreActionApi,
 } from '..';
@@ -337,6 +339,49 @@ Test = typeHook({ min: '2' });
 Test = typeHook({ min: 2 });
 // $FlowExpectedError[prop-missing] Should have correct selector types
 Test[0].min.split('');
+
+// Correct
+Test[0].min + Test[0].baz;
+
+/**
+ * createActionsHook types tests
+ */
+
+typeHook = createActionsHook<State, Actions>(TypeStore);
+
+Test = typeHook();
+
+// $FlowExpectedError[prop-missing]
+Test.length;
+
+// $FlowExpectedError[incompatible-call]
+Test.increment();
+
+// Correct
+Test.increment(1);
+Test.decrement();
+Test.fetch().then((v) => v);
+
+/**
+ * createValueHook types tests
+ */
+
+typeHook = createValueHook<State, Actions>(TypeStore);
+
+Test = typeHook();
+
+// $FlowExpectedError[prop-missing]
+Test.length;
+
+// $FlowExpectedError[prop-missing]
+Test.increment();
+
+// Correct
+Test.count + 1;
+
+typeHook = createHook<State, Actions, _, SelectorProps>(TypeStore, {
+  selector: (state, props: SelectorProps) => ({ baz: 1, min: props.min }),
+});
 
 // Correct
 Test[0].min + Test[0].baz;

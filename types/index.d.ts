@@ -157,7 +157,7 @@ declare module 'react-sweet-state' {
   function createContainer<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>,
-    TContainerProps = {}
+    TContainerProps = unknown
   >(
     store: Store<TState, TActions>,
     options?: {
@@ -181,7 +181,7 @@ declare module 'react-sweet-state' {
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>,
     TSelectedState = TState,
-    TSubscriberProps = {}
+    TSubscriberProps = unknown
   >(
     store: Store<TState, TActions>,
     options?: {
@@ -209,6 +209,23 @@ declare module 'react-sweet-state' {
       selector?: Selector<TState, THookArg, TSelectedState> | null;
     }
   ): HookFunction<TSelectedState, BoundActions<TState, TActions>, THookArg>;
+
+  function createActionsHook<
+    TState,
+    TActions extends Record<string, ActionThunk<TState, TActions>>
+  >(store: Store<TState, TActions>): () => BoundActions<TState, TActions>;
+
+  function createValueHook<
+    TState,
+    TActions extends Record<string, ActionThunk<TState, TActions>>,
+    TSelectedState = TState,
+    THookArg = void
+  >(
+    store: Store<TState, TActions>,
+    options?: {
+      selector?: Selector<TState, THookArg, TSelectedState>;
+    }
+  ): (...args: THookArg extends undefined ? [] : [THookArg]) => TSelectedState;
 
   /**
    * createSelector
