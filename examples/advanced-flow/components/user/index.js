@@ -33,10 +33,8 @@ export const UserContainer: ContainerComponent<void> = createContainer(Store, {
   onInit: actions.load,
 });
 
-export const UserSubscriber: SubscriberComponent<
-  State,
-  Actions
-> = createSubscriber(Store);
+export const UserSubscriber: SubscriberComponent<State, Actions> =
+  createSubscriber(Store);
 
 export const UserSelectedSubscriber: SubscriberComponent<
   UserSelectedState,
@@ -47,7 +45,5 @@ export const UserSelectedSubscriber: SubscriberComponent<
 
 export const useUser: HookFunction<State, Actions> = createHook(Store);
 
-export const useUserSelected: HookFunction<
-  UserSelectedState,
-  Actions
-> = createHook(Store, { selector: selectors.getSelected });
+export const useUserSelected: HookFunction<UserSelectedState, Actions> =
+  createHook(Store, { selector: selectors.getSelected });

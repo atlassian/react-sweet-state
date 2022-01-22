@@ -7,6 +7,8 @@ const namedMutator =
     return storeState.mutator(...arg);
   };
 
+const warnings = new WeakMap();
+
 export const bindAction = (
   storeState,
   actionFn,
@@ -22,7 +24,19 @@ export const bindAction = (
           ? namedMutator(storeState, actionName)
           : storeState.mutator,
         getState: storeState.getState,
-        actions: boundActions,
+        get actions() {
+          if (!warnings.has(actionFn)) {
+            warnings.set(
+              actionFn,
+              console.warn(
+                `react-sweet-state 'actions' property has been deprecated and will be removed in the next mayor. ` +
+                  `Please check action '${actionName}' of Store '${storeState.key}' and use 'dispatch' instead`
+              )
+            );
+          }
+
+          return boundActions;
+        },
         dispatch,
       },
       getContainerProps()

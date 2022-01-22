@@ -34,7 +34,7 @@ export type StoreState<ST> = {|
   setState: SetState<ST>,
   resetState: () => void,
   notify: () => void,
-  key: string[],
+  key: string,
   subscribe: (
     listener: (state: ST, storeState: StoreState<ST>) => void
   ) => StoreUnsubscribe,
@@ -48,7 +48,6 @@ type ExtractReturnType = <R>(
 export type StoreActionApi<ST> = {|
   setState: SetState<ST>,
   getState: GetState<ST>,
-  actions: any, // deprecated
   dispatch: <F>(actionThunk: F) => $Call<ExtractReturnType, F>,
 |};
 

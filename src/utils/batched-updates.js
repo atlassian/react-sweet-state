@@ -2,7 +2,7 @@
 import { unstable_batchedUpdates } from 'react-dom';
 import {
   unstable_scheduleCallback as scheduleCallback,
-  unstable_UserBlockingPriority as UserBlockingPriority,
+  unstable_ImmediatePriority as ImmediatePriority,
 } from 'scheduler';
 
 import defaults from '../defaults';
@@ -21,13 +21,10 @@ export function batch(fn) {
   }
 
   isInsideBatchedSchedule = true;
-  // Use UserBlockingPriority as it has max 250ms timeout
-  // https://github.com/facebook/react/blob/master/packages/scheduler/src/forks/SchedulerNoDOM.js#L47
-  return scheduleCallback(
-    UserBlockingPriority,
-    function scheduleBatchedUpdates() {
-      unstable_batchedUpdates(fn);
-      isInsideBatchedSchedule = false;
-    }
-  );
+  // Use ImmediatePriority as it has -1ms timeout
+  // https://github.com/facebook/react/blob/main/packages/scheduler/src/forks/Scheduler.js#L65
+  return scheduleCallback(ImmediatePriority, function scheduleBatchedUpdates() {
+    unstable_batchedUpdates(fn);
+    isInsideBatchedSchedule = false;
+  });
 }

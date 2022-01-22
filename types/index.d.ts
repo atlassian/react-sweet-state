@@ -1,5 +1,5 @@
 declare module 'react-sweet-state' {
-  import { ComponentType, ReactNode, ReactElement } from 'react';
+  import { ComponentType, ReactNode } from 'react';
 
   interface SetState<TState> {
     (newState: Partial<TState>): void;
@@ -34,7 +34,7 @@ declare module 'react-sweet-state' {
     setState: SetState<TState>;
     resetState: () => void;
     notify: () => void;
-    key: string[];
+    key: string;
     subscribe: (
       listener: (state: TState, storeState: StoreState<TState>) => void
     ) => StoreUnsubscribe;

@@ -108,13 +108,13 @@ export default class Container extends Component {
   };
 
   triggerContainerAction = (nextProps) => {
-    // eslint-disable-next-line no-unused-vars
-    const { children, scope, isGlobal, ...restProps } = nextProps;
-    if (shallowEqual(this.actionProps, restProps)) return;
+    const nextActionProps = this.filterActionProps(nextProps);
+    const prevActionProps = this.actionProps;
+    if (shallowEqual(prevActionProps, nextActionProps)) return;
 
     // store restProps on instance so we can diff and use fresh props
     // in actions even before react sets them in this.props
-    this.actionProps = restProps;
+    this.actionProps = nextActionProps;
 
     if (this.scopedHooks.onInit) {
       this.scopedHooks.onInit();
@@ -122,6 +122,12 @@ export default class Container extends Component {
     } else {
       this.scopedHooks.onUpdate();
     }
+  };
+
+  filterActionProps = (props) => {
+    // eslint-disable-next-line no-unused-vars
+    const { children, scope, isGlobal, ...restProps } = props;
+    return restProps;
   };
 
   getContainerProps = () => this.actionProps;

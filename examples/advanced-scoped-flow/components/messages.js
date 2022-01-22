@@ -22,11 +22,13 @@ const initialState: State = {
 };
 
 const actions = {
-  add: (message: string): Action<State> => ({ setState, getState }) => {
-    setState({
-      data: [...getState().data, message],
-    });
-  },
+  add:
+    (message: string): Action<State> =>
+    ({ setState, getState }) => {
+      setState({
+        data: [...getState().data, message],
+      });
+    },
 };
 
 const Store = createStore<State, Actions>({
@@ -35,9 +37,7 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-export const MessagesSubscriber: SubscriberComponent<
-  State,
-  Actions
-> = createSubscriber(Store);
+export const MessagesSubscriber: SubscriberComponent<State, Actions> =
+  createSubscriber(Store);
 
 export const useMessages: HookFunction<State, Actions> = createHook(Store);

@@ -14,11 +14,13 @@ const initialState: State = {
 };
 
 const actions = {
-  increment: (): Action<State> => ({ setState, getState }) => {
-    setState({
-      count: getState().count + 1,
-    });
-  },
+  increment:
+    (): Action<State> =>
+    ({ setState, getState }) => {
+      setState({
+        count: getState().count + 1,
+      });
+    },
 };
 
 const Store = createStore({
