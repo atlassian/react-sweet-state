@@ -8,7 +8,7 @@ import {
   createSubscriber,
   createHook,
   createActionsHook,
-  createValueHook,
+  createStateHook,
   StoreActionApi,
   Action,
 } from 'react-sweet-state';
@@ -379,7 +379,7 @@ actionsReturn.fetch().then((v) => v);
  * createActionsHook types tests
  */
 
-const typeValueHook = createValueHook<
+const typeValueHook = createStateHook<
   State,
   Actions,
   SelectorState,

@@ -5,11 +5,11 @@ import {
   createContainer,
   createSubscriber,
   createHook,
-  createValueHook,
+  createStateHook,
   type ContainerComponent,
   type SubscriberComponent,
   type HookFunction,
-  type HookValueFunction,
+  type HookStateFunction,
 } from 'react-sweet-state';
 import type { State } from './types';
 
@@ -47,7 +47,7 @@ export const UserSelectedSubscriber: SubscriberComponent<
 
 export const useUser: HookFunction<State, Actions> = createHook(Store);
 
-export const useUserSelected: HookValueFunction<UserSelectedState> =
-  createValueHook(Store, {
+export const useUserSelected: HookStateFunction<UserSelectedState> =
+  createStateHook(Store, {
     selector: selectors.getSelected,
   });

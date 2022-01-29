@@ -87,9 +87,9 @@ export function createActionsHook(Store) {
   };
 }
 
-export function createValueHook(Store, { selector } = {}) {
+export function createStateHook(Store, { selector } = {}) {
   const useHook = createHook(Store, { selector });
-  return function useSweetStateValue(propsArg) {
+  return function useSweetStateState(propsArg) {
     return useHook(propsArg)[0];
   };
 }

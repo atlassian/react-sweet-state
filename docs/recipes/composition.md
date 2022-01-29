@@ -1,15 +1,15 @@
 ## Composition
 
-Hooks allow composition naturally, without rendering additional components:
+Hooks allow composition naturally, without rendering additional components. Moreover, by creating actions-only hooks you can ensure side effect compositions to not waste re-render cycles:
 
 ```js
 // ...
 import { useUserState } from './state-containers/user';
-import { useProjectState } from './state-containers/projects';
+import { useProjectActions } from './state-containers/projects';
 
-const UserProject = uid => {
+const UserProject = (uid) => {
   const [userState, userActions] = useUserState();
-  const [projectState, projectActions] = useProjectState();
+  const projectActions = useProjectActions();
 
   /* now we can useEffect to trigger userActions.load()
     and when user data is returned call projectActions.load(userState.data.id) */
@@ -27,25 +27,4 @@ const UserProject = uid => {
 
   return; /* ... */
 };
-```
-
-If you are looking for a way to avoid render-props component hell, you can have composition via 3rd party libs, like `react-composer`:
-
-```js
-import Composer from "react-composer";
-// ...
-
-const UserProject = () => (
-  <Composer
-    components={[
-      <UserSubscriber />,
-      <ProjectSubscriber />
-    ]}
-  >
-    {([[userState, userActions], [projectState, projectActions]]) => (
-      /* here you can have a component that triggers userActions.load()
-         and when user data is returned calls projectActions.load(userState.data.id) */
-    )}
-  </Composer>
-);
 ```

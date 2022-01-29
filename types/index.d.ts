@@ -137,6 +137,12 @@ declare module 'react-sweet-state' {
     ...args: TArg extends undefined ? [] : [TArg]
   ) => HookReturnValue<TState, TActions>;
 
+  type HookActionsFunction<TActions> = () => TActions;
+
+  type HookStateFunction<TState, TArg = undefined> = (
+    ...args: TArg extends undefined ? [] : [TArg]
+  ) => TState;
+
   /**
    * createStore
    */
@@ -213,9 +219,11 @@ declare module 'react-sweet-state' {
   function createActionsHook<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>
-  >(store: Store<TState, TActions>): () => BoundActions<TState, TActions>;
+  >(
+    store: Store<TState, TActions>
+  ): HookActionsFunction<BoundActions<TState, TActions>>;
 
-  function createValueHook<
+  function createStateHook<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>,
     TSelectedState = TState,
@@ -225,7 +233,7 @@ declare module 'react-sweet-state' {
     options?: {
       selector?: Selector<TState, THookArg, TSelectedState>;
     }
-  ): (...args: THookArg extends undefined ? [] : [THookArg]) => TSelectedState;
+  ): HookStateFunction<TSelectedState, THookArg>;
 
   /**
    * createSelector

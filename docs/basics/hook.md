@@ -2,7 +2,7 @@
 
 ### Creating a hook
 
-Subscribers (via render props) are not the only way to access state and actions. **sweet-state** also provides a method to create hooks to access Store state in your views. As with Subscribers, after defining a Store, custom hooks can be created with `createHook`:
+The best way to access state and actions in **sweet-state** is by creating hooks to consume in your views. After defining a Store, custom hooks can be created with `createHook` creator:
 
 ```js
 // components/counter.js
@@ -11,10 +11,12 @@ import { createStore, createHook } from 'react-sweet-state';
 const Store = createStore({
   initialState: { count: 0 },
   actions: {
-    increment: () => ({ setState, getState }) => {
-      const currentCount = getState().count;
-      setState({ count: currentCount + 1 });
-    },
+    increment:
+      () =>
+      ({ setState, getState }) => {
+        const currentCount = getState().count;
+        setState({ count: currentCount + 1 });
+      },
   },
 });
 
@@ -25,7 +27,7 @@ export const useCounter = createHook(Store);
 
 Now you can use `useCounter` in your views. It will expose the Store instance `state` and the `actions` as return value of the invocation:
 
-```js
+```jsx
 // app.js
 import { useCounter } from './components/counter';
 
@@ -43,4 +45,5 @@ const App = () => {
 
 ---
 
+There are also two other flavours of hook creators: `createStateHook` and `createActionsHook`.
 For more details about hooks see [hook API](../api/hook.md), or how to create [selector hooks](../advanced/selector.md).

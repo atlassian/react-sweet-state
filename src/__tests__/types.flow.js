@@ -8,7 +8,7 @@ import {
   createSubscriber,
   createHook,
   createActionsHook,
-  createValueHook,
+  createStateHook,
   type Action,
   type StoreActionApi,
 } from '..';
@@ -363,10 +363,10 @@ Test.decrement();
 Test.fetch().then((v) => v);
 
 /**
- * createValueHook types tests
+ * createStateHook types tests
  */
 
-typeHook = createValueHook<State, Actions>(TypeStore);
+typeHook = createStateHook<State, Actions>(TypeStore);
 
 Test = typeHook();
 

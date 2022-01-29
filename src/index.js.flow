@@ -121,7 +121,7 @@ export type HookFunction<ST, AC, PR = void> = (
 
 export type HookActionsFunction<AC> = () => $Exact<BoundActions<AC>>;
 
-export type HookValueFunction<ST, PR = void> = (props?: PR) => ST;
+export type HookStateFunction<ST, PR = void> = (props?: PR) => ST;
 
 /**
  * createStore
@@ -201,14 +201,14 @@ declare export function createActionsHook<ST, AC>(
   store: Store<ST, AC>
 ): HookActionsFunction<AC>;
 
-declare export function createValueHook<ST, AC>(store: Store<ST, AC>): () => ST;
+declare export function createStateHook<ST, AC>(store: Store<ST, AC>): () => ST;
 
-declare export function createValueHook<ST, AC, SE, PR>(
+declare export function createStateHook<ST, AC, SE, PR>(
   store: Store<ST, AC>,
   options: {|
     selector: (state: ST, props: PR) => SE,
   |}
-): HookValueFunction<SE, PR>;
+): HookStateFunction<SE, PR>;
 
 /**
  * createSelector

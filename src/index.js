@@ -5,7 +5,7 @@ export { createSubscriber } from './components/subscriber';
 export {
   createHook,
   createActionsHook,
-  createValueHook,
+  createStateHook,
 } from './components/hook';
 export { default as defaults } from './defaults';
 export { createStore, defaultRegistry } from './store';
