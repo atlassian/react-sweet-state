@@ -6,12 +6,11 @@ Given a standard action, the arguments of the "inner" function called by **sweet
 
 ```js
 const actions = {
-  doSomething: (...args) => (
-    { setState, getState, dispatch },
-    containerProps
-  ) => {
-    // your code here
-  },
+  doSomething:
+    (...args) =>
+    ({ setState, getState, dispatch }, containerProps) => {
+      // your code here
+    },
 };
 ```
 
@@ -47,13 +46,17 @@ This method allows you to trigger other actions from the explicitly called actio
 
 ```js
 const actions = {
-  increment: n => ({ setState, getState }) => {
-    setState({ count: getState().count + n });
-  },
-  resetTo: n => ({ setState, dispatch }) => {
-    setState({ count: 0 });
-    dispatch(actions.increment(n));
-  },
+  increment:
+    (n) =>
+    ({ setState, getState }) => {
+      setState({ count: getState().count + n });
+    },
+  resetTo:
+    (n) =>
+    ({ setState, dispatch }) => {
+      setState({ count: 0 });
+      dispatch(actions.increment(n));
+    },
 };
 ```
 
@@ -62,13 +65,14 @@ const actions = {
 The second argument of the action "inner" function contains the custom props that you can set on the `Container` component wrapping the subscriber that is exposing the action. For instance, assuming you set a `multiplyBy` prop on the `CounterContainer`:
 
 ```js
+const CounterButton = () => {
+  const [, actions] = useCounter();
+  return <button onClick={actions.increment}>increment by 2</button>;
+};
+
 const App = () => (
   <CounterContainer multiplyBy={2}>
-    <CounterSubscriber>
-      {(state, actions) => (
-        <button onClick={actions.increment}>increment by 2</button>
-      )}
-    </CounterSubscriber>
+    <CounterButton />
   </CounterContainer>
 );
 ```
@@ -77,9 +81,11 @@ When the `increment` action is called, it can access the value `multiplyBy` in t
 
 ```js
 const actions = {
-  increment: (n = 1) => ({ setState, getState }, { multiplyBy }) => {
-    setState({ count: getState().count + n * multiplyBy });
-  },
+  increment:
+    (n = 1) =>
+    ({ setState, getState }, { multiplyBy }) => {
+      setState({ count: getState().count + n * multiplyBy });
+    },
 };
 ```
 

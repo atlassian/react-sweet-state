@@ -6,20 +6,22 @@ Like [redux-thunk](https://github.com/reduxjs/redux-thunk), store actions can be
 
 ```js
 const actions = {
-  load: () => async ({ setState, getState }, { api }) => {
-    if (getState().loading === true) return;
+  load:
+    () =>
+    async ({ setState, getState }, { api }) => {
+      if (getState().loading === true) return;
 
-    setState({
-      loading: true,
-    });
+      setState({
+        loading: true,
+      });
 
-    const todos = await api.get('/todos');
+      const todos = await api.get('/todos');
 
-    setState({
-      loading: false,
-      data: todos,
-    });
-  },
+      setState({
+        loading: false,
+        data: todos,
+      });
+    },
 };
 ```
 
@@ -28,22 +30,28 @@ const actions = {
 Sometimes you might want to have generic actions that are called by other actions, but without exposing them publicly as part the API. That can be easily done using `dispatch`:
 
 ```js
-const setLoading = () => ({ setState }) => {
-  setState({ loading: true });
-};
+const setLoading =
+  () =>
+  ({ setState }) => {
+    setState({ loading: true });
+  };
 
-const setData = (data) => ({ setState }) => {
-  setState({ loading: false, data });
-};
+const setData =
+  (data) =>
+  ({ setState }) => {
+    setState({ loading: false, data });
+  };
 
 const actions = {
-  load: () => async ({ getState, dispatch }, { api }) => {
-    if (getState().loading === true) return;
+  load:
+    () =>
+    async ({ getState, dispatch }, { api }) => {
+      if (getState().loading === true) return;
 
-    dispatch(setLoading());
-    const todos = await api.get('/todos');
-    dispatch(setData(todos));
-  },
+      dispatch(setLoading());
+      const todos = await api.get('/todos');
+      dispatch(setData(todos));
+    },
 };
 ```
 

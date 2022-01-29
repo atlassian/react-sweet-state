@@ -1,5 +1,7 @@
 ## Subscribers API
 
+> _Note: this API has been developed before hooks were a thing. We still support it for compatibility reason, but we recommend you move to hooks, which offer more flexibility._
+
 ### createSubscriber
 
 ```js
@@ -36,14 +38,14 @@ import Store from './store';
 
 const TodosByStatusSubscriber = createSubscriber(Store, {
   selector: (state, props) => ({
-    todos: state.todos.filter(t => t.status === props.status),
+    todos: state.todos.filter((t) => t.status === props.status),
   }),
 });
 
 const Todos = ({ status = 'done' }) => (
   <TodosByStatusSubscriber status={status}>
     {({ todos }, actions) =>
-      todos.map(todo => <Todo todo={todo} onAddTodo={actions.add} />)
+      todos.map((todo) => <Todo todo={todo} onAddTodo={actions.add} />)
     }
   </TodosByStatusSubscriber>
 );

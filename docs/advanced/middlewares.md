@@ -5,7 +5,7 @@
 ```js
 import { defaults } from 'react-sweet-state';
 
-const logger = storeState => next => arg => {
+const logger = (storeState) => (next) => (arg) => {
   console.log(storeState.key, 'payload: ', arg);
   const result = next(arg);
   console.log(storeState.key, ':', storeState.getState());

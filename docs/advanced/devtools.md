@@ -11,10 +11,12 @@ Now every action will be logged along with its name, payload and state changes:
 
 ```js
 const actions = {
-  reset: () => ({ setState }) => {
-    // will be logged as "reset" in redux devtools
-    setState({ count: 0 });
-  },
+  reset:
+    () =>
+    ({ setState }) => {
+      // will be logged as "reset" in redux devtools
+      setState({ count: 0 });
+    },
 };
 ```
 

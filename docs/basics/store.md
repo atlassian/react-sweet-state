@@ -14,9 +14,11 @@ const initialState = {
 
 // All the actions that mutate the store
 const actions = {
-  increment: () => ({ setState }) => {
-    // action code...
-  },
+  increment:
+    () =>
+    ({ setState }) => {
+      // action code...
+    },
 };
 
 const Store = createStore({ initialState, actions });
@@ -28,4 +30,4 @@ Optionally, you can add a `name` property to the `createStore` configuration obj
 const Store = createStore({ initialState, actions, name: 'counter' });
 ```
 
-The first time a `Subscriber` or a `Container` linked to this store is rendered, a Store instance will be initialised and its state shared across all components created from the same Store. If you need multiple instances of the same Store, use the `Container` component ([see Container docs for more](../advanced/container.md)).
+The first time a hook or a `Container` linked to this store is rendered, a Store instance will be initialised and its state shared across all components created from the same Store. If you need multiple instances of the same Store, use the `Container` component ([see Container docs for more](../advanced/container.md)).

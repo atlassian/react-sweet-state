@@ -18,7 +18,7 @@ createStore(config);
 
 ##### Returns
 
-_(Object)_: used to create Containers, Subscribers and hooks related to the same store type
+_(Object)_: used to create Containers, hooks and Subscribers related to the same store type
 
 ##### Example
 
@@ -32,10 +32,12 @@ const Store = createStore({
   name: 'todos',
   initialState: { todos: [] },
   actions: {
-    load: () => async ({ setState }) => {
-      const todos = await fetch('/todos');
-      setState({ todos });
-    },
+    load:
+      () =>
+      async ({ setState }) => {
+        const todos = await fetch('/todos');
+        setState({ todos });
+      },
   },
 });
 ```

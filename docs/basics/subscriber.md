@@ -1,5 +1,7 @@
 ## Subscribers
 
+> _Note: this pattern has been developed before hooks were a thing. We still support it for compatibility reason, but we recommend you move to hooks, which offer more flexibility._
+
 ### Creating a Subscriber
 
 A `<Subscriber />` allows you to access Store state and actions in your views, via the render props pattern.
@@ -12,10 +14,12 @@ import { createStore, createSubscriber } from 'react-sweet-state';
 const Store = createStore({
   initialState: { count: 0 },
   actions: {
-    increment: () => ({ setState, getState }) => {
-      const currentCount = getState().count;
-      setState({ count: currentCount + 1 });
-    },
+    increment:
+      () =>
+      ({ setState, getState }) => {
+        const currentCount = getState().count;
+        setState({ count: currentCount + 1 });
+      },
   },
 });
 
