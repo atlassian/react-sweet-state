@@ -4,11 +4,13 @@ You will often find yourself writing actions that hold no special internal logic
 
 ```js
 const actions = {
-  reset: () => ({ setState, getState }) => {
-    if (getState().count !== 0) {
-      setState({ count: 0 });
-    }
-  },
+  reset:
+    () =>
+    ({ setState, getState }) => {
+      if (getState().count !== 0) {
+        setState({ count: 0 });
+      }
+    },
 };
 ```
 
@@ -51,43 +53,45 @@ When your action contains some asynchronous logic, calls to endpoints for exampl
 import { fetchUser } from './rest/user';
 
 const actions = {
-  fetchUserData: (userId) => async ({ setState, getState }) => {
-    const currentUser = getState().user;
+  fetchUserData:
+    (userId) =>
+    async ({ setState, getState }) => {
+      const currentUser = getState().user;
 
-    // Return if data exists
-    if (currentUser.data && currentUser.data.id === userId) {
-      return;
-    }
+      // Return if data exists
+      if (currentUser.data && currentUser.data.id === userId) {
+        return;
+      }
 
-    // Set loading state to true
-    setState({
-      user: {
-        loading: true,
-        data: null,
-        error: null,
-      },
-    });
-
-    try {
-      // Initiate request
-      const newUserData = await fetchStatus(userId);
-
-      // Store success
+      // Set loading state to true
       setState({
         user: {
-          loading: false,
-          data: newUserData,
+          loading: true,
+          data: null,
           error: null,
         },
       });
-    } catch (e) {
-      // Store failure
-      setState({
-        loading: false,
-        error: e.message,
-      });
-    }
-  },
+
+      try {
+        // Initiate request
+        const newUserData = await fetchStatus(userId);
+
+        // Store success
+        setState({
+          user: {
+            loading: false,
+            data: newUserData,
+            error: null,
+          },
+        });
+      } catch (e) {
+        // Store failure
+        setState({
+          loading: false,
+          error: e.message,
+        });
+      }
+    },
 };
 ```
 
@@ -176,24 +180,28 @@ Actions can trigger other actions inside them. Testing these state changes can b
 ```js
 import { sendClickAnalytics } from './analytics';
 
-const clickAnalytics = () => ({ setState, getState }) => {
-  const currentTime = Date.now();
+const clickAnalytics =
+  () =>
+  ({ setState, getState }) => {
+    const currentTime = Date.now();
 
-  // Store last anaytics sent and execute
-  setState({ lastAnalytics: currentTime });
-  sendClickAnalytics(getState());
-};
+    // Store last anaytics sent and execute
+    setState({ lastAnalytics: currentTime });
+    sendClickAnalytics(getState());
+  };
 
-const clickManager = () => ({ setState, getState, dispatch }) => {
-  // Update click counter
-  const currentCount = getState().count;
-  setState({ count: currentCount + 1 });
+const clickManager =
+  () =>
+  ({ setState, getState, dispatch }) => {
+    // Update click counter
+    const currentCount = getState().count;
+    setState({ count: currentCount + 1 });
 
-  // Send analytics every 5 clicks
-  if (currentCount + 1 === 5) {
-    dispatch(clickAnanlytics());
-  }
-};
+    // Send analytics every 5 clicks
+    if (currentCount + 1 === 5) {
+      dispatch(clickAnanlytics());
+    }
+  };
 
 const actions = {
   clickAnalytics,
@@ -210,22 +218,26 @@ When creating actions you can make them as complex and intertwined as you like. 
 ```js
 // Example of intertwined actions
 
-const interimAction = () => ({ setState }) => {
-  setState({ option2: Date.now() });
-};
+const interimAction =
+  () =>
+  ({ setState }) => {
+    setState({ option2: Date.now() });
+  };
 
-const initiatorAction = () => ({ setState, getState, dispatch }) => {
-  setState({ option1: Date.now() });
+const initiatorAction =
+  () =>
+  ({ setState, getState, dispatch }) => {
+    setState({ option1: Date.now() });
 
-  dispatch(interimAction());
+    dispatch(interimAction());
 
-  const { option2: newOption } = getState();
+    const { option2: newOption } = getState();
 
-  if (Date.now() - newOption < 50) {
-    // fast action
-    setState({ type: 'fast' });
-  } else {
-    setState({ type: 'slow' });
-  }
-};
+    if (Date.now() - newOption < 50) {
+      // fast action
+      setState({ type: 'fast' });
+    } else {
+      setState({ type: 'slow' });
+    }
+  };
 ```

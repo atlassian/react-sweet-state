@@ -4,9 +4,11 @@ Actions are functions that can mutate data in a Store.
 
 ```js
 const actions = {
-  reset: () => ({ setState }) => {
-    setState({ count: 0 });
-  },
+  reset:
+    () =>
+    ({ setState }) => {
+      setState({ count: 0 });
+    },
 };
 ```
 
@@ -19,23 +21,24 @@ Assuming you want a function that increments the counter by a custom value, you 
 
 ```js
 const actions = {
-  increment: (number) => ({ setState, getState }) => {
+  increment:
+    (number) =>
+    ({ setState, getState }) => {
       const currentCount = getState().count;
       setState({ count: currentCount + number });
-    };
-  },
+    },
 };
 ```
 
-Then all you have to do is call that function, exposed via a `Subscriber`, or a hook, from your view:
+Then all you have to do is call that function, exposed via a hook, or `Subscriber`, from your view:
 
-```js
+```jsx
 import { useCounter } from './components/counter';
 
 const App = () => {
-  const [, { increment }] = useCounter();
+  const [state, { increment }] = useCounter();
 
-  return <button onClick={() => increment(2)}>Add two</button>;
+  return <button onClick={() => increment(2)}>Add 2 to {state.count}</button>;
 };
 ```
 

@@ -12,28 +12,28 @@ yarn add react-sweet-state
 ```
 
 ```js
-import { createStore, createSubscriber, createHook } from 'react-sweet-state';
+import { createStore, createHook } from 'react-sweet-state';
 
 const Store = createStore({
   // value of the store on initialisation
   initialState: {
-    count: 0
+    count: 0,
   },
   // actions that trigger store mutation
   actions: {
-    increment: (by = 1) => ({ setState, getState }) => {
-      // mutate state synchronously
-      setState({
-        count: getState().count + by
-      });
-    }
+    increment:
+      (by = 1) =>
+      ({ setState, getState }) => {
+        // mutate state synchronously
+        setState({
+          count: getState().count + by,
+        });
+      },
   },
   // optional, mostly used for easy debugging
-  name: 'counter'
+  name: 'counter',
 });
 
-const CounterSubscriber = createSubscriber(Store);
-// or
 const useCounter = createHook(Store);
 
 const CounterApp = () => {

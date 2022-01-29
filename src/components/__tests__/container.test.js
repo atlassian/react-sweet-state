@@ -250,15 +250,9 @@ describe('Container', () => {
       mount(<Container defaultCount={5}>{children}</Container>);
       const [, { increase }] = renderPropChildren.mock.calls[0];
       increase();
-      expect(actionInner).toHaveBeenCalledWith(
-        {
-          getState: expect.any(Function),
-          setState: expect.any(Function),
-          actions: expect.any(Object),
-          dispatch: expect.any(Function),
-        },
-        { defaultCount: 5 }
-      );
+      expect(actionInner).toHaveBeenCalledWith(expect.any(Object), {
+        defaultCount: 5,
+      });
     });
 
     it('should pass fresh props to subscriber actions when they change', () => {
@@ -271,15 +265,9 @@ describe('Container', () => {
       const [, { increase }] = renderPropChildren.mock.calls[0];
       wrapper.setProps({ defaultCount: 6 });
       increase();
-      expect(actionInner).toHaveBeenCalledWith(
-        {
-          getState: expect.any(Function),
-          setState: expect.any(Function),
-          actions: expect.any(Object),
-          dispatch: expect.any(Function),
-        },
-        { defaultCount: 6 }
-      );
+      expect(actionInner).toHaveBeenCalledWith(expect.any(Object), {
+        defaultCount: 6,
+      });
     });
   });
 });

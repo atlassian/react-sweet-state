@@ -16,7 +16,7 @@ The good parts of Redux and React Context in a flexible, scalable and easy to us
 
 sweet-state is heavily inspired by Redux mixed with Context API concepts. It has render-prop components or hooks, connected to Store instances (defined as actions and initial state), receiving the Store state (or part of it) and the actions as a result.
 
-Each `Subscriber`, or `Hook`, is responsible to get the instantiated Store (creating a new one with `initialState` if necessary), allowing sharing state across your project extremely easy.
+Each `Hook`, or `Subscriber`, is responsible to get the instantiated Store (creating a new one with `initialState` if necessary), allowing sharing state across your project extremely easy.
 
 Similar to Redux thunks, actions receive a set of arguments to get and mutate the state. The default `setState` implementation is similar to React `setState`, accepting an object that will be shallow merged with the current state. However, you are free to replace the built-in `setState` logic with a custom mutator implementation, like `immer` for instance.
 
@@ -28,10 +28,10 @@ npm i react-sweet-state
 yarn add react-sweet-state
 ```
 
-#### Creating a Subscriber
+#### Creating and consuming stores
 
 ```js
-import { createStore, createSubscriber, createHook } from 'react-sweet-state';
+import { createStore, createHook } from 'react-sweet-state';
 
 const Store = createStore({
   // value of the store on initialisation
@@ -40,19 +40,19 @@ const Store = createStore({
   },
   // actions that trigger store mutation
   actions: {
-    increment: () => ({ setState, getState }) => {
-      // mutate state synchronously
-      setState({
-        count: getState().count + 1,
-      });
-    },
+    increment:
+      () =>
+      ({ setState, getState }) => {
+        // mutate state synchronously
+        setState({
+          count: getState().count + 1,
+        });
+      },
   },
   // optional, mostly used for easy debugging
   name: 'counter',
 });
 
-const CounterSubscriber = createSubscriber(Store);
-// or
 const useCounter = createHook(Store);
 ```
 

@@ -19,11 +19,13 @@ const initialState: State = {
 };
 
 const actions = {
-  increment: (by = 1): Action<State> => ({ setState, getState }) => {
-    setState({
-      count: getState().count + by,
-    });
-  },
+  increment:
+    (by = 1): Action<State> =>
+    ({ setState, getState }) => {
+      setState({
+        count: getState().count + by,
+      });
+    },
 };
 
 const Store = createStore<State, Actions>({
@@ -46,30 +48,29 @@ If your actions require `Container` props:
 type ContainerProps = { multiplier: number };
 
 const actions = {
-  increment: (by = 1): Action<State, ContainerProps> => (
-    { setState, getState },
-    { multiplier }
-  ) => {
-    setState({ count: getState().count + by * multiplier });
-  },
+  increment:
+    (by = 1): Action<State, ContainerProps> =>
+    ({ setState, getState }, { multiplier }) => {
+      setState({ count: getState().count + by * multiplier });
+    },
 };
 ```
 
-#### createSubscriber / createHook patterns
+#### createHook / createSubscriber patterns
 
-If you provide a selector to your components, you need to define two additional TypeScript arguments on `createSubscriber`/`createHook`: the selector output and the selector props.
+If you provide a selector to your components, you need to define two additional TypeScript arguments on `createHook`/`createSubscriber`: the selector output and the selector props.
 
 ```js
 type SelectorState = boolean;
 const selector = (state: State): SelectorState => state.count > 0;
 
-// this component does not accept props
-const CounterSubscriber = createSubscriber<State, Actions, SelectorState, void>(Store, {
+// this hook does not accept arguments
+const useCounter = createHook<State, Actions, SelectorState, void>(Store, {
   selector
 });
 
-// this hook does not accept arguments
-const useCounter = createHook<State, Actions, SelectorState, void>(Store, {
+// this component does not accept props
+const CounterSubscriber = createSubscriber<State, Actions, SelectorState, void>(Store, {
   selector
 });
 ```
@@ -81,13 +82,13 @@ type SelectorProps = { min: number };
 type SelectorState = boolean;
 const selector = (state: State, props: SelectorProps): SelectorState => state.count > props.min;
 
-// this component requires props
-const CounterSubscriber = createSubscriber<State, Actions, SelectorState, SelectorProps>(Store, {
+// this hook requires an argument
+const useCounter = createHook<State, Actions, SelectorState, SelectorProps>(Store, {
   selector
 });
 
-// this hook requires an argument
-const useCounter = createHook<State, Actions, SelectorState, SelectorProps>(Store, {
+// this component requires props
+const CounterSubscriber = createSubscriber<State, Actions, SelectorState, SelectorProps>(Store, {
   selector
 });
 ```
