@@ -43,17 +43,61 @@ describe('shallowEqual', () => {
     });
   });
 
-  describe('compare dates', () => {
-    it('not equal', () => {
-      const dateA = new Date('2021-01-01T00:00:00');
-      const dateB = new Date('2021-01-02T00:00:00');
-      expect(shallowEqual(dateA, dateB)).toBe(false);
+  describe('compare native objects and object wrappers', () => {
+    describe('Date', () => {
+      it('equal', () => {
+        const valueA = new Date('2021-01-01T00:00:00');
+        const valueB = new Date('2021-01-01T00:00:00');
+        expect(shallowEqual(valueA, valueB)).toBe(true);
+      });
+
+      it('not equal', () => {
+        const valueA = new Date('2021-01-01T00:00:00');
+        const valueB = new Date('2021-01-01T00:00:01');
+        expect(shallowEqual(valueA, valueB)).toBe(false);
+      });
     });
 
-    it('equal', () => {
-      const dateA = new Date('2021-01-01T00:00:00');
-      const dateB = new Date('2021-01-01T00:00:00');
-      expect(shallowEqual(dateA, dateB)).toBe(true);
+    describe('String', () => {
+      it('equal', () => {
+        const valueA = new String('foo');
+        const valueB = new String('foo');
+        expect(shallowEqual(valueA, valueB)).toBe(true);
+      });
+
+      it('not equal', () => {
+        const valueA = new String('foo');
+        const valueB = new String('bar');
+        expect(shallowEqual(valueA, valueB)).toBe(false);
+      });
+    });
+
+    describe('Number', () => {
+      it('equal', () => {
+        const valueA = new Number('1');
+        const valueB = new Number('1');
+        expect(shallowEqual(valueA, valueB)).toBe(true);
+      });
+
+      it('not equal', () => {
+        const valueA = new Number('1');
+        const valueB = new Number('2');
+        expect(shallowEqual(valueA, valueB)).toBe(false);
+      });
+    });
+
+    describe('RegExp', () => {
+      it('equal', () => {
+        const valueA = new RegExp('.*', 'g');
+        const valueB = new RegExp('.*', 'g');
+        expect(shallowEqual(valueA, valueB)).toBe(true);
+      });
+
+      it('not equal', () => {
+        const valueA = new RegExp('.*', 'g');
+        const valueB = new RegExp('.+', 'g');
+        expect(shallowEqual(valueA, valueB)).toBe(false);
+      });
     });
   });
 });
