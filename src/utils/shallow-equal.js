@@ -32,6 +32,11 @@ export default function shallowEqual(objA, objB) {
 
     return true;
   } else {
+    // Handle Date, RegExp, String, Number, ...
+    if ('' + objA !== '' + objB) {
+      return false;
+    }
+
     // do object comparison
     let keysA;
     if (CACHE.has(objA)) {
