@@ -79,3 +79,17 @@ export function createHook(Store, { selector } = {}) {
     return [currentState, actions];
   };
 }
+
+export function createActionsHook(Store) {
+  const useHook = createHook(Store, { selector: null });
+  return function useSweetStateActions() {
+    return useHook()[1];
+  };
+}
+
+export function createStateHook(Store, { selector } = {}) {
+  const useHook = createHook(Store, { selector });
+  return function useSweetStateState(propsArg) {
+    return useHook(propsArg)[0];
+  };
+}

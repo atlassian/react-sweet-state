@@ -3,10 +3,12 @@
 import {
   createStore,
   createSubscriber,
-  createHook,
+  createActionsHook,
+  createStateHook,
   type Action,
   type SubscriberComponent,
-  type HookFunction,
+  type HookActionsFunction,
+  type HookStateFunction,
 } from 'react-sweet-state';
 
 type State = {
@@ -40,4 +42,8 @@ const Store = createStore<State, Actions>({
 export const MessagesSubscriber: SubscriberComponent<State, Actions> =
   createSubscriber(Store);
 
-export const useMessages: HookFunction<State, Actions> = createHook(Store);
+export const useMessagesValue: HookStateFunction<State> =
+  createStateHook(Store);
+
+export const useMessagesActions: HookActionsFunction<Actions> =
+  createActionsHook<State, Actions>(Store);

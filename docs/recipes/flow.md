@@ -3,7 +3,6 @@
 This is a basic example:
 
 ```js
-// @flow
 import {
   createStore,
   createSubscriber,
@@ -23,11 +22,13 @@ const initialState: State = {
 };
 
 const actions = {
-  increment: (by = 1): Action<Store> => ({ setState, getState }) => {
-    setState({
-      count: getState().count + by,
-    });
-  },
+  increment:
+    (by = 1): Action<Store> =>
+    ({ setState, getState }) => {
+      setState({
+        count: getState().count + by,
+      });
+    },
 };
 
 const Store = createStore<State, Actions>({
@@ -35,9 +36,8 @@ const Store = createStore<State, Actions>({
   actions,
 });
 
-const CounterSubscriber: SubscriberComponent<State, Actions> = createSubscriber(
-  Store
-);
+const CounterSubscriber: SubscriberComponent<State, Actions> =
+  createSubscriber(Store);
 const useCounter: HookFunction<State, Actions> = createHook(Store);
 const CounterContainer: ContainerComponent<{}> = createContainer(Store);
 ```
@@ -50,36 +50,32 @@ If your actions require `Container` props, just type the second argument:
 type ContainerProps = { multiplier: number };
 
 const actions = {
-  increment: (by = 1): Action<State, ContainerProps> => (
-    { setState, getState },
-    { multiplier }
-  ) => {
-    setState({ count: getState().count + by * multiplier });
-  },
+  increment:
+    (by = 1): Action<State, ContainerProps> =>
+    ({ setState, getState }, { multiplier }) => {
+      setState({ count: getState().count + by * multiplier });
+    },
 };
 ```
 
-#### createSubscriber / createHook patterns
+#### createHook / createSubscriber patterns
 
-If you provide a selector to your components, you need to define two additional flow arguments on `createSubscriber`/`createHook`: the selector output and the selector props.
+If you provide a selector to your components, you need to define two additional flow arguments on `createHook`/`createSubscriber`: the selector output and the selector props.
 
 ```js
-// @flow
 type SelectorState = boolean;
 const selector = (state: State): SelectorState => state.count > 0;
-
-// this component does not accept props
-const CounterSubscriber: SubscriberComponent<
-  SelectorState,
-  Actions
-> = createSubscriber(Store, {
-  selector,
-});
 
 // this hook does not accept arguments
 const useCounter: HookFunction<SelectorState, Actions> = createHook(Store, {
   selector,
 });
+
+// this component does not accept props
+const CounterSubscriber: SubscriberComponent<SelectorState, Actions> =
+  createSubscriber(Store, {
+    selector,
+  });
 ```
 
 In case your component/hook also needs some props, you can define them as the fourth argument:
@@ -89,13 +85,26 @@ type SelectorProps = { min: number };
 type SelectorState = boolean;
 const selector = (state: State, props: SelectorProps): SelectorState => state.count > props.min;
 
+// this hook requires an argument
+const useCounter: HookFunction<SelectorState, Actions, SelectorProps> = createHook(Store {
+  selector,
+});
+
 // this component requires props
 const CounterSubscriber: SubscriberComponent<SelectorState, Actions, SelectorProps> = createSubscriber(Store, {
   selector,
 });
+```
 
+For `createStateHook` and `createActionsHook` there are specific return types too:
+
+```js
 // this hook requires an argument
-const useCounter: HookFunction<SelectorState, Actions, SelectorProps> = createHook(Store {
+const useCounterGreater: HookStateFunction<SelectorState, SelectorProps> = createHook(Store {
+  selector,
+});
+
+const useCounterActions: HookActionsFunction<Actions> = createHook(Store {
   selector,
 });
 ```
@@ -108,7 +117,6 @@ If your container requires additional props:
 type ContainerProps = { multiplier: number };
 
 // this component requires props
-const CounterContainer: ContainerComponent<ContainerProps> = createContainer(
-  Store
-);
+const CounterContainer: ContainerComponent<ContainerProps> =
+  createContainer(Store);
 ```

@@ -1,9 +1,9 @@
-## Creating subscribers/hooks with selectors
+## Creating hooks/subscribers with selectors
 
 **sweet-state** allows you to create hooks/subscribers that return a specific (or transformed) part of the state, and they re-render only if some condition change. Creating them is extremely easy as you only need to specify a `selector` function on creation:
 
 ```js
-import { createStore, createSubscriber, createHook } from 'react-sweet-state';
+import { createStore, createHook } from 'react-sweet-state';
 
 const Store = createStore({
   initialState: {
@@ -15,14 +15,10 @@ const Store = createStore({
   },
 });
 
-const getCurrentUser = state =>
-  state.users.find(user => user.id === state.currentUserId);
+const getCurrentUser = (state) =>
+  state.users.find((user) => user.id === state.currentUserId);
 
 export const useCurrentUser = createHook(Store, {
-  selector: getCurrentUser,
-});
-// or
-export const CurrentUserSubscriber = createSubscriber(Store, {
   selector: getCurrentUser,
 });
 ```
@@ -38,7 +34,7 @@ so you can reduce the amount of times the output selector runs on state change.
 `selector` could also receive a second argument: that is either the first passed to the hook call or the props set on the subscriber. This allows hooks to return different results based on some context values (at the cost of a small deoptimisation as selectors will no longer be shared).
 
 ```js
-import { createStore, createSubscriber, createHook } from 'react-sweet-state';
+import { createStore, createHook } from 'react-sweet-state';
 
 const Store = createStore({
   initialState: { todos: [] },
@@ -48,7 +44,7 @@ const Store = createStore({
 });
 
 const getTodosByStatus = (state, arg) => ({
-  todos: state.todos.filter(t => t.status === arg),
+  todos: state.todos.filter((t) => t.status === arg),
 });
 
 export const useTodosByStatus = createHook(Store, {
@@ -65,24 +61,26 @@ Note that if you need to pass more data to the hook as argument, you can use an 
 
 #### Stateless hooks/subscribers
 
+> _Note: while manually passing `selector: null` is still supported, we recommend using the dedicated [`createActionsHook` API](../api/hook.md)._
+
 A useful value for the `selector` option is `null`. This will create a hook/subscriber that will:
 
 - not re-render on any store state change.
 - only expose access to the actions
 
-_Note: the subscriber component will still re-render if its parent re-renders, as sweet-state is **not** using `PureComponent` nor `shouldComponentUpdate`_
-
 So `null` is useful when consumers just trigger actions:
 
 ```js
-import { createStore, createSubscriber, createHook } from 'react-sweet-state';
+import { createStore, createHook } from 'react-sweet-state';
 
 const Store = createStore({
   initialState: { todos: [] },
   actions: {
-    refetch: () => async ({ setState }) => {
-      /* etc... */
-    },
+    refetch:
+      () =>
+      async ({ setState }) => {
+        /* etc... */
+      },
   },
 });
 
@@ -116,10 +114,10 @@ const Store = createStore({
 });
 
 const getFilteredTodos = createSelector(
-  state => state.todos,
+  (state) => state.todos,
   (__, props) => props.status,
   // this last function is memoised
-  (todos, status) => todos.filter(t => t.status === status)
+  (todos, status) => todos.filter((t) => t.status === status)
 );
 
 export const useTodosFiltered = createHook(Store, {
@@ -136,4 +134,4 @@ In the example above, if some other state key changes (eg: `loading`), the outpu
 
 You might be already familiar with such API if you used [reselect](https://github.com/reduxjs/reselect). Sweet-state provides a sligly optimised version of it (but you can also use `reselect`@^4 if you like).
 
-Note: nested createSelectors (as using a createSelector selector as argument of another createSelector) are discouraged as they might cause unexpected invalidations (sometimes even making the memoisation completely useless). We recommend just use plain functions.
+_Note: nested `createSelector`s (as using a `createSelector` selector as argument of another `createSelector`) are discouraged as they might cause unexpected invalidations (sometimes even making the memoisation completely useless). We recommend just use plain functions._

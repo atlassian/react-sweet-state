@@ -56,7 +56,7 @@ const UserTodos = ({ selectedUser }: UserTodosProps) => {
 };
 
 export const TodoListHook: AbstractComponent<{}> = () => {
-  const [{ sel }] = useUserSelected();
+  const { sel } = useUserSelected();
   return (
     <TodoContainer selectedUser={sel}>
       <UserTodos selectedUser={sel} />
