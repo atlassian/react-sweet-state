@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
-import React, { Component } from 'react';
-import { mount } from 'enzyme';
+import React from 'react';
+import { render } from '@testing-library/react';
 
 import { StoreMock, storeStateMock } from '../../__tests__/mocks';
 import { createSubscriber } from '../subscriber';
@@ -21,12 +21,13 @@ jest.mock('../../store/registry', () => {
 
 const setup = (Subscriber, props = {}) => {
   const children = jest.fn().mockReturnValue(null);
-  const getElement = () => <Subscriber {...props}>{children}</Subscriber>;
-  const getMount = () => {
-    const component = mount(getElement());
-    return { component, instance: component.instance() };
-  };
-  return { getElement, getMount, children };
+  const getElement = (newProps = {}) => (
+    <Subscriber {...props} {...newProps}>
+      {children}
+    </Subscriber>
+  );
+  const getRender = () => render(getElement());
+  return { getElement, getRender, children };
 };
 
 describe('Subscriber', () => {
@@ -35,13 +36,16 @@ describe('Subscriber', () => {
       storeState: storeStateMock,
       actions: StoreMock.actions,
     });
-    storeStateMock.getState.mockReturnValue(StoreMock.initialState);
+    jest
+      .spyOn(storeStateMock, 'getState')
+      .mockReturnValue(StoreMock.initialState);
   });
 
   it('should render children with store data and actions', () => {
     const Subscriber = createSubscriber(StoreMock);
-    const { getMount, children } = setup(Subscriber);
-    getMount();
+    const { getRender, children } = setup(Subscriber);
+    getRender();
+
     expect(children).toHaveBeenCalledTimes(1);
     expect(children).toHaveBeenCalledWith({ count: 0 }, StoreMock.actions);
   });
@@ -50,8 +54,9 @@ describe('Subscriber', () => {
     const selector = jest.fn().mockReturnValue({ foo: 1 });
     const Subscriber = createSubscriber(StoreMock, { selector });
 
-    const { getMount, children } = setup(Subscriber, { prop: 1 });
-    getMount();
+    const { getRender, children } = setup(Subscriber, { prop: 1 });
+    getRender();
+
     expect(selector).toHaveBeenCalledWith(StoreMock.initialState, {
       prop: 1,
     });
@@ -63,15 +68,11 @@ describe('Subscriber', () => {
     const Subscriber = createSubscriber(StoreMock, { selector });
 
     const { getElement, children } = setup(Subscriber);
-    class App extends Component {
-      render() {
-        return getElement();
-      }
-    }
-    const wrapper = mount(<App />);
-    wrapper.setProps({ foo: 1 });
-    expect(children).toHaveBeenCalledTimes(2);
+    const App = () => getElement();
+    const { rerender } = render(<App />);
+    rerender(<App foo={1} />);
 
+    expect(children).toHaveBeenCalledTimes(2);
     // ensure memoisation works
     expect(selector).toHaveBeenCalledTimes(1);
   });

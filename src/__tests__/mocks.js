@@ -13,13 +13,13 @@ export const StoreMock = {
 
 export const storeStateMock = {
   key: StoreMock.key,
-  getState: jest.fn(),
-  setState: jest.fn(),
-  resetState: jest.fn(),
-  notify: jest.fn(),
-  subscribe: jest.fn(),
-  listeners: jest.fn(),
-  mutator: jest.fn(),
+  getState: () => {},
+  setState: () => {},
+  resetState: () => {},
+  notify: () => {},
+  subscribe: () => () => {},
+  listeners: () => [],
+  mutator: () => {},
 };
 
 export const registryMock = {

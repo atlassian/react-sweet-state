@@ -101,7 +101,7 @@ module.exports = {
   // resolver: null,
 
   // Automatically restore mock state between every test
-  // restoreMocks: false,
+  restoreMocks: true,
 
   // The root directory that Jest should scan for tests and modules within
   // rootDir: null,
@@ -118,7 +118,7 @@ module.exports = {
   // setupFiles: [],
 
   // The paths to modules that runs some code to configure or set up the testing framework before each test
-  setupFilesAfterEnv: ['<rootDir>jest.setup.js'],
+  // setupFilesAfterEnv: ['<rootDir>jest.setup.js'],
 
   // A list of paths to snapshot serializer modules Jest should use for snapshot testing
   // snapshotSerializers: [],

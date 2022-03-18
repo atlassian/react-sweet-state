@@ -22,6 +22,8 @@ describe('bindAction', () => {
     result(1, '2', 3);
 
     expect(action).toHaveBeenCalledWith(1, '2', 3);
+    // silence console warn on actions getter
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
     expect(actionInner).toHaveBeenCalledWith(
       {
         setState: expect.any(Function),
@@ -76,8 +78,10 @@ describe('bindActions', () => {
 
   it('should return actions object with actions bound', () => {
     const state = { data: null };
-    storeStateMock.getState.mockReturnValue(state);
-    actionsMock.increase.mockReturnValue(({ actions }) => actions.decrease());
+    jest.spyOn(storeStateMock, 'getState').mockReturnValue(state);
+    actionsMock.increase.mockReturnValue(({ dispatch }) =>
+      dispatch(actionsMock.decrease())
+    );
     actionsMock.decrease.mockReturnValue(({ getState }) => getState());
     const result = bindActions(actionsMock, storeStateMock);
     const output = result.increase();

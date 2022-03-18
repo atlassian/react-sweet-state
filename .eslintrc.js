@@ -36,6 +36,7 @@ module.exports = {
     'prettier/prettier': ['warn'],
     'react/no-direct-mutation-state': ['off'],
     'react/display-name': ['off'],
+    'react/prop-types': ['off'],
     'react-hooks/rules-of-hooks': ['error'],
     'react-hooks/exhaustive-deps': ['warn'],
   },
