@@ -215,54 +215,61 @@ describe('Container', () => {
       expect(mockOnContainerUpdateInner).not.toHaveBeenCalled();
     });
 
-    // it('should call Container onUpdate on re-render if props changed', () => {
-    //   const Subscriber = createSubscriber(Store);
-    //   const renderPropChildren = jest.fn().mockReturnValue(null);
-    //   const children = <Subscriber>{renderPropChildren}</Subscriber>;
-    //   const { rerender } = render(
-    //     <Container defaultCount={5}>{children}</Container>
-    //   );
-    //   rerender(<Container defaultCount={6}>{children}</Container>);
-    //   expect(mockOnContainerInitInner).toHaveBeenCalledTimes(1);
-    //   expect(mockOnContainerUpdate).toHaveBeenCalled();
-    //   expect(mockOnContainerUpdateInner).toHaveBeenCalledWith(
-    //     {
-    //       getState: expect.any(Function),
-    //       setState: expect.any(Function),
-    //       actions: expect.any(Object),
-    //       dispatch: expect.any(Function),
-    //     },
-    //     { defaultCount: 6 }
-    //   );
-    // });
-    // it('should pass props to subscriber actions', () => {
-    //   const actionInner = jest.fn();
-    //   StoreMock.actions.increase.mockReturnValue(actionInner);
-    //   const Subscriber = createSubscriber(Store);
-    //   const renderPropChildren = jest.fn().mockReturnValue(null);
-    //   const children = <Subscriber>{renderPropChildren}</Subscriber>;
-    //   render(<Container defaultCount={5}>{children}</Container>);
-    //   const [, { increase }] = renderPropChildren.mock.calls[0];
-    //   increase();
-    //   expect(actionInner).toHaveBeenCalledWith(expect.any(Object), {
-    //     defaultCount: 5,
-    //   });
-    // });
-    // it('should pass fresh props to subscriber actions when they change', () => {
-    //   const actionInner = jest.fn();
-    //   StoreMock.actions.increase.mockReturnValue(actionInner);
-    //   const Subscriber = createSubscriber(Store);
-    //   const renderPropChildren = jest.fn().mockReturnValue(null);
-    //   const children = <Subscriber>{renderPropChildren}</Subscriber>;
-    //   const { rerender } = render(
-    //     <Container defaultCount={5}>{children}</Container>
-    //   );
-    //   const [, { increase }] = renderPropChildren.mock.calls[0];
-    //   rerender(<Container defaultCount={6}>{children}</Container>);
-    //   increase();
-    //   expect(actionInner).toHaveBeenCalledWith(expect.any(Object), {
-    //     defaultCount: 6,
-    //   });
-    // });
+    it('should call Container onUpdate on re-render if props changed', () => {
+      const Subscriber = createSubscriber(Store);
+      const renderPropChildren = jest.fn().mockReturnValue(null);
+      const children = <Subscriber>{renderPropChildren}</Subscriber>;
+      const { rerender } = render(
+        <Container defaultCount={5}>{children}</Container>
+      );
+      rerender(<Container defaultCount={6}>{children}</Container>);
+
+      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(1);
+      expect(mockOnContainerUpdate).toHaveBeenCalled();
+      // silence console warn on actions getter
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      expect(mockOnContainerUpdateInner).toHaveBeenCalledWith(
+        {
+          getState: expect.any(Function),
+          setState: expect.any(Function),
+          actions: expect.any(Object),
+          dispatch: expect.any(Function),
+        },
+        { defaultCount: 6 }
+      );
+    });
+
+    it('should pass props to subscriber actions', () => {
+      const actionInner = jest.fn();
+      StoreMock.actions.increase.mockReturnValue(actionInner);
+      const Subscriber = createSubscriber(Store);
+      const renderPropChildren = jest.fn().mockReturnValue(null);
+      const children = <Subscriber>{renderPropChildren}</Subscriber>;
+      render(<Container defaultCount={5}>{children}</Container>);
+      const [, { increase }] = renderPropChildren.mock.calls[0];
+      increase();
+
+      expect(actionInner).toHaveBeenCalledWith(expect.any(Object), {
+        defaultCount: 5,
+      });
+    });
+
+    it('should pass fresh props to subscriber actions when they change', () => {
+      const actionInner = jest.fn();
+      StoreMock.actions.increase.mockReturnValue(actionInner);
+      const Subscriber = createSubscriber(Store);
+      const renderPropChildren = jest.fn().mockReturnValue(null);
+      const children = <Subscriber>{renderPropChildren}</Subscriber>;
+      const { rerender } = render(
+        <Container defaultCount={5}>{children}</Container>
+      );
+      const [, { increase }] = renderPropChildren.mock.calls[0];
+      rerender(<Container defaultCount={6}>{children}</Container>);
+      increase();
+
+      expect(actionInner).toHaveBeenCalledWith(expect.any(Object), {
+        defaultCount: 6,
+      });
+    });
   });
 });

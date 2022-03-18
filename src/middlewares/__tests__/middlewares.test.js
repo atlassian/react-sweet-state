@@ -1,10 +1,10 @@
 /* eslint-env jest */
 
-import { storeStateMock } from './mocks';
-import applyMiddleware from '../middlewares';
-import defaults from '../defaults';
+import { storeStateMock } from '../../__tests__/mocks';
+import applyMiddleware from '..';
+import defaults from '../../defaults';
 
-jest.mock('../defaults');
+jest.mock('../../defaults');
 
 describe('applyMiddleware', () => {
   it('should always build update middleware', () => {
