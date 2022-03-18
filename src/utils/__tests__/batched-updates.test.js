@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 import React, { useState } from 'react';
-import { mount } from 'enzyme';
+import { render } from '@testing-library/react';
 
 import { createHook } from '../../components/hook';
 import defaults from '../../defaults';
@@ -41,7 +41,7 @@ describe('batch', () => {
 
   it('should batch updates with scheduling disabled', () => {
     const child = jest.fn().mockReturnValue(null);
-    mount(<TestComponent>{child}</TestComponent>);
+    render(<TestComponent>{child}</TestComponent>);
     const update = child.mock.calls[0][0];
     update();
 
@@ -56,7 +56,7 @@ describe('batch', () => {
     defaults.batchUpdates = true;
 
     const child = jest.fn().mockReturnValue(null);
-    mount(<TestComponent>{child}</TestComponent>);
+    render(<TestComponent>{child}</TestComponent>);
     const update = child.mock.calls[0][0];
     update();
 

@@ -20,6 +20,10 @@ describe('withDevtools', () => {
 
   beforeEach(() => {
     defaults.devtools = true;
+    jest.spyOn(storeStateMock, 'getState');
+    jest.spyOn(storeStateMock, 'setState');
+    jest.spyOn(storeStateMock, 'resetState');
+    jest.spyOn(storeStateMock, 'mutator');
     createStoreMock = jest.fn().mockReturnValue({ ...storeStateMock });
     window.__REDUX_DEVTOOLS_EXTENSION__.connect.mockReturnValue(devToolsMock);
   });

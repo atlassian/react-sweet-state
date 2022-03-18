@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
-import React, { Component } from 'react';
-import { mount } from 'enzyme';
+import React from 'react';
+import { render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 
 import { StoreMock, storeStateMock } from '../../__tests__/mocks';
@@ -33,13 +33,15 @@ describe('Hook', () => {
       const v = useHook(p);
       return children(v);
     };
-    const getElement = () => <Subscriber {...props}>{childrenFn}</Subscriber>;
-    // const getShallow = () => shallow(getElement());
-    const getMount = () => mount(getElement());
+    const getElement = (newProps = {}) => (
+      <Subscriber {...props} {...newProps}>
+        {childrenFn}
+      </Subscriber>
+    );
+    const getRender = () => render(getElement());
     return {
       getElement,
-      // getShallow,
-      getMount,
+      getRender,
       children: childrenFn,
     };
   };
@@ -49,27 +51,30 @@ describe('Hook', () => {
       storeState: storeStateMock,
       actions: StoreMock.actions,
     });
-    storeStateMock.getState.mockReturnValue(StoreMock.initialState);
+    jest
+      .spyOn(storeStateMock, 'getState')
+      .mockReturnValue(StoreMock.initialState);
+    jest.spyOn(storeStateMock, 'subscribe');
   });
 
   describe('createHook', () => {
     it('should get the storeState from registry', () => {
-      const { getMount } = setup();
-      getMount();
+      const { getRender } = setup();
+      getRender();
       expect(defaultRegistry.getStore).toHaveBeenCalledWith(StoreMock);
     });
 
     it('should render children with store data and actions', () => {
-      const { getMount, children } = setup();
-      getMount();
+      const { getRender, children } = setup();
+      getRender();
       expect(children).toHaveBeenCalledTimes(1);
       expect(children).toHaveBeenCalledWith([{ count: 0 }, actions]);
     });
 
     it('should update when store calls update listener', () => {
-      const { getMount, children } = setup();
+      const { getRender, children } = setup();
       storeStateMock.getState.mockReturnValue({ count: 1 });
-      getMount();
+      getRender();
 
       expect(storeStateMock.subscribe).toHaveBeenCalled();
       const newState = { count: 2 };
@@ -84,16 +89,13 @@ describe('Hook', () => {
 
     it('should avoid re-render children when just rendered from parent update', () => {
       const { getElement, children } = setup();
-      class App extends Component {
-        render() {
-          return getElement();
-        }
-      }
-      const wrapper = mount(<App />);
+      const App = () => getElement();
+
+      const { rerender } = render(<App />);
       // simulate store change -> parent re-render -> yield listener update
       const newState = { count: 1 };
       storeStateMock.getState.mockReturnValue(newState);
-      wrapper.setProps({ foo: 1 });
+      rerender(<App foo={1} />);
       const update = storeStateMock.subscribe.mock.calls[0][0];
       act(() => update(newState));
 
@@ -105,23 +107,24 @@ describe('Hook', () => {
     });
 
     it('should remove listener from store on unmount', () => {
-      const { getMount } = setup();
+      const { getRender } = setup();
       const unsubscribeMock = jest.fn();
       storeStateMock.subscribe.mockReturnValue(unsubscribeMock);
-      const wrapper = getMount();
-      wrapper.unmount();
+      const { unmount } = getRender();
+      unmount();
+
       expect(unsubscribeMock).toHaveBeenCalled();
     });
 
     it('should not set state if updated after unmount', () => {
       jest.spyOn(console, 'error');
-      const { getMount } = setup();
+      const { getRender } = setup();
       storeStateMock.subscribe.mockReturnValue(jest.fn());
-      const wrapper = getMount();
+      const { unmount } = getRender();
       const newState = { count: 1 };
       storeStateMock.getState.mockReturnValue(newState);
       const update = storeStateMock.subscribe.mock.calls[0][0];
-      wrapper.unmount();
+      unmount();
       act(() => update(newState));
 
       expect(console.error).not.toHaveBeenCalled();
@@ -129,8 +132,8 @@ describe('Hook', () => {
 
     it('should render children with selected return value', () => {
       const selector = jest.fn().mockReturnValue({ foo: 1 });
-      const { getMount, children } = setup({ props: { prop: 1 }, selector });
-      getMount();
+      const { getRender, children } = setup({ props: { prop: 1 }, selector });
+      getRender();
       expect(selector).toHaveBeenCalledWith(StoreMock.initialState, {
         prop: 1,
       });
@@ -139,8 +142,8 @@ describe('Hook', () => {
 
     it('should re-render children with selected return value', () => {
       const selector = jest.fn().mockReturnValue({ foo: 1 });
-      const { getMount, children } = setup({ selector });
-      getMount();
+      const { getRender, children } = setup({ selector });
+      getRender();
       const newState = { count: 1 };
       selector.mockReturnValue({ foo: 2 });
       storeStateMock.getState.mockReturnValue(newState);
@@ -151,12 +154,15 @@ describe('Hook', () => {
 
     it('should re-render children with same value if selector output is shallow equal', () => {
       const selector = () => ({ foo: 1 });
-      const { getMount, children } = setup({ props: { bar: 1 }, selector });
-      const wrapper = getMount();
+      const { getRender, getElement, children } = setup({
+        props: { bar: 1 },
+        selector,
+      });
+      const { rerender } = getRender();
       const newState = { count: 1 };
       storeStateMock.getState.mockReturnValue(newState);
 
-      wrapper.setProps({ bar: 1 });
+      rerender(getElement({ bar: 1 }));
 
       // ensure memoisation on selector OUTPUT works
       const [childrenStateInitial] = children.mock.calls[0][0];
@@ -166,8 +172,8 @@ describe('Hook', () => {
 
     it('should update on state change if selector output is not shallow equal', () => {
       const selector = jest.fn().mockImplementation(() => ({ foo: [1] }));
-      const { getMount, children } = setup({ selector });
-      getMount();
+      const { getRender, children } = setup({ selector });
+      getRender();
       const newState = { count: 1 };
       storeStateMock.getState.mockReturnValue(newState);
       const update = storeStateMock.subscribe.mock.calls[0][0];
@@ -178,8 +184,8 @@ describe('Hook', () => {
 
     it('should not update on state change if selector output is shallow equal', () => {
       const selector = jest.fn().mockImplementation(() => ({ foo: 1 }));
-      const { getMount, children } = setup({ selector });
-      getMount();
+      const { getRender, children } = setup({ selector });
+      getRender();
       const newState = { count: 1 };
       storeStateMock.getState.mockReturnValue(newState);
       const update = storeStateMock.subscribe.mock.calls[0][0];
@@ -192,9 +198,9 @@ describe('Hook', () => {
 
     it('should not recompute selector if state & props are equal', () => {
       const selector = jest.fn().mockReturnValue({ foo: 1 });
-      const { getMount } = setup({ props: { bar: 1 }, selector });
-      const wrapper = getMount();
-      wrapper.setProps({ bar: 1 });
+      const { getRender, getElement } = setup({ props: { bar: 1 }, selector });
+      const { rerender } = getRender();
+      rerender(getElement({ bar: 1 }));
 
       // ensure memoisation works
       expect(selector).toHaveBeenCalledTimes(1);
@@ -202,8 +208,8 @@ describe('Hook', () => {
 
     it('should not update on state change if selector is null', () => {
       const selector = null;
-      const { getMount, children } = setup({ selector });
-      getMount();
+      const { getRender, children } = setup({ selector });
+      getRender();
 
       const newState = { count: 1 };
       storeStateMock.getState.mockReturnValue(newState);
@@ -219,8 +225,8 @@ describe('Hook', () => {
         (state) =>
         ({ id }) =>
           state[id];
-      const { getMount, children } = setup({ selector });
-      getMount();
+      const { getRender, children } = setup({ selector });
+      getRender();
 
       const newState = { count: 1 };
       storeStateMock.getState.mockReturnValue(newState);
@@ -233,8 +239,8 @@ describe('Hook', () => {
 
   describe('createActionsHook', () => {
     it('should render children with just actions', () => {
-      const { getMount, children } = setup({ creator: createActionsHook });
-      getMount();
+      const { getRender, children } = setup({ creator: createActionsHook });
+      getRender();
       expect(children).toHaveBeenCalledTimes(1);
       expect(children).toHaveBeenCalledWith(actions);
     });
@@ -242,8 +248,8 @@ describe('Hook', () => {
 
   describe('createStateHook', () => {
     it('should render children with just store data', () => {
-      const { getMount, children } = setup({ creator: createStateHook });
-      getMount();
+      const { getRender, children } = setup({ creator: createStateHook });
+      getRender();
       expect(children).toHaveBeenCalledTimes(1);
       expect(children).toHaveBeenCalledWith({ count: 0 });
     });

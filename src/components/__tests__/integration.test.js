@@ -1,9 +1,8 @@
 /* @jest-environment jsdom */
 /* eslint-env jest */
 
-import React, { Fragment, Component, PureComponent, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { mount } from 'enzyme';
+import React, { Fragment, memo, useEffect } from 'react';
+import { render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 
 import { createStore, defaultRegistry } from '../../store';
@@ -61,7 +60,7 @@ describe('Integration', () => {
       actions: {},
     });
     const OtherContainer = createContainer(OtherStore);
-    mount(
+    render(
       <Container scope="s1">
         <Subscriber>{children1}</Subscriber>
         <Container scope="s2">
@@ -73,6 +72,7 @@ describe('Integration', () => {
         </Container>
       </Container>
     );
+
     expect(children1).toHaveBeenCalledTimes(2);
     expect(children1).toHaveBeenCalledWith(
       { todos: ['todo2'], loading: false },
@@ -98,7 +98,7 @@ describe('Integration', () => {
     const children1 = jest.fn(() => null);
     const children2 = jest.fn(() => null);
 
-    mount(
+    render(
       <Fragment>
         <Container scope="s1">
           <Subscriber>{children1}</Subscriber>
@@ -154,30 +154,18 @@ describe('Integration', () => {
       return fn(state, boundActions);
     };
 
-    // cannot use React.memo here as bug in enzyme-adapt 1.11
-    class IsolatedHook extends PureComponent {
-      render() {
-        return <Hook fn={children4} />;
-      }
-    }
+    const IsolatedHook = memo(() => <Hook fn={children4} />);
 
-    class App extends Component {
-      static propTypes = {
-        scopeId: PropTypes.string,
-      };
-      render() {
-        return (
-          <Container scope={this.props.scopeId} v={this.props.scopeId}>
-            <Subscriber>{children1}</Subscriber>
-            <IsolatedSubscriber />
-            <Hook />
-            <IsolatedHook />
-          </Container>
-        );
-      }
-    }
+    const App = ({ scopeId }) => (
+      <Container scope={scopeId} v={scopeId}>
+        <Subscriber>{children1}</Subscriber>
+        <IsolatedSubscriber />
+        <Hook />
+        <IsolatedHook />
+      </Container>
+    );
 
-    const wrapper = mount(<App scopeId="a" />);
+    const { rerender } = render(<App scopeId="A" />);
     await actTick();
 
     // 1. { loading: true, todos: [] };
@@ -187,7 +175,7 @@ describe('Integration', () => {
     expect(children3).toHaveBeenCalledTimes(2);
     expect(children4).toHaveBeenCalledTimes(2);
 
-    wrapper.setProps({ scopeId: 'B' });
+    rerender(<App scopeId="B" />);
 
     await actTick();
 
@@ -201,7 +189,7 @@ describe('Integration', () => {
     await actTick();
 
     const state3 = { loading: false, todos: ['todoB'] };
-    // should be 3 but enzyme does not support batching properly
+    // should be 3 but tests do not support batching properly
     const call3 = 4;
     expect(children1.mock.calls[call3]).toEqual([state3, expectActions]);
     expect(children2.mock.calls[call3]).toEqual([state3, expectActions]);
@@ -240,14 +228,11 @@ describe('Integration', () => {
       return childrenHook(state, boundActions);
     };
 
-    function ParentComponent({ children }) {
-      return (
-        <Subscriber>
-          {(state, action) => parent({ state, action, children })}
-        </Subscriber>
-      );
-    }
-    ParentComponent.propTypes = { children: PropTypes.any };
+    const ParentComponent = ({ children }) => (
+      <Subscriber>
+        {(state, action) => parent({ state, action, children })}
+      </Subscriber>
+    );
 
     const App = () => (
       <Container scope="test">
@@ -258,7 +243,7 @@ describe('Integration', () => {
       </Container>
     );
 
-    mount(<App />);
+    render(<App />);
     await actTick();
 
     expect(calls).toEqual([
@@ -302,28 +287,19 @@ describe('Integration', () => {
       return children;
     };
 
-    HookWrapper.propTypes = { name: PropTypes.string, children: PropTypes.any };
+    const App = ({ scopeId }) => (
+      <>
+        <HookWrapper name="outter" />
+        <Container scope={scopeId} v={scopeId}>
+          <HookWrapper name="inner">
+            <SubWrapper />
+            <HookWrapper name="in-inner" />
+          </HookWrapper>
+        </Container>
+      </>
+    );
 
-    class App extends Component {
-      static propTypes = {
-        scopeId: PropTypes.string,
-      };
-      render() {
-        return (
-          <>
-            <HookWrapper name="outter" />
-            <Container scope={this.props.scopeId} v={this.props.scopeId}>
-              <HookWrapper name="inner">
-                <SubWrapper />
-                <HookWrapper name="in-inner" />
-              </HookWrapper>
-            </Container>
-          </>
-        );
-      }
-    }
-
-    const wrapper = mount(<App scopeId="a" />);
+    const { rerender } = render(<App scopeId="A" />);
     await actTick();
 
     expect(calls).toEqual([
@@ -335,7 +311,7 @@ describe('Integration', () => {
 
     calls.splice(0);
 
-    wrapper.setProps({ scopeId: 'B' });
+    rerender(<App scopeId="B" />);
     await actTick();
 
     expect(calls).toEqual([
@@ -380,7 +356,7 @@ describe('Integration', () => {
       return null;
     };
 
-    mount(
+    render(
       <>
         <HookWrapper />
         <SubWrapper />
@@ -408,7 +384,7 @@ describe('Integration', () => {
       return null;
     };
 
-    mount(<HookWrapper />);
+    render(<HookWrapper />);
 
     expect(calls).toHaveLength(2);
   });
@@ -422,7 +398,7 @@ describe('Integration', () => {
       useHook();
       return null;
     };
-    mount(<HookWrapper />);
+    render(<HookWrapper />);
 
     expect(selector).toHaveBeenCalledTimes(1);
   });
@@ -436,7 +412,7 @@ describe('Integration', () => {
       useHook(1);
       return null;
     };
-    mount(<HookWrapper />);
+    render(<HookWrapper />);
 
     expect(selector).toHaveBeenCalledTimes(2);
   });
