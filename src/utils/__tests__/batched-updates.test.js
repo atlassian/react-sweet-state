@@ -22,7 +22,7 @@ const Store = createStore({
 
 const useHook = createHook(Store);
 
-describe('batch', () => {
+describe.skip('batch', () => {
   const TestComponent = ({ children }) => {
     const [{ count }, actions] = useHook();
     const [localCount, setLocalCount] = useState(0);

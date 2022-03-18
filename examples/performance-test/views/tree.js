@@ -1,53 +1,44 @@
 // @flow
 
-import React, { PureComponent, type Node } from 'react';
+import React, { type Node, useEffect } from 'react';
 import {
   TodosContainer,
-  TodosSubscriber,
-  TodosCountSubscriber,
-  TodosFilteredSubscriber,
+  useTodos,
+  useTodosCount,
+  useTodosFiltered,
 } from '../components/todos';
 
-class RenderBlocker extends PureComponent<any> {
-  render() {
-    return this.props.children;
-  }
-}
+const RenderBlocker = React.memo<*>(({ children }: any) => children);
 
 function TodosHeader({ children }: any) {
-  return <TodosCountSubscriber>{() => children}</TodosCountSubscriber>;
+  useTodosCount();
+  return children;
 }
 
 function TodosDoneCount({ children }: any) {
+  const [{ data }] = useTodosFiltered({ isDone: true });
   return (
-    <TodosFilteredSubscriber isDone={true}>
-      {({ data }) => (
-        <>
-          <span>{data.length}</span>
-          <br />
-          {children}
-        </>
-      )}
-    </TodosFilteredSubscriber>
+    <>
+      <span>{data.length}</span>
+      <br />
+      {children}
+    </>
   );
 }
 
 const scheduleAction = (todosState, { toggle }) => {
   const todo = todosState.data[0];
   if (todo) {
-    window.requestAnimationFrame(() => toggle(todo.id));
+    setTimeout(() => toggle(todo.id));
   }
 };
 
 function TodosTrigger({ children, enabled }: any) {
-  return (
-    <TodosSubscriber>
-      {(todosState, todosActions) => {
-        enabled && scheduleAction(todosState, todosActions);
-        return children;
-      }}
-    </TodosSubscriber>
-  );
+  const [todosState, todosActions] = useTodos();
+  useEffect(() => {
+    if (enabled) scheduleAction(todosState, todosActions);
+  });
+  return children;
 }
 
 function TodosApp({ n, depth, children }: any) {
@@ -73,12 +64,12 @@ function TodosApp({ n, depth, children }: any) {
   );
 }
 
-export function TreeRpc({ n, depth = 0 }: any): Node {
+export function Tree({ n, depth = 0 }: any): Node {
   return (
     <RenderBlocker>
       <TodosApp n={n} depth={depth}>
         {Array.from({ length: n - 1 }).map((__, i) => (
-          <TreeRpc key={i + 1} n={i + 1} depth={depth + 1} />
+          <Tree key={i + 1} n={i + 1} depth={depth + 1} />
         ))}
       </TodosApp>
     </RenderBlocker>

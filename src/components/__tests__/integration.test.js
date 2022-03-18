@@ -137,29 +137,23 @@ describe('Integration', () => {
         ({ dispatch }, { v }) =>
           dispatch(actions.load(v)),
     });
-    const Subscriber = createSubscriber(Store);
     const useHook = createHook(Store);
 
     const children1 = jest.fn(() => null);
     const children2 = jest.fn(() => null);
-    const children3 = jest.fn(() => null);
-    const children4 = jest.fn(() => null);
 
-    const IsolatedSubscriber = React.memo(() => (
-      <Subscriber>{children2}</Subscriber>
-    ));
-
-    const Hook = ({ fn = children3 }) => {
+    const Hook = () => {
       const [state, boundActions] = useHook();
-      return fn(state, boundActions);
+      return children1(state, boundActions);
     };
 
-    const IsolatedHook = memo(() => <Hook fn={children4} />);
+    const IsolatedHook = memo(() => {
+      const [state, boundActions] = useHook();
+      return children2(state, boundActions);
+    });
 
     const App = ({ scopeId }) => (
       <Container scope={scopeId} v={scopeId}>
-        <Subscriber>{children1}</Subscriber>
-        <IsolatedSubscriber />
         <Hook />
         <IsolatedHook />
       </Container>
@@ -172,8 +166,6 @@ describe('Integration', () => {
     // 2. { loading: false, todos: ['todo1'] };
     expect(children1).toHaveBeenCalledTimes(2);
     expect(children2).toHaveBeenCalledTimes(2);
-    expect(children3).toHaveBeenCalledTimes(2);
-    expect(children4).toHaveBeenCalledTimes(2);
 
     rerender(<App scopeId="B" />);
 
@@ -183,18 +175,15 @@ describe('Integration', () => {
     const call2 = 2;
     expect(children1.mock.calls[call2]).toEqual([state2, expectActions]);
     expect(children2.mock.calls[call2]).toEqual([state2, expectActions]);
-    expect(children3.mock.calls[call2]).toEqual([state2, expectActions]);
-    expect(children4.mock.calls[call2]).toEqual([state2, expectActions]);
 
     await actTick();
 
     const state3 = { loading: false, todos: ['todoB'] };
-    // should be 3 but tests do not support batching properly
-    const call3 = 4;
-    expect(children1.mock.calls[call3]).toEqual([state3, expectActions]);
+    const call3 = 3;
+    // its 3+1 because on scope change we force notify to make sure memo components update too,
+    // causing ones that have naturally re-rendered already to re-render once more :(
+    expect(children1.mock.calls[call3 + 1]).toEqual([state3, expectActions]);
     expect(children2.mock.calls[call3]).toEqual([state3, expectActions]);
-    expect(children3.mock.calls[call3]).toEqual([state3, expectActions]);
-    expect(children4.mock.calls[call3]).toEqual([state3, expectActions]);
   });
 
   it('should call the listeners in the correct register order', async () => {

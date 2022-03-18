@@ -1,14 +1,8 @@
 // @flow
-import React, { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
-import { defaults } from 'react-sweet-state';
+import React, { StrictMode, useEffect, useState } from 'react';
+import ReactDOM from 'react-dom/client';
 
 import { useTodo } from './controllers/todos';
-
-/**
- * Enable Batch updates
- */
-defaults.batchUpdates = true;
 
 const COLLECTION = Array.from({ length: 500 });
 
@@ -42,4 +36,9 @@ const App = () => {
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+);

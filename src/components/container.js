@@ -67,7 +67,7 @@ export default class Container extends Component {
     if (this.props.scope !== prevProps.scope) {
       // Trigger a forced update on all subscribers
       // as render might have been blocked
-      this.triggerScopeChange(prevProps.scope, this.props.scope);
+      this.triggerScopeChange(prevProps.scope);
       // Check if instance has still subscribers, if not delete
       this.deleteScopedStore(prevProps.scope);
     }
@@ -151,17 +151,16 @@ export default class Container extends Component {
     };
   }
 
-  triggerScopeChange(prevScopeId, scopeId) {
+  triggerScopeChange(prevScopeId) {
     const { storeType } = this.constructor;
     const previous = this.getScopedStore(storeType, prevScopeId);
-    const current = this.getScopedStore(storeType, scopeId);
     // When called, subscribers that have already re-rendered with the new
     // scope are no longer subscribed to the old one, so we "force update"
     // the remaining.
     // This is sub-optimal as if there are other containers with the same
     // old scope id we will re-render those too, but better than using context
     // as that will re-render all children even if pure/memo
-    previous.storeState.notify(current.storeState);
+    previous.storeState.notify();
   }
 
   deleteScopedStore(scopeId = this.props.scope) {
@@ -186,7 +185,8 @@ export function createContainer(
 ) {
   return class extends Container {
     static storeType = Store;
-    static displayName = displayName || `Container(${Store.key[0]})`;
+    static displayName =
+      displayName || `Container(${Store.key.split('__')[0]})`;
     static hooks = { onInit, onUpdate, onCleanup };
   };
 }

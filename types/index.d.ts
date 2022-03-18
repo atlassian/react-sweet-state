@@ -24,7 +24,7 @@ declare module 'react-sweet-state' {
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>
   > = {
-    key: string[];
+    key: string;
     initialState: TState;
     actions: TActions;
   };

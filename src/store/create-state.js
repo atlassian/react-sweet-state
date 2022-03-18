@@ -20,9 +20,9 @@ function createStoreState(key, initialState) {
     resetState() {
       storeState.setState(initialState);
     },
-    notify(s = storeState) {
+    notify() {
       for (let i = 0; i < listeners.length; i++) {
-        listeners[i](s.getState(), s);
+        listeners[i]();
       }
     },
     subscribe(listener) {

@@ -100,9 +100,7 @@ describe('Hook', () => {
       act(() => update(newState));
 
       expect(storeStateMock.getState).toHaveBeenCalled();
-      // this should be 2 with batched updates + bail out
-      // but looks like enzyme does not support that properly
-      expect(children).toHaveBeenCalledTimes(3);
+      expect(children).toHaveBeenCalledTimes(2);
       expect(children).toHaveBeenCalledWith([newState, actions]);
     });
 
