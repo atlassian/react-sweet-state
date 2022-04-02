@@ -7,14 +7,18 @@ import { useTodo } from './controllers/todos';
 const COLLECTION = Array.from({ length: 500 });
 
 type TodoViewProps = { id: string, count: number };
+
 const TodoView = ({ id, count }: TodoViewProps) => {
   const [todo, actions] = useTodo({ id });
+
   useEffect(() => {
     if (!todo) actions.create(id);
   }, [actions, id, todo]);
+
   useEffect(() => {
     actions.toggle(id);
   }, [actions, count, id]);
+
   return <div>{todo ? todo.title : 'creating...'}</div>;
 };
 

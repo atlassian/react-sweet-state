@@ -7,15 +7,13 @@ import { ThemeContainer, ThemeSubscriber } from '../components/theme';
 
 const IsolatedHeader = React.memo(() => (
   <ThemeSubscriber>
-    {({ color }, { change }) =>
-      console.log('Render') || (
-        <div style={{ background: color }}>
-          <button onClick={() => change('#DFF')}>Theme 1</button>
-          <button onClick={() => change('#FDF')}>Theme 2</button>
-          <button onClick={() => change('#FFD')}>Theme 3</button>
-        </div>
-      )
-    }
+    {({ color }, { change }) => (
+      <div style={{ background: color }}>
+        <button onClick={() => change('#DFF')}>Theme 1</button>
+        <button onClick={() => change('#FDF')}>Theme 2</button>
+        <button onClick={() => change('#FFD')}>Theme 3</button>
+      </div>
+    )}
   </ThemeSubscriber>
 ));
 
