@@ -1,5 +1,5 @@
 declare module 'react-sweet-state' {
-  import { ComponentType, ReactNode } from 'react';
+  import { ComponentType, ReactNode, PropsWithChildren } from 'react';
 
   interface SetState<TState> {
     (newState: Partial<TState>): void;
@@ -117,10 +117,12 @@ declare module 'react-sweet-state' {
   function batch(callback: () => any): void;
 
   type ContainerComponent<TProps> = ComponentType<
-    {
-      scope?: string;
-      isGlobal?: boolean;
-    } & TProps
+    PropsWithChildren<
+      {
+        scope?: string;
+        isGlobal?: boolean;
+      }
+    > & TProps
   >;
 
   type SubscriberComponent<
