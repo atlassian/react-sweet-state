@@ -5,14 +5,22 @@ import { FormContainer, useForm } from '../components/form';
 import { useMessagesActions, useMessagesValue } from '../components/messages';
 import { ThemeContainer, useTheme } from '../components/theme';
 
-const ThemeWrapper = React.memo(({ children }: any) => {
+const IsolatedHeader = React.memo(() => {
   const [{ color }, { change }] = useTheme();
   return (
     <div style={{ background: color }}>
-      <h3>With Hooks</h3>
       <button onClick={() => change('#DFF')}>Theme 1</button>
       <button onClick={() => change('#FDF')}>Theme 2</button>
       <button onClick={() => change('#FFD')}>Theme 3</button>
+    </div>
+  );
+});
+
+const ThemeWrapper = React.memo(({ children }: any) => {
+  const [{ color }] = useTheme();
+  return (
+    <div style={{ background: color }}>
+      <h3>With Hooks</h3>
       {children}
     </div>
   );
@@ -60,6 +68,7 @@ export const ChatHook: AbstractComponent<Props> = React.memo(
     return (
       <ThemeContainer scope={id} defaultColor={defaultColor}>
         <ThemeWrapper>
+          <IsolatedHeader />
           <MessagesList />
           <FormContainer remoteUsers={remoteUsers}>
             <FormComponent onSubmitSuccess={add} />

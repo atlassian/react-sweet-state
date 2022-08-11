@@ -1,14 +1,8 @@
 // @flow
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { defaults } from 'react-sweet-state';
 
 import { useCounter } from './components';
-
-/**
- * Enable Batch updates
- */
-defaults.batchUpdates = true;
 
 /**
  * Components

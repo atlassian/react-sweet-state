@@ -24,7 +24,7 @@ export type RenderPropComponent<ST, AC> = (
 export type HookReturnValue<ST, AC> = [ST, $Exact<BoundActions<AC>>];
 
 export type Store<ST, AC> = {|
-  key: string[],
+  key: string,
   initialState: ST,
   actions: AC,
 |};

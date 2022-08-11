@@ -1,6 +1,6 @@
 // @flow
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import React, { Component, StrictMode } from 'react';
+import ReactDOM from 'react-dom/client';
 import { defaults } from 'react-sweet-state';
 
 import { ChatRpc } from './views/chat-rpc';
@@ -9,11 +9,6 @@ import { ChatHook } from './views/chat-hook';
  * Enable Redux devtools support
  */
 defaults.devtools = true;
-
-/**
- * Enable Batch updates
- */
-defaults.batchUpdates = true;
 
 /**
  * Main App
@@ -57,14 +52,14 @@ class App extends Component<
             key={String(remount)}
             id={String(reset)}
             remoteUsers={remoteUsers}
-            defaultColor="#FED"
+            defaultColor="#FFF"
           />
           <hr />
           <ChatHook
             key={String(remount + 1)}
             id={String(reset + 1)}
             remoteUsers={remoteUsers}
-            defaultColor="#DED"
+            defaultColor="#EEE"
           />
         </main>
       </div>
@@ -72,4 +67,9 @@ class App extends Component<
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+);

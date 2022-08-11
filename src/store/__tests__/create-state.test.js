@@ -66,7 +66,6 @@ describe('createStore', () => {
       expect(listener).toHaveBeenCalledTimes(1);
 
       supportsMock.mockRestore();
-      defaults.batchUpdates = false;
     });
   });
 
@@ -77,7 +76,7 @@ describe('createStore', () => {
       const listener = jest.fn();
       store.subscribe(listener);
       store.resetState();
-      expect(listener).toHaveBeenCalledWith(initialState, store);
+      expect(listener).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -87,7 +86,7 @@ describe('createStore', () => {
       const listener = jest.fn();
       store.subscribe(listener);
       store.notify();
-      expect(listener).toHaveBeenCalledWith(initialState, store);
+      expect(listener).toHaveBeenCalledTimes(1);
     });
   });
 

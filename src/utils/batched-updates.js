@@ -11,7 +11,7 @@ import supports from './supported-features';
 let isInsideBatchedSchedule = false;
 
 export function batch(fn) {
-  // if we are in node/tests or feature disabled or nested schedule
+  // if we are in node/tests or nested schedule
   if (
     !defaults.batchUpdates ||
     !supports.scheduling() ||

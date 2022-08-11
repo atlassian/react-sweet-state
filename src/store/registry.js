@@ -10,7 +10,7 @@ export class StoreRegistry {
     this.defaultScope = defaultScope;
   }
 
-  initStore = (Store, key) => {
+  initStore = (key, Store) => {
     const { initialState, actions } = Store;
     const storeState = createStoreState(key, initialState);
     const boundActions = bindActions(actions, storeState);
@@ -22,7 +22,7 @@ export class StoreRegistry {
 
   getStore = (Store, scopeId = this.defaultScope) => {
     const key = this.generateKey(Store, scopeId);
-    return this.stores.get(key) || this.initStore(Store, key);
+    return this.stores.get(key) || this.initStore(key, Store);
   };
 
   deleteStore = (Store, scopeId = this.defaultScope) => {
@@ -30,7 +30,7 @@ export class StoreRegistry {
     this.stores.delete(key);
   };
 
-  generateKey = (Store, scopeId) => `${Store.key.join('__')}@${scopeId}`;
+  generateKey = (Store, scopeId) => `${Store.key}@${scopeId}`;
 }
 
 export const defaultRegistry = new StoreRegistry();

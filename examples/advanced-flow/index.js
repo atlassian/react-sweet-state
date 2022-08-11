@@ -1,6 +1,6 @@
 // @flow
 import React, { useState, StrictMode } from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { defaults, type Middleware } from 'react-sweet-state';
 
 import { UserListRpc, UserListHook } from './views/user-list';
@@ -22,11 +22,6 @@ defaults.middlewares.add(mw);
  * Enable Redux devtools support
  */
 defaults.devtools = true;
-
-/**
- * Enable Batch updates
- */
-defaults.batchUpdates = true;
 
 /**
  * Main App
@@ -57,9 +52,9 @@ const App = () => {
   );
 };
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
   <StrictMode>
     <App />
-  </StrictMode>,
-  document.getElementById('root')
+  </StrictMode>
 );
