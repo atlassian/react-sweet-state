@@ -4,6 +4,7 @@ const defaultMutator = (prevState, partialState) => {
 };
 
 const defaults = {
+  batchUpdates: false,
   devtools: false,
   middlewares: new Set(),
   mutator: defaultMutator,

@@ -1,6 +1,7 @@
 /* eslint-env jest */
 
 import { storeStateMock } from '../../__tests__/mocks';
+import defaults from '../../defaults';
 import supports from '../../utils/supported-features';
 import createStore from '../create-state';
 
@@ -50,6 +51,7 @@ describe('createStore', () => {
       const supportsMock = jest
         .spyOn(supports, 'scheduling')
         .mockReturnValue(true);
+      defaults.batchUpdates = true;
 
       const store = createStore(storeStateMock.key, initialState);
       const listener = jest.fn();

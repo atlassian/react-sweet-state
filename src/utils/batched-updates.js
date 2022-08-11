@@ -5,13 +5,18 @@ import {
   unstable_ImmediatePriority as ImmediatePriority,
 } from 'scheduler';
 
+import defaults from '../defaults';
 import supports from './supported-features';
 
 let isInsideBatchedSchedule = false;
 
 export function batch(fn) {
   // if we are in node/tests or nested schedule
-  if (!supports.scheduling() || isInsideBatchedSchedule) {
+  if (
+    !defaults.batchUpdates ||
+    !supports.scheduling() ||
+    isInsideBatchedSchedule
+  ) {
     return unstable_batchedUpdates(fn);
   }
 

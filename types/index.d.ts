@@ -108,6 +108,10 @@ declare module 'react-sweet-state' {
   ) => (next: (arg: any) => MiddlewareResult) => (arg: any) => MiddlewareResult;
 
   const defaults: {
+    /**
+     * @deprecated Batching is enabled by default in React 18+
+     */
+    batchUpdates: boolean;
     devtools: boolean | ((storeState: StoreState<any>) => Record<string, any>);
     middlewares: Set<Middleware>;
     mutator: (currentState: any, setStateArg: any) => any;
