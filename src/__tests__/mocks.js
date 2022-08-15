@@ -6,13 +6,13 @@ export const actionsMock = {
 };
 
 export const StoreMock = {
-  key: ['store-key'],
+  key: 'store-key',
   initialState: { count: 0 },
   actions: actionsMock,
 };
 
 export const storeStateMock = {
-  key: StoreMock.key,
+  key: StoreMock.key + '@scope',
   getState: () => {},
   setState: () => {},
   resetState: () => {},

@@ -35,9 +35,7 @@ export type StoreState<ST> = {|
   resetState: () => void,
   notify: () => void,
   key: string,
-  subscribe: (
-    listener: (state: ST, storeState: StoreState<ST>) => void
-  ) => StoreUnsubscribe,
+  subscribe: (listener: () => void) => StoreUnsubscribe,
   mutator: SetState<ST>,
 |};
 

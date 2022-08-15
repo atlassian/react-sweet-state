@@ -53,7 +53,7 @@ describe('withDevtools', () => {
     store.mutator({ count: 1 });
 
     expect(window.__REDUX_DEVTOOLS_EXTENSION__.connect).toHaveBeenCalledWith({
-      name: 'Store store-key',
+      name: 'Store store-key@scope',
       serialize: true,
     });
     expect(devToolsMock.init).toHaveBeenCalledWith({ count: 0 });
@@ -62,7 +62,7 @@ describe('withDevtools', () => {
 
   it('should allow to custom devtools settings', () => {
     defaults.devtools = (storeState) => ({
-      name: `CustomStore ${storeState.key[0]}`,
+      name: `CustomStore ${storeState.key}`,
       stateSanitizer: jest.fn(),
     });
     storeStateMock.getState.mockReturnValue({ count: 0 });
@@ -70,7 +70,7 @@ describe('withDevtools', () => {
     store.mutator({ count: 1 });
 
     expect(window.__REDUX_DEVTOOLS_EXTENSION__.connect).toHaveBeenCalledWith({
-      name: 'CustomStore store-key',
+      name: 'CustomStore store-key@scope',
       serialize: true,
       stateSanitizer: expect.any(Function),
     });

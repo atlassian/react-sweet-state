@@ -11,6 +11,7 @@ export function createSubscriber(Store, { selector, displayName = '' } = {}) {
     const api = useStore(hasAdditionalProps(rest) ? rest : undefined);
     return children(...api);
   };
-  Subscriber.displayName = displayName || `Subscriber(${Store.key})`;
+  Subscriber.displayName =
+    displayName || `Subscriber(${Store.key.split('__')[0]})`;
   return Subscriber;
 }
