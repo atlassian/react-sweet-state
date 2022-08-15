@@ -35,9 +35,7 @@ declare module 'react-sweet-state' {
     resetState: () => void;
     notify: () => void;
     key: string;
-    subscribe: (
-      listener: (state: TState, storeState: StoreState<TState>) => void
-    ) => StoreUnsubscribe;
+    subscribe: (listener: () => void) => StoreUnsubscribe;
     mutator: SetState<TState>;
   };
 
@@ -109,7 +107,7 @@ declare module 'react-sweet-state' {
 
   const defaults: {
     /**
-     * @deprecated Batching is enabled by default in React 18+
+     * @deprecated Batching is enabled by default in React 18+ and turning it off will be deprecated in next major
      */
     batchUpdates: boolean;
     devtools: boolean | ((storeState: StoreState<any>) => Record<string, any>);
@@ -120,12 +118,11 @@ declare module 'react-sweet-state' {
   function batch(callback: () => any): void;
 
   type ContainerComponent<TProps> = ComponentType<
-    PropsWithChildren<
-      {
-        scope?: string;
-        isGlobal?: boolean;
-      }
-    > & TProps
+    PropsWithChildren<{
+      scope?: string;
+      isGlobal?: boolean;
+    }> &
+      TProps
   >;
 
   type SubscriberComponent<
