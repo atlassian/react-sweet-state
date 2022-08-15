@@ -22,7 +22,7 @@ function createStoreState(key, initialState) {
     },
     notify() {
       for (let i = 0; i < listeners.length; i++) {
-        listeners[i]();
+        listeners[i](storeState.getState());
       }
     },
     subscribe(listener) {
