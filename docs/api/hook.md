@@ -57,7 +57,7 @@ createStateHook(Store, [options]);
 
 2. [`options`] _(Object)_: containing one or more of the following keys:
 
-   - `selector` _(Function)_: same as `createHook` `selector` optiona function that will be triggered every time the hook gets new state or props. The selector function is called with two arguments:
+   - `selector` _(Function)_: same as `createHook` `selector` optional function that will be triggered every time the hook gets new state or props. The selector function is called with two arguments:
      1. `state`: the store instance state
      2. `props`: the custom props defined on the component itself
 
