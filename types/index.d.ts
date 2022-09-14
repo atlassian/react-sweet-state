@@ -18,7 +18,7 @@ declare module 'react-sweet-state' {
   type ActionThunk<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>
-  > = (...args: any[]) => Action<TState, any, any>;
+  > = (...args: any) => Action<TState, any, any>;
 
   type Store<
     TState,
