@@ -135,8 +135,12 @@ declare module 'react-sweet-state' {
     } & TProps
   >;
 
-  type HookFunction<TState, TActions, TArg = undefined> = (
-    ...args: TArg extends undefined ? [] : [TArg]
+  type HookFunction<TState, TActions, TArg = void> = (
+    ...args: TArg extends unknown
+      ? TArg extends undefined
+        ? [TArg] | []
+        : [TArg]
+      : []
   ) => HookReturnValue<TState, TActions>;
 
   type HookActionsFunction<TActions> = () => TActions;
@@ -248,30 +252,44 @@ declare module 'react-sweet-state' {
     dependencies: any[];
   };
 
-  function createSelector<ST, PR, SE, T1>(
-    selector1: InputSelector<ST, PR, T1>,
-    resultFn: (arg1: T1) => SE
-  ): OutputSelector<ST, PR, SE>;
-  function createSelector<ST, PR, SE, T1>(
+  function createSelector<ST, PR = void, SE = void, T1 = void>(
     selectors: [InputSelector<ST, PR, T1>],
     resultFn: (arg1: T1) => SE
   ): OutputSelector<ST, PR, SE>;
-  function createSelector<ST, PR, SE, T1, T2>(
+  function createSelector<ST, PR = void, SE = void, T1 = void>(
+    selector1: InputSelector<ST, PR, T1>,
+    resultFn: (arg1: T1) => SE
+  ): OutputSelector<ST, PR, SE>;
+  function createSelector<ST, PR = void, SE = void, T1 = void, T2 = void>(
     selector1: InputSelector<ST, PR, T1>,
     selector2: InputSelector<ST, PR, T2>,
     resultFn: (arg1: T1, arg2: T2) => SE
   ): OutputSelector<ST, PR, SE>;
-  function createSelector<ST, PR, SE, T1, T2>(
+  function createSelector<ST, PR = void, SE = void, T1 = void, T2 = void>(
     selectors: [InputSelector<ST, PR, T1>, InputSelector<ST, PR, T2>],
     resultFn: (arg1: T1, arg2: T2) => SE
   ): OutputSelector<ST, PR, SE>;
-  function createSelector<ST, PR, SE, T1, T2, T3>(
+  function createSelector<
+    ST,
+    PR = void,
+    SE = void,
+    T1 = void,
+    T2 = void,
+    T3 = void
+  >(
     selector1: InputSelector<ST, PR, T1>,
     selector2: InputSelector<ST, PR, T2>,
     selector3: InputSelector<ST, PR, T3>,
     resultFn: (arg1: T1, arg2: T2, arg3: T3) => SE
   ): OutputSelector<ST, PR, SE>;
-  function createSelector<ST, PR, SE, T1, T2, T3>(
+  function createSelector<
+    ST,
+    PR = void,
+    SE = void,
+    T1 = void,
+    T2 = void,
+    T3 = void
+  >(
     selectors: [
       InputSelector<ST, PR, T1>,
       InputSelector<ST, PR, T2>,
@@ -279,14 +297,30 @@ declare module 'react-sweet-state' {
     ],
     resultFn: (arg1: T1, arg2: T2, arg3: T3) => SE
   ): OutputSelector<ST, PR, SE>;
-  function createSelector<ST, PR, SE, T1, T2, T3, T4>(
+  function createSelector<
+    ST,
+    PR = void,
+    SE = void,
+    T1 = void,
+    T2 = void,
+    T3 = void,
+    T4 = void
+  >(
     selector1: InputSelector<ST, PR, T1>,
     selector2: InputSelector<ST, PR, T2>,
     selector3: InputSelector<ST, PR, T3>,
     selector4: InputSelector<ST, PR, T4>,
     resultFn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4) => SE
   ): OutputSelector<ST, PR, SE>;
-  function createSelector<ST, PR, SE, T1, T2, T3, T4>(
+  function createSelector<
+    ST,
+    PR = void,
+    SE = void,
+    T1 = void,
+    T2 = void,
+    T3 = void,
+    T4 = void
+  >(
     selectors: [
       InputSelector<ST, PR, T1>,
       InputSelector<ST, PR, T2>,
@@ -295,7 +329,16 @@ declare module 'react-sweet-state' {
     ],
     resultFn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4) => SE
   ): OutputSelector<ST, PR, SE>;
-  function createSelector<ST, PR, SE, T1, T2, T3, T4, T5>(
+  function createSelector<
+    ST,
+    PR = void,
+    SE = void,
+    T1 = void,
+    T2 = void,
+    T3 = void,
+    T4 = void,
+    T5 = void
+  >(
     selector1: InputSelector<ST, PR, T1>,
     selector2: InputSelector<ST, PR, T2>,
     selector3: InputSelector<ST, PR, T3>,
@@ -303,7 +346,16 @@ declare module 'react-sweet-state' {
     selector5: InputSelector<ST, PR, T5>,
     resultFn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5) => SE
   ): OutputSelector<ST, PR, SE>;
-  function createSelector<ST, PR, SE, T1, T2, T3, T4, T5>(
+  function createSelector<
+    ST,
+    PR = void,
+    SE = void,
+    T1 = void,
+    T2 = void,
+    T3 = void,
+    T4 = void,
+    T5 = void
+  >(
     selectors: [
       InputSelector<ST, PR, T1>,
       InputSelector<ST, PR, T2>,
@@ -313,7 +365,17 @@ declare module 'react-sweet-state' {
     ],
     resultFn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5) => SE
   ): OutputSelector<ST, PR, SE>;
-  function createSelector<ST, PR, SE, T1, T2, T3, T4, T5, T6>(
+  function createSelector<
+    ST,
+    PR = void,
+    SE = void,
+    T1 = void,
+    T2 = void,
+    T3 = void,
+    T4 = void,
+    T5 = void,
+    T6 = void
+  >(
     selector1: InputSelector<ST, PR, T1>,
     selector2: InputSelector<ST, PR, T2>,
     selector3: InputSelector<ST, PR, T3>,
@@ -322,7 +384,17 @@ declare module 'react-sweet-state' {
     selector6: InputSelector<ST, PR, T6>,
     resultFn: (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5, arg6: T6) => SE
   ): OutputSelector<ST, PR, SE>;
-  function createSelector<ST, PR, SE, T1, T2, T3, T4, T5, T6>(
+  function createSelector<
+    ST,
+    PR = void,
+    SE = void,
+    T1 = void,
+    T2 = void,
+    T3 = void,
+    T4 = void,
+    T5 = void,
+    T6 = void
+  >(
     selectors: [
       InputSelector<ST, PR, T1>,
       InputSelector<ST, PR, T2>,
