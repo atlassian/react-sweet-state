@@ -32,8 +32,10 @@ export default function shallowEqual(objA, objB) {
 
     return true;
   } else {
-    // Handle Date, RegExp, String, Number, ...
-    if ('' + objA !== '' + objB) {
+    // Handle Date, RegExp, String, Number, ... and complex objects
+    const strA = '' + objA;
+    const strB = '' + objB;
+    if (strA !== strB || (strA[0] === '[' && strA !== '[object Object]')) {
       return false;
     }
 
