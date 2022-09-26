@@ -98,4 +98,46 @@ describe('shallowEqual', () => {
       expect(shallowEqual(valueA, valueB)).toBe(false);
     });
   });
+
+  describe('compare native Promise', () => {
+    it('equal', () => {
+      const valueA = new Promise((r) => r('A'));
+      const valueB = valueA;
+      expect(shallowEqual(valueA, valueB)).toBe(true);
+    });
+
+    it('not equal', () => {
+      const valueA = new Promise((r) => r('A'));
+      const valueB = new Promise((r) => r('A'));
+      expect(shallowEqual(valueA, valueB)).toBe(false);
+    });
+  });
+
+  describe('compare native Set', () => {
+    it('equal', () => {
+      const valueA = new Set();
+      const valueB = valueA;
+      expect(shallowEqual(valueA, valueB)).toBe(true);
+    });
+
+    it('not equal', () => {
+      const valueA = new Set();
+      const valueB = new Set();
+      expect(shallowEqual(valueA, valueB)).toBe(false);
+    });
+  });
+
+  describe('compare native Map', () => {
+    it('equal', () => {
+      const valueA = new Map();
+      const valueB = valueA;
+      expect(shallowEqual(valueA, valueB)).toBe(true);
+    });
+
+    it('not equal', () => {
+      const valueA = new Map();
+      const valueB = new Map();
+      expect(shallowEqual(valueA, valueB)).toBe(false);
+    });
+  });
 });
