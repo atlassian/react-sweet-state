@@ -27,7 +27,7 @@
 
 - **Resources**
 
-  - [External Tutorials](/resources/tutorial.md)
+  - [External Tutorials](/resources/tutorials.md)
 
 - **APIs**
 
