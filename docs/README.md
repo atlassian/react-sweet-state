@@ -30,7 +30,7 @@ const Store = createStore({
         });
       },
   },
-  // optional, mostly used for easy debugging
+  // optional, unique, mostly used for easy debugging
   name: 'counter',
 });
 

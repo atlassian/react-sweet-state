@@ -24,7 +24,7 @@ const actions = {
 const Store = createStore({ initialState, actions });
 ```
 
-Optionally, you can add a `name` property to the `createStore` configuration object. It will be used as the displayName in Redux Devtools.
+Optionally, you can add a unique `name` property to the `createStore` configuration object. It will be used as the displayName in Redux Devtools.
 
 ```js
 const Store = createStore({ initialState, actions, name: 'counter' });
