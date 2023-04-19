@@ -176,11 +176,12 @@ describe('Container', () => {
       expect(defaultRegistry.deleteStore).not.toHaveBeenCalled();
     });
 
-    it('should cleanup from global on id change if no more listeners', () => {
+    it('should cleanup from global on id change if no more listeners', async () => {
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
       const { rerender } = render(<Container scope="s1">{children}</Container>);
       rerender(<Container scope="s2">{children}</Container>);
+      await Promise.resolve();
 
       expect(defaultRegistry.deleteStore).toHaveBeenCalledWith(Store, 's1');
     });
@@ -189,6 +190,23 @@ describe('Container', () => {
       jest.spyOn(storeStateMock, 'listeners').mockReturnValue([]);
       const { unmount } = render(<Container isGlobal>Content</Container>);
       unmount();
+      await Promise.resolve();
+
+      expect(defaultRegistry.deleteStore).not.toHaveBeenCalled();
+    });
+
+    it('should not cleanup from global if same type gets recreated meanwhile', async () => {
+      const Subscriber = createSubscriber(Store);
+      const renderPropChildren = jest.fn().mockReturnValue(null);
+      const children = <Subscriber>{renderPropChildren}</Subscriber>;
+      const { unmount } = render(<Container scope="s1">{children}</Container>);
+      unmount();
+
+      // given cleanup is scheduled, we fake the eventuality that the store gets replaced in meantime
+      defaultRegistry.getStore.mockReturnValue({
+        storeState: { ...storeStateMock },
+        actions: StoreMock.actions,
+      });
       await Promise.resolve();
 
       expect(defaultRegistry.deleteStore).not.toHaveBeenCalled();

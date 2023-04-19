@@ -49,7 +49,9 @@ export default class Container extends Component {
       api: {
         globalRegistry,
         getStore: (Store, scope) =>
-          this.getScopedStore(Store, scope) || getStore(Store),
+          this.constructor.storeType === Store
+            ? this.getScopedStore(scope)
+            : getStore(Store),
       },
       // stored to make them available in getDerivedStateFromProps
       // as js context there is null https://github.com/facebook/react/issues/12612
@@ -65,21 +67,28 @@ export default class Container extends Component {
 
   componentDidUpdate(prevProps) {
     if (this.props.scope !== prevProps.scope) {
-      // Trigger a forced update on all subscribers
-      // as render might have been blocked
-      this.triggerScopeChange(prevProps.scope);
-      // Check if instance has still subscribers, if not delete
-      this.deleteScopedStore(prevProps.scope);
+      const { storeState } = this.getScopedStore(prevProps.scope);
+      // Trigger a forced update on all subscribers as render might have been blocked
+      // When called, subscribers that have already re-rendered with the new scope
+      // are no longer subscribed to the old one, so we "force update" the remaining.
+      // This is sub-optimal as if there are other containers with the same
+      // old scope id we will re-render those too, but still better than using context
+      storeState.notify();
+      // Schedule check if instance has still subscribers, if not delete
+      Promise.resolve().then(() => {
+        this.deleteScopedStore(storeState, prevProps.scope);
+      });
     }
   }
 
   componentWillUnmount() {
+    let scopedStore = this.props.scope ? this.getScopedStore() : null;
     // schedule on next tick as this is called by React before useEffect cleanup
     // so if we run immediately listeners will still be there and run
     Promise.resolve().then(() => {
       this.scopedHooks.onCleanup();
       // Check if scope has still subscribers, if not delete
-      this.deleteScopedStore();
+      if (scopedStore) this.deleteScopedStore(scopedStore.storeState);
     });
   }
 
@@ -137,12 +146,9 @@ export default class Container extends Component {
     return isLocal ? this.registry : this.state.api.globalRegistry;
   }
 
-  getScopedStore(Store, scopeId = this.props.scope) {
+  getScopedStore(scopeId = this.props.scope) {
     const { storeType } = this.constructor;
-    if (Store !== storeType) {
-      return null;
-    }
-    const { storeState } = this.getRegistry().getStore(Store, scopeId);
+    const { storeState } = this.getRegistry().getStore(storeType, scopeId);
     // instead of returning global bound actions
     // we return the ones with the countainer props binding
     return {
@@ -151,22 +157,15 @@ export default class Container extends Component {
     };
   }
 
-  triggerScopeChange(prevScopeId) {
-    const { storeType } = this.constructor;
-    const previous = this.getScopedStore(storeType, prevScopeId);
-    // When called, subscribers that have already re-rendered with the new
-    // scope are no longer subscribed to the old one, so we "force update"
-    // the remaining.
-    // This is sub-optimal as if there are other containers with the same
-    // old scope id we will re-render those too, but better than using context
-    // as that will re-render all children even if pure/memo
-    previous.storeState.notify();
-  }
-
-  deleteScopedStore(scopeId = this.props.scope) {
-    const { storeType } = this.constructor;
-    const { storeState } = this.getScopedStore(storeType, scopeId);
-    if (scopeId != null && !storeState.listeners().length) {
+  deleteScopedStore(prevStoreState, scopeId = this.props.scope) {
+    const { storeState } = this.getScopedStore(scopeId);
+    if (
+      scopeId != null &&
+      !prevStoreState.listeners().length &&
+      // ensure registry has not already created a new store w/ same scope
+      prevStoreState === storeState
+    ) {
+      const { storeType } = this.constructor;
       this.getRegistry().deleteStore(storeType, scopeId);
     }
   }
