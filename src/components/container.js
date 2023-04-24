@@ -201,7 +201,7 @@ export function createContainer(
     matcher: (s) => s === Store,
     onStoreInit: onInit,
     onStoreCleanup: onCleanup,
-    onPropUpdate: onUpdate,
+    onPropsUpdate: onUpdate,
     displayName: displayName || `Container(${Store.key.split('__')[0]})`,
   });
 }
@@ -276,14 +276,14 @@ export function createDynamicContainer({
   onStoreInit = noop,
   onStoreUpdate = noop,
   onStoreCleanup = noop,
-  onPropUpdate = noop,
+  onPropsUpdate = noop,
   displayName = '',
 }) {
   const hookActions = {
     onStoreInit,
     onStoreUpdate,
     onStoreCleanup,
-    onPropUpdate,
+    onPropsUpdate,
   };
 
   const memoMatcher = ((cache) => (Store) => {
@@ -306,7 +306,7 @@ export function createDynamicContainer({
     // before the re-render gets to consumers, hence why memo and not effect
     useMemo(() => {
       containedStores.forEach(({ hooks }, Store) => {
-        hooks.onPropUpdate(Store);
+        hooks.onPropsUpdate(Store);
       });
       // Deps are dynamic because we want to notify on any custom prop change
       // eslint-disable-next-line react-hooks/exhaustive-deps

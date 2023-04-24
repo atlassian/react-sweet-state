@@ -146,6 +146,19 @@ declare export function createContainer<ST, AC, CPR>(
 ): ContainerComponent<CPR>;
 
 /**
+ * createContainer
+ */
+
+declare export function createDynamicContainer<CPR>(config: {|
+  matcher: (store: Store<any, any>) => boolean,
+  onStoreInit?: (store: Store<any, any>) => Action<any, CPR>,
+  onStoreUpdate?: (store: Store<any, any>) => Action<any, CPR>,
+  onStoreCleanup?: (store: Store<any, any>) => Action<any, CPR>,
+  onPropsUpdate?: (store: Store<any, any>) => Action<any, CPR>,
+  displayName?: string,
+|}): ContainerComponent<CPR>;
+
+/**
  * createSubscriber
  */
 

@@ -91,6 +91,13 @@ declare module 'react-sweet-state' {
       store: Store<TState, TActions>,
       scopeId?: string
     ) => StoreInstance<TState, TActions>;
+    hasStore: <
+      TState,
+      TActions extends Record<string, ActionThunk<TState, TActions>>
+    >(
+      store: Store<TState, TActions>,
+      scopeId?: string
+    ) => boolean;
     deleteStore: <
       TState,
       TActions extends Record<string, ActionThunk<TState, TActions>>
@@ -192,13 +199,16 @@ declare module 'react-sweet-state' {
     TContainerProps = unknown
   >(config: {
     matcher: (store: TStoreType) => boolean;
-    onInit?: (
+    onStoreInit?: (
       store: TStoreType
     ) => Action<TStoreType['initialState'], TContainerProps>;
-    onUpdate?: (
+    onStoreUpdate?: (
       store: TStoreType
     ) => Action<TStoreType['initialState'], TContainerProps>;
-    onCleanup?: (
+    onStoreCleanup?: (
+      store: TStoreType
+    ) => Action<TStoreType['initialState'], TContainerProps>;
+    onPropsUpdate?: (
       store: TStoreType
     ) => Action<TStoreType['initialState'], TContainerProps>;
     displayName?: string;

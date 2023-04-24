@@ -449,7 +449,7 @@ Test = (
 
 const TypeDynContainer = createDynamicContainer({
   matcher: (s) => s.tags?.includes('bla') ?? false,
-  onInit:
+  onStoreInit:
     (s) =>
     ({ getState, setState }) => {
       // @ts-expect-error
@@ -484,7 +484,7 @@ const TypePropsDynContainer = createDynamicContainer<
   { url: string }
 >({
   matcher: (s) => s.tags?.includes('bla') ?? false,
-  onInit:
+  onStoreUpdate:
     (s) =>
     ({ getState, setState }) => {
       const state = getState();
