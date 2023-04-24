@@ -11,6 +11,7 @@ import {
   createStateHook,
   StoreActionApi,
   Action,
+  createDynamicContainer,
 } from 'react-sweet-state';
 
 /**
@@ -149,19 +150,19 @@ const actions = {
 };
 
 // @ts-expect-error
-const TypeStore0 = createStore<State, Actions>({ count: 0 });
+createStore<State, Actions>({ count: 0 });
 
-const TypeStore1 = createStore<State, Actions>({
+createStore<State, Actions>({
   // @ts-expect-error
   initialState: { bla: 0 },
   actions,
 });
 
 // @ts-expect-error
-const TypeStore2 = createStore<State, Actions>({ initialState: { count: 0 } });
+createStore<State, Actions>({ initialState: { count: 0 } });
 
 // @ts-expect-error
-const TypeStore3 = createStore<string, Actions>({ initialState: '', actions });
+createStore<string, Actions>({ initialState: '', actions });
 
 // Correct
 const TypeStore = createStore<State, Actions>({
@@ -440,4 +441,75 @@ Test = (
   <TypePropsContainer scope="a" url="">
     bla
   </TypePropsContainer>
+);
+
+/**
+ * Dynamic Container types tests
+ */
+
+const TypeDynContainer = createDynamicContainer({
+  matcher: (s) => s.tags?.includes('bla') ?? false,
+  onInit:
+    (s) =>
+    ({ getState, setState }) => {
+      // @ts-expect-error
+      getState().count;
+      // untyped
+      setState({ value: 1 });
+    },
+});
+
+Test = (
+  // @ts-expect-error
+  <TypeDynContainer>{({ count }) => count}</TypeDynContainer>
+);
+
+Test = (
+  // @ts-expect-error
+  <TypeDynContainer foo="1">bla</TypeDynContainer>
+);
+
+// Correct
+Test = <TypeDynContainer>bla</TypeDynContainer>;
+Test = <TypeDynContainer scope="a">bla</TypeDynContainer>;
+Test = <TypeDynContainer isGlobal>bla</TypeDynContainer>;
+
+const TypeStore2 = createStore<{ value: string }, Record<string, never>>({
+  initialState: { value: '' },
+  actions: {},
+});
+
+const TypePropsDynContainer = createDynamicContainer<
+  typeof TypeStore | typeof TypeStore2,
+  { url: string }
+>({
+  matcher: (s) => s.tags?.includes('bla') ?? false,
+  onInit:
+    (s) =>
+    ({ getState, setState }) => {
+      const state = getState();
+      if ('count' in state) {
+        setState({ count: state.count + 1 });
+        // @ts-expect-error
+        setState({ value });
+      }
+      if ('value' in state) {
+        setState({ value: state.value.replace('', '') });
+      }
+    },
+});
+
+// @ts-expect-error
+Test = <TypePropsDynContainer isGlobal>bla</TypePropsDynContainer>;
+
+Test = (
+  // @ts-expect-error
+  <TypePropsDynContainer foo="1">bla</TypePropsDynContainer>
+);
+
+// Correct
+Test = (
+  <TypePropsDynContainer scope="a" url="">
+    bla
+  </TypePropsDynContainer>
 );

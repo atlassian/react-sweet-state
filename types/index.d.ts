@@ -24,9 +24,11 @@ declare module 'react-sweet-state' {
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>
   > = {
+    name?: string;
     key: string;
     initialState: TState;
     actions: TActions;
+    tags?: string[];
   };
 
   type StoreState<TState> = {
@@ -160,6 +162,7 @@ declare module 'react-sweet-state' {
     initialState: TState;
     actions: TActions;
     name?: string;
+    tags?: string[];
   }): Store<TState, TActions>;
 
   /**
@@ -179,6 +182,27 @@ declare module 'react-sweet-state' {
       displayName?: string;
     }
   ): ContainerComponent<TContainerProps>;
+
+  /**
+   * createDynamicContainer
+   */
+
+  function createDynamicContainer<
+    TStoreType extends Store<unknown, Record<string, any>>,
+    TContainerProps = unknown
+  >(config: {
+    matcher: (store: TStoreType) => boolean;
+    onInit?: (
+      store: TStoreType
+    ) => Action<TStoreType['initialState'], TContainerProps>;
+    onUpdate?: (
+      store: TStoreType
+    ) => Action<TStoreType['initialState'], TContainerProps>;
+    onCleanup?: (
+      store: TStoreType
+    ) => Action<TStoreType['initialState'], TContainerProps>;
+    displayName?: string;
+  }): ContainerComponent<TContainerProps>;
 
   /**
    * createSubscriber

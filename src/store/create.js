@@ -9,14 +9,16 @@ function createKey(initialState, actions, name) {
     .join('__');
 }
 
-export function createStore({ name = '', initialState, actions }) {
+export function createStore({ name = '', initialState, actions, tags }) {
   let key;
   return {
+    name,
     get key() {
       // lazy evaluate key on first access
       return key || (key = createKey(initialState, actions, name));
     },
     initialState,
     actions,
+    tags,
   };
 }

@@ -1,4 +1,11 @@
-import React, { Component } from 'react';
+import React, {
+  Component,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useEffect,
+} from 'react';
 import PropTypes from 'prop-types';
 
 import { Context } from '../context';
@@ -188,4 +195,155 @@ export function createContainer(
       displayName || `Container(${Store.key.split('__')[0]})`;
     static hooks = { onInit, onUpdate, onCleanup };
   };
+
+  // eslint-disable-next-line no-unreachable
+  return createDynamicContainer({
+    matcher: (s) => s === Store,
+    onStoreInit: onInit,
+    onStoreCleanup: onCleanup,
+    onPropUpdate: onUpdate,
+    displayName: displayName || `Container(${Store.key.split('__')[0]})`,
+  });
+}
+
+function useRegistry(scope, isGlobal, { globalRegistry = defaultRegistry }) {
+  return useMemo(() => {
+    const isLocal = !scope && !isGlobal;
+    return isLocal ? new StoreRegistry('__local__') : globalRegistry;
+  }, [scope, isGlobal, globalRegistry]);
+}
+
+function useContainedStore(scope, registry, hookActions, restProps) {
+  // Store contained scopes in a map, but throwing it away on scope change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const containedStores = useMemo(() => new Map(), [scope]);
+
+  // Store props in a ref to avoid re-binding actions when they change
+  // If devs want to update consumers on prop change, they can put them in store
+  const containerProps = useRef();
+  containerProps.current = restProps;
+
+  const getContainedStore = useCallback(
+    (Store) => {
+      let containedStore = containedStores.get(Store);
+      // first time it gets called we add store to contained map bound
+      // so we can provide props to actions (only triggered by children)
+      if (!containedStore) {
+        const isExisting = registry.hasStore(Store, scope);
+        const { storeState } = registry.getStore(Store, scope);
+        const getProps = () => containerProps.current;
+        const actions = bindActions(Store.actions, storeState, getProps);
+        const hooks = bindActions(hookActions, storeState, getProps, actions);
+        containedStore = {
+          storeState,
+          actions,
+          hooks,
+          unsubscribe: storeState.subscribe(() => hooks.onStoreUpdate(Store)),
+        };
+        containedStores.set(Store, containedStore);
+        // signal store is contained and ready now, so by the time
+        // consumers subscribe we already have updated the store (if needed)
+        if (!isExisting) hooks.onStoreInit(Store);
+      }
+      return containedStore;
+    },
+    [scope, containedStores, registry, hookActions]
+  );
+  return [containedStores, getContainedStore];
+}
+
+// defaultRegistry.getStore
+
+function useApi(
+  memoMatcher,
+  getContainedStore,
+  { globalRegistry = defaultRegistry, getStore = defaultRegistry.getStore }
+) {
+  const getStoreRef = useRef();
+  getStoreRef.current = (Store) =>
+    memoMatcher(Store) ? getContainedStore(Store) : getStore(Store);
+
+  // This api is "frozen", as changing it will trigger re-render across all consumers
+  // so we link getStore dynamically and manually call notify() on scope change
+  return useMemo(
+    () => ({ globalRegistry, getStore: (s) => getStoreRef.current(s) }),
+    [globalRegistry]
+  );
+}
+
+export function createDynamicContainer({
+  matcher,
+  onStoreInit = noop,
+  onStoreUpdate = noop,
+  onStoreCleanup = noop,
+  onPropUpdate = noop,
+  displayName = '',
+}) {
+  const hookActions = {
+    onStoreInit,
+    onStoreUpdate,
+    onStoreCleanup,
+    onPropUpdate,
+  };
+
+  const memoMatcher = ((cache) => (Store) => {
+    if (!cache.has(Store)) cache.set(Store, matcher(Store));
+    return cache.get(Store);
+  })(new WeakMap());
+
+  function DynamicContainer({ children, scope, isGlobal, ...restProps }) {
+    const ctx = useContext(Context);
+    const registry = useRegistry(scope, isGlobal, ctx);
+    const [containedStores, getContainedStore] = useContainedStore(
+      scope,
+      registry,
+      hookActions,
+      restProps
+    );
+    const api = useApi(memoMatcher, getContainedStore, ctx);
+
+    // This listens for custom props change, and so we trigger container update actions
+    // before the re-render gets to consumers, hence why memo and not effect
+    useMemo(() => {
+      containedStores.forEach(({ hooks }, Store) => {
+        hooks.onPropUpdate(Store);
+      });
+      // Deps are dynamic because we want to notify on any custom prop change
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, Object.values(restProps).concat(containedStores));
+
+    // This listens for scope change or component unmount, to notify all consumers
+    // so all work is done on cleanup
+    useEffect(() => {
+      const cachedScope = scope;
+      return () => {
+        containedStores.forEach(({ storeState, hooks, unsubscribe }, Store) => {
+          // Detatch container from subscription
+          unsubscribe();
+          // Trigger a forced update on all subscribers as we opted out from context
+          // Some might have already re-rendered naturally, but we "force update" all anyway.
+          // This is sub-optimal as if there are other containers with the same
+          // old scope id we will re-render those too, but still better than context
+          storeState.notify();
+          // Schedule check if instance has still subscribers, if not delete
+          Promise.resolve().then(() => {
+            if (
+              !storeState.listeners().length &&
+              // ensure registry has not already created a new store with same scope
+              storeState === registry.getStore(Store, cachedScope).storeState
+            ) {
+              hooks.onStoreCleanup(Store);
+              registry.deleteStore(Store, cachedScope);
+            }
+          });
+        });
+      };
+    }, [registry, scope, containedStores]);
+
+    return <Context.Provider value={api}>{children}</Context.Provider>;
+  }
+
+  DynamicContainer.displayName = displayName || `DynamicContainer`;
+
+  return DynamicContainer;
 }

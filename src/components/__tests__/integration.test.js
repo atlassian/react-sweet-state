@@ -6,7 +6,7 @@ import { render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 
 import { createStore, defaultRegistry } from '../../store';
-import { createContainer } from '../container';
+import { createContainer, createDynamicContainer } from '../container';
 import { createSubscriber } from '../subscriber';
 import { createHook } from '../hook';
 
@@ -32,6 +32,7 @@ const actions = {
     },
 };
 const Store = createStore({
+  name: 'store',
   initialState: { todos: [], loading: false },
   actions,
 });
@@ -86,7 +87,7 @@ describe('Integration', () => {
     );
   });
 
-  it('should share scoped state across multiple subscribers', async () => {
+  it.only('should share scoped state across multiple subscribers', async () => {
     const Container = createContainer(Store, {
       onInit:
         () =>
@@ -180,8 +181,8 @@ describe('Integration', () => {
 
     const state3 = { loading: false, todos: ['todoB'] };
     const call3 = 3;
-    // its 3+1 because on scope change we force notify to make sure memo components update too,
-    // causing ones that have naturally re-rendered already to re-render once more :(
+    // its 3+1 because on scope change we do NOT use context and force notify
+    // causing ones that have naturally re-rendered already to re-render once more.
     expect(children1.mock.calls[call3 + 1]).toEqual([state3, expectActions]);
     expect(children2.mock.calls[call3]).toEqual([state3, expectActions]);
   });
@@ -404,5 +405,59 @@ describe('Integration', () => {
     render(<HookWrapper />);
 
     expect(selector).toHaveBeenCalledTimes(2);
+  });
+
+  it('should capture all matched stores', async () => {
+    const matcher = jest.fn().mockReturnValue(true);
+    const onStoreInit = jest.fn().mockReturnValue(() => {});
+    const onStoreUpdate = jest.fn().mockReturnValue(() => {});
+    const onStoreCleanup = jest.fn().mockReturnValue(() => {});
+    const onPropUpdate = jest.fn().mockReturnValue(() => {});
+    const DynContainer = createDynamicContainer({
+      matcher,
+      onStoreInit,
+      onStoreUpdate,
+      onStoreCleanup,
+      onPropUpdate,
+    });
+    const Subscriber = createSubscriber(Store);
+    const Store2 = createStore({ name: 'two', initialState: {}, actions });
+    const Subscriber2 = createSubscriber(Store2);
+
+    let acts;
+
+    const App = ({ value }) => (
+      <DynContainer value={value}>
+        <Subscriber>{(_, a) => ((acts = a), null)}</Subscriber>
+        <Subscriber2>{() => null}</Subscriber2>
+      </DynContainer>
+    );
+
+    const { rerender, unmount } = render(<App value="1" />);
+
+    expect(matcher).toHaveBeenCalledTimes(2);
+    expect(onStoreInit).toHaveBeenCalledTimes(2);
+    expect(onStoreInit.mock.calls[0]).toEqual([Store]);
+    expect(onStoreInit.mock.calls[1]).toEqual([Store2]);
+    expect(defaultRegistry.stores.size).toEqual(0);
+
+    act(() => acts.add('todo2'));
+
+    expect(onStoreUpdate).toHaveBeenCalledTimes(1);
+    expect(onStoreUpdate.mock.calls[0]).toEqual([Store]);
+
+    rerender(<App value="2" />);
+
+    expect(onPropUpdate).toHaveBeenCalledTimes(2);
+    expect(onPropUpdate.mock.calls[0]).toEqual([Store]);
+    expect(onPropUpdate.mock.calls[1]).toEqual([Store2]);
+
+    unmount();
+
+    await actTick();
+
+    expect(onStoreCleanup).toHaveBeenCalledTimes(2);
+    expect(onStoreCleanup.mock.calls[0]).toEqual([Store]);
+    expect(onStoreCleanup.mock.calls[1]).toEqual([Store2]);
   });
 });

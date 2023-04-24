@@ -21,9 +21,3 @@ export const storeStateMock = {
   listeners: () => [],
   mutator: () => {},
 };
-
-export const registryMock = {
-  configure: jest.fn(),
-  getStoreState: jest.fn(),
-  deleteStoreState: jest.fn(),
-};
