@@ -87,7 +87,7 @@ describe('Integration', () => {
     );
   });
 
-  it.only('should share scoped state across multiple subscribers', async () => {
+  it('should share scoped state across multiple subscribers', async () => {
     const Container = createContainer(Store, {
       onInit:
         () =>
@@ -412,13 +412,16 @@ describe('Integration', () => {
     const onStoreInit = jest.fn().mockReturnValue(() => {});
     const onStoreUpdate = jest.fn().mockReturnValue(() => {});
     const onStoreCleanup = jest.fn().mockReturnValue(() => {});
-    const onPropUpdate = jest.fn().mockReturnValue(() => {});
+    const onPropsUpdate = jest.fn().mockReturnValue(() => {});
     const DynContainer = createDynamicContainer({
       matcher,
       onStoreInit,
       onStoreUpdate,
       onStoreCleanup,
-      onPropUpdate,
+      onPropsUpdate,
+    });
+    const NoopContainer = createDynamicContainer({
+      matcher: () => false,
     });
     const Subscriber = createSubscriber(Store);
     const Store2 = createStore({ name: 'two', initialState: {}, actions });
@@ -428,8 +431,10 @@ describe('Integration', () => {
 
     const App = ({ value }) => (
       <DynContainer value={value}>
-        <Subscriber>{(_, a) => ((acts = a), null)}</Subscriber>
-        <Subscriber2>{() => null}</Subscriber2>
+        <NoopContainer>
+          <Subscriber>{(_, a) => ((acts = a), null)}</Subscriber>
+          <Subscriber2>{() => null}</Subscriber2>
+        </NoopContainer>
       </DynContainer>
     );
 
@@ -448,9 +453,9 @@ describe('Integration', () => {
 
     rerender(<App value="2" />);
 
-    expect(onPropUpdate).toHaveBeenCalledTimes(2);
-    expect(onPropUpdate.mock.calls[0]).toEqual([Store]);
-    expect(onPropUpdate.mock.calls[1]).toEqual([Store2]);
+    expect(onPropsUpdate).toHaveBeenCalledTimes(2);
+    expect(onPropsUpdate.mock.calls[0]).toEqual([Store]);
+    expect(onPropsUpdate.mock.calls[1]).toEqual([Store2]);
 
     unmount();
 
