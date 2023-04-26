@@ -2,7 +2,10 @@ import defaults from '../defaults';
 
 const connectDevTools = (storeState, config) => {
   const devTools = window.__REDUX_DEVTOOLS_EXTENSION__.connect(
-    Object.assign({ name: `Store ${storeState.key}`, serialize: true }, config)
+    Object.assign(
+      { name: `Store ${storeState.key}`, serialize: true, trace: true },
+      config
+    )
   );
   devTools.init(storeState.getState());
   devTools.subscribe((message) => {
