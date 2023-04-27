@@ -206,7 +206,7 @@ export function createContainer(
   });
 }
 
-function useRegistry(scope, isGlobal, { globalRegistry = defaultRegistry }) {
+function useRegistry(scope, isGlobal, { globalRegistry }) {
   return useMemo(() => {
     const isLocal = !scope && !isGlobal;
     return isLocal ? new StoreRegistry('__local__') : globalRegistry;
@@ -254,11 +254,7 @@ function useContainedStore(scope, registry, hookActions, restProps) {
 
 // defaultRegistry.getStore
 
-function useApi(
-  memoMatcher,
-  getContainedStore,
-  { globalRegistry = defaultRegistry, getStore = defaultRegistry.getStore }
-) {
+function useApi(memoMatcher, getContainedStore, { globalRegistry, getStore }) {
   const getStoreRef = useRef();
   getStoreRef.current = (Store) =>
     memoMatcher(Store) ? getContainedStore(Store) : getStore(Store);

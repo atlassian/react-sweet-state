@@ -87,7 +87,7 @@ _(Component)_: this React component allows you to change the behaviour of child 
 
 ##### Example
 
-Let's create a Container that conatins and initializes all theme-related stores, for instance.
+Let's create a Container that contains and initializes all theme-related stores, for instance.
 
 ```js
 import { createDynamicContainer } from 'react-sweet-state';
