@@ -252,8 +252,6 @@ function useContainedStore(scope, registry, hookActions, restProps) {
   return [containedStores, getContainedStore];
 }
 
-// defaultRegistry.getStore
-
 function useApi(memoMatcher, getContainedStore, { globalRegistry, getStore }) {
   const getStoreRef = useRef();
   getStoreRef.current = (Store) =>
@@ -340,6 +338,11 @@ export function createDynamicContainer({
   }
 
   DynamicContainer.displayName = displayName || `DynamicContainer`;
+  DynamicContainer.propTypes = {
+    children: PropTypes.node,
+    scope: PropTypes.string,
+    isGlobal: PropTypes.bool,
+  };
 
   return DynamicContainer;
 }
