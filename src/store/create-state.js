@@ -13,7 +13,7 @@ function createStoreState(key, initialState) {
     },
     setState(nextState) {
       currentState = nextState;
-      // Instead of notifying all hooks immediately, we wait next tick
+      // Instead of notifying all handlers immediately, we wait next tick
       // so multiple actions affecting the same store gets combined
       schedule(storeState.notify);
     },

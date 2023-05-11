@@ -1,5 +1,10 @@
 declare module 'react-sweet-state' {
-  import { ComponentType, ReactNode, PropsWithChildren } from 'react';
+  import type {
+    ComponentType,
+    ReactNode,
+    PropsWithChildren,
+    FunctionComponent,
+  } from 'react';
 
   interface SetState<TState> {
     (newState: Partial<TState>): void;
@@ -27,6 +32,13 @@ declare module 'react-sweet-state' {
     key: string;
     initialState: TState;
     actions: TActions;
+    containedBy?: SharedContainerComponent<any>;
+    handlers?: {
+      onInit?: () => Action<TState, any, any>;
+      onUpdate?: () => Action<TState, any, any>;
+      onDestroy?: () => Action<TState, any, any>;
+      onContainerUpdate?: () => Action<TState, any, any>;
+    };
   };
 
   type StoreState<TState> = {
@@ -89,6 +101,13 @@ declare module 'react-sweet-state' {
       store: Store<TState, TActions>,
       scopeId?: string
     ) => StoreInstance<TState, TActions>;
+    hasStore: <
+      TState,
+      TActions extends Record<string, ActionThunk<TState, TActions>>
+    >(
+      store: Store<TState, TActions>,
+      scopeId?: string
+    ) => boolean;
     deleteStore: <
       TState,
       TActions extends Record<string, ActionThunk<TState, TActions>>
@@ -125,6 +144,15 @@ declare module 'react-sweet-state' {
       TProps
   >;
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  interface SharedContainerComponent<P = {}>
+    extends FunctionComponent<
+      {
+        scope?: string;
+        isGlobal?: boolean;
+      } & P
+    > {}
+
   type SubscriberComponent<
     TState,
     TActions,
@@ -155,17 +183,38 @@ declare module 'react-sweet-state' {
 
   function createStore<
     TState extends object,
-    TActions extends Record<string, ActionThunk<TState, TActions>>
-  >(config: {
-    initialState: TState;
-    actions: TActions;
-    name?: string;
-  }): Store<TState, TActions>;
+    TActions extends Record<string, ActionThunk<TState, TActions>>,
+    TContainerProps = unknown
+  >(
+    config:
+      | {
+          initialState: TState;
+          actions: TActions;
+          name?: string;
+          containedBy?: never;
+          handlers?: never;
+        }
+      | {
+          initialState: TState;
+          actions: TActions;
+          name?: string;
+          containedBy: SharedContainerComponent<TContainerProps>;
+          handlers?: {
+            onInit?: () => Action<TState, TContainerProps, any>;
+            onUpdate?: () => Action<TState, TContainerProps, any>;
+            onDestroy?: () => Action<TState, TContainerProps, any>;
+            onContainerUpdate?: () => Action<TState, TContainerProps, any>;
+          };
+        }
+  ): Store<TState, TActions>;
 
   /**
    * createContainer
    */
 
+  function createContainer<TContainerProps = unknown>(options?: {
+    displayName?: string;
+  }): SharedContainerComponent<TContainerProps>;
   function createContainer<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>,

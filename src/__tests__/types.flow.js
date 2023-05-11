@@ -426,3 +426,48 @@ Test = (
     bla
   </TypePropsContainer>
 );
+
+/**
+ * Shared Container types tests
+ */
+
+type SharedContainerProps = {|
+  initValue?: number,
+|};
+const TypeSharedContainer = createContainer<SharedContainerProps>();
+
+Test = (
+  // $FlowExpectedError[incompatible-type]
+  <TypeSharedContainer>{({ count }) => count}</TypeSharedContainer>
+);
+
+Test = (
+  // $FlowExpectedError[prop-missing]
+  <TypeSharedContainer foo="1">bla</TypeSharedContainer>
+);
+
+// Correct
+Test = <TypeSharedContainer>bla</TypeSharedContainer>;
+Test = <TypeSharedContainer scope="a">bla</TypeSharedContainer>;
+Test = <TypeSharedContainer isGlobal>bla</TypeSharedContainer>;
+Test = <TypeSharedContainer initValue={1}>bla</TypeSharedContainer>;
+
+createStore<State, Actions, SharedContainerProps>({
+  initialState: { count: 0 },
+  actions: {},
+  containedBy: TypeSharedContainer,
+  handlers: {
+    onInit:
+      () =>
+      ({ setState }, { initValue }) => {
+        if (initValue) {
+          // $FlowExpectedError[prop-missing]
+          initValue.split;
+          setState({ count: initValue });
+        }
+      },
+    onUpdate: () => () => undefined,
+    onDestroy: () => () => undefined,
+    onContainerUpdate: () => () => undefined,
+  },
+});

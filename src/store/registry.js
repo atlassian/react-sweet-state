@@ -20,6 +20,11 @@ export class StoreRegistry {
     return store;
   };
 
+  hasStore = (Store, scopeId = this.defaultScope) => {
+    const key = this.generateKey(Store, scopeId);
+    return this.stores.has(key);
+  };
+
   getStore = (Store, scopeId = this.defaultScope) => {
     const key = this.generateKey(Store, scopeId);
     return this.stores.get(key) || this.initStore(key, Store);

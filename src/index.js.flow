@@ -27,6 +27,16 @@ export type Store<ST, AC> = {|
   key: string,
   initialState: ST,
   actions: AC,
+  containedBy?: ContainerComponent<any>,
+  handlers?: {
+    onInit?: () => (api: StoreActionApi<ST>, containerProps: any) => any,
+    onUpdate?: () => (api: StoreActionApi<ST>, containerProps: any) => any,
+    onDestroy?: () => (api: StoreActionApi<ST>, containerProps: any) => any,
+    onContainerUpdate?: () => (
+      api: StoreActionApi<ST>,
+      containerProps: any
+    ) => any,
+  },
 |};
 
 export type StoreState<ST> = {|
@@ -82,6 +92,7 @@ declare export class Registry {
     store: Store<ST, AC>,
     scopeId?: string
   ) => StoreInstance<ST, AC>;
+  hasStore: <ST, AC>(store: Store<ST, AC>, scopeId?: string) => boolean;
   deleteStore: <ST, AC>(store: Store<ST, AC>, scopeId?: string) => void;
 }
 
@@ -125,15 +136,29 @@ export type HookStateFunction<ST, PR = void> = (props?: PR) => ST;
  * createStore
  */
 
-declare export function createStore<ST: { ... }, AC>({|
+declare export function createStore<ST: { ... }, AC, CPR = void>({|
   initialState: ST,
   actions: AC,
   name?: string,
+  containedBy?: ContainerComponent<CPR>,
+  handlers?: {
+    onInit?: () => (api: StoreActionApi<ST>, containerProps: CPR) => any,
+    onUpdate?: () => (api: StoreActionApi<ST>, containerProps: CPR) => any,
+    onDestroy?: () => (api: StoreActionApi<ST>, containerProps: CPR) => any,
+    onContainerUpdate?: () => (
+      api: StoreActionApi<ST>,
+      containerProps: CPR
+    ) => any,
+  },
 |}): Store<ST, AC>;
 
 /**
  * createContainer
  */
+
+declare export function createContainer<CPR>(config?: {|
+  displayName?: string,
+|}): ContainerComponent<CPR>;
 
 declare export function createContainer<ST, AC, CPR>(
   store: Store<ST, AC>,

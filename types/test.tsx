@@ -149,25 +149,38 @@ const actions = {
 };
 
 // @ts-expect-error
-const TypeStore0 = createStore<State, Actions>({ count: 0 });
+const BasStore = createStore<State, Actions>({ count: 0 });
 
-const TypeStore1 = createStore<State, Actions>({
+createStore<State, Actions>({
   // @ts-expect-error
   initialState: { bla: 0 },
   actions,
 });
 
 // @ts-expect-error
-const TypeStore2 = createStore<State, Actions>({ initialState: { count: 0 } });
+createStore<State, Actions>({ initialState: { count: 0 } });
 
 // @ts-expect-error
-const TypeStore3 = createStore<string, Actions>({ initialState: '', actions });
+createStore<string, Actions>({ initialState: '', actions });
+
+// @ts-expect-error
+createStore({ containedBy: createContainer(createStore(BasStore)) });
+
+// @ts-expect-error
+createStore({ initialState: {}, actions: {}, handlers: {} });
 
 // Correct
 const TypeStore = createStore<State, Actions>({
   initialState: { count: 0 },
   actions,
   name: 'Type',
+});
+
+createStore({
+  initialState: { count: 0 },
+  actions,
+  name: 'Type',
+  containedBy: createContainer({ displayName: 'CB' }),
 });
 
 /**
@@ -441,3 +454,45 @@ Test = (
     bla
   </TypePropsContainer>
 );
+
+/**
+ * Shared Container types tests
+ */
+
+const TypeSharedContainer = createContainer<{ initValue?: number }>();
+
+Test = (
+  // @ts-expect-error
+  <TypeSharedContainer>{({ count }) => count}</TypeSharedContainer>
+);
+
+Test = (
+  // @ts-expect-error
+  <TypeSharedContainer foo="1">bla</TypeSharedContainer>
+);
+
+// Correct
+Test = <TypeSharedContainer>bla</TypeSharedContainer>;
+Test = <TypeSharedContainer scope="a">bla</TypeSharedContainer>;
+Test = <TypeSharedContainer isGlobal>bla</TypeSharedContainer>;
+Test = <TypeSharedContainer initValue={1}>bla</TypeSharedContainer>;
+
+createStore({
+  initialState: { count: 0 },
+  actions: {},
+  containedBy: TypeSharedContainer,
+  handlers: {
+    onInit:
+      () =>
+      ({ setState }, { initValue }) => {
+        if (initValue) {
+          // @ts-expect-error Ensure type inferred properly
+          initValue.split;
+          setState({ count: initValue });
+        }
+      },
+    onUpdate: () => () => undefined,
+    onDestroy: () => () => undefined,
+    onContainerUpdate: () => () => undefined,
+  },
+});

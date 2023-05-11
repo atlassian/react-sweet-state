@@ -32,6 +32,7 @@ const actions = {
     },
 };
 const Store = createStore({
+  name: 'store',
   initialState: { todos: [], loading: false },
   actions,
 });
@@ -180,8 +181,8 @@ describe('Integration', () => {
 
     const state3 = { loading: false, todos: ['todoB'] };
     const call3 = 3;
-    // its 3+1 because on scope change we force notify to make sure memo components update too,
-    // causing ones that have naturally re-rendered already to re-render once more :(
+    // its 3+1 because on scope change we do NOT use context and force notify
+    // causing ones that have naturally re-rendered already to re-render once more.
     expect(children1.mock.calls[call3 + 1]).toEqual([state3, expectActions]);
     expect(children2.mock.calls[call3]).toEqual([state3, expectActions]);
   });
@@ -404,5 +405,56 @@ describe('Integration', () => {
     render(<HookWrapper />);
 
     expect(selector).toHaveBeenCalledTimes(2);
+  });
+
+  it.only('should capture all contained stores', async () => {
+    const onInit = jest.fn().mockReturnValue(() => {});
+    const onUpdate = jest.fn().mockReturnValue(() => {});
+    const onDestroy = jest.fn().mockReturnValue(() => {});
+    const onContainerUpdate = jest.fn().mockReturnValue(() => {});
+    const SharedContainer = createContainer();
+    const Store1 = createStore({
+      name: 'store',
+      initialState: { todos: [], loading: false },
+      actions,
+      containedBy: SharedContainer,
+      handlers: { onInit, onUpdate, onDestroy, onContainerUpdate },
+    });
+    const Store2 = createStore({
+      name: 'two',
+      initialState: {},
+      actions,
+      containedBy: SharedContainer,
+      handlers: { onInit, onUpdate, onDestroy, onContainerUpdate },
+    });
+    const Subscriber = createSubscriber(Store1);
+    const Subscriber2 = createSubscriber(Store2);
+
+    let acts;
+
+    const App = ({ value }) => (
+      <SharedContainer value={value}>
+        <Subscriber>{(_, a) => ((acts = a), null)}</Subscriber>
+        <Subscriber2>{() => null}</Subscriber2>
+      </SharedContainer>
+    );
+
+    const { rerender, unmount } = render(<App value="1" />);
+
+    expect(onInit).toHaveBeenCalledTimes(2);
+    expect(defaultRegistry.stores.size).toEqual(0);
+
+    act(() => acts.add('todo2'));
+
+    expect(onUpdate).toHaveBeenCalledTimes(1);
+
+    rerender(<App value="2" />);
+
+    expect(onContainerUpdate).toHaveBeenCalledTimes(2);
+
+    unmount();
+    await actTick();
+
+    expect(onDestroy).toHaveBeenCalledTimes(2);
   });
 });

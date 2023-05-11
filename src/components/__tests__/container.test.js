@@ -12,6 +12,7 @@ import { createSubscriber } from '../subscriber';
 const mockLocalRegistry = {
   configure: jest.fn(),
   getStore: jest.fn(),
+  hasStore: jest.fn(),
   deleteStore: jest.fn(),
 };
 
@@ -21,6 +22,7 @@ jest.mock('../../store/registry', () => ({
   defaultRegistry: {
     configure: jest.fn(),
     getStore: jest.fn(),
+    hasStore: jest.fn(),
     deleteStore: jest.fn(),
   },
 }));
