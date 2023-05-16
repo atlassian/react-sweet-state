@@ -163,8 +163,12 @@ createStore<State, Actions>({ initialState: { count: 0 } });
 // @ts-expect-error
 createStore<string, Actions>({ initialState: '', actions });
 
-// @ts-expect-error
-createStore({ containedBy: createContainer(createStore(BasStore)) });
+createStore({
+  initialState: { count: 0 },
+  actions,
+  // @ts-expect-error Cannot use override container as containedBy
+  containedBy: createContainer(createStore({} as any)),
+});
 
 // @ts-expect-error
 createStore({ initialState: {}, actions: {}, handlers: {} });

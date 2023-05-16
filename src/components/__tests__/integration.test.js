@@ -407,25 +407,34 @@ describe('Integration', () => {
     expect(selector).toHaveBeenCalledTimes(2);
   });
 
-  it.only('should capture all contained stores', async () => {
-    const onInit = jest.fn().mockReturnValue(() => {});
-    const onUpdate = jest.fn().mockReturnValue(() => {});
-    const onDestroy = jest.fn().mockReturnValue(() => {});
-    const onContainerUpdate = jest.fn().mockReturnValue(() => {});
+  it('should capture all contained stores', async () => {
     const SharedContainer = createContainer();
+    const handlers1 = {
+      onInit: jest.fn().mockReturnValue(() => {}),
+      onUpdate: jest.fn().mockReturnValue(() => {}),
+      onDestroy: jest.fn().mockReturnValue(() => {}),
+      onContainerUpdate: jest.fn().mockReturnValue(() => {}),
+    };
     const Store1 = createStore({
       name: 'store',
       initialState: { todos: [], loading: false },
       actions,
       containedBy: SharedContainer,
-      handlers: { onInit, onUpdate, onDestroy, onContainerUpdate },
+      handlers: handlers1,
     });
+
+    const handlers2 = {
+      onInit: jest.fn().mockReturnValue(() => {}),
+      onUpdate: jest.fn().mockReturnValue(() => {}),
+      onDestroy: jest.fn().mockReturnValue(() => {}),
+      onContainerUpdate: jest.fn().mockReturnValue(() => {}),
+    };
     const Store2 = createStore({
       name: 'two',
       initialState: {},
       actions,
       containedBy: SharedContainer,
-      handlers: { onInit, onUpdate, onDestroy, onContainerUpdate },
+      handlers: handlers2,
     });
     const Subscriber = createSubscriber(Store1);
     const Subscriber2 = createSubscriber(Store2);
@@ -441,20 +450,24 @@ describe('Integration', () => {
 
     const { rerender, unmount } = render(<App value="1" />);
 
-    expect(onInit).toHaveBeenCalledTimes(2);
+    expect(handlers1.onInit).toHaveBeenCalledTimes(1);
+    expect(handlers2.onInit).toHaveBeenCalledTimes(1);
     expect(defaultRegistry.stores.size).toEqual(0);
 
     act(() => acts.add('todo2'));
 
-    expect(onUpdate).toHaveBeenCalledTimes(1);
+    expect(handlers1.onUpdate).toHaveBeenCalledTimes(1);
+    expect(handlers2.onUpdate).toHaveBeenCalledTimes(0);
 
     rerender(<App value="2" />);
 
-    expect(onContainerUpdate).toHaveBeenCalledTimes(2);
+    expect(handlers1.onContainerUpdate).toHaveBeenCalledTimes(1);
+    expect(handlers2.onContainerUpdate).toHaveBeenCalledTimes(1);
 
     unmount();
     await actTick();
 
-    expect(onDestroy).toHaveBeenCalledTimes(2);
+    expect(handlers1.onDestroy).toHaveBeenCalledTimes(1);
+    expect(handlers2.onDestroy).toHaveBeenCalledTimes(1);
   });
 });

@@ -229,8 +229,8 @@ function useContainedStore(scope, registry, props, override) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const containedStores = useMemo(() => new Map(), [scope]);
 
-  // Store props in a ref to avoid re-binding actions when they change
-  // If devs want to update consumers on prop change, they can put them in store
+  // Store props in a ref to avoid re-binding actions when they change and re-rendering all
+  // consumers unnecessarily. The update is handled by an effect on the component instead
   const containerProps = useRef();
   containerProps.current = props;
 
@@ -322,7 +322,8 @@ function createFunctionContainer({ displayName, override } = {}) {
             // This is sub-optimal as if there are other containers with the same
             // old scope id we will re-render those too, but still better than context
             storeState.notify();
-            // Schedule check if instance has still subscribers, if not delete
+            // Given unsubscription is handled by useSyncExternalStore, we have no control on when
+            // React decides to do it. So we schedule on next tick to run last
             Promise.resolve().then(() => {
               if (
                 !storeState.listeners().length &&
@@ -335,6 +336,7 @@ function createFunctionContainer({ displayName, override } = {}) {
             });
           }
         );
+        // no need to reset containedStores as the map is already bound to scope
       };
     }, [registry, scope, containedStores]);
 

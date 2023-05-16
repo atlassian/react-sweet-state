@@ -32,7 +32,7 @@ declare module 'react-sweet-state' {
     key: string;
     initialState: TState;
     actions: TActions;
-    containedBy?: SharedContainerComponent<any>;
+    containedBy?: ContainerComponent<any>;
     handlers?: {
       onInit?: () => Action<TState, any, any>;
       onUpdate?: () => Action<TState, any, any>;
@@ -136,22 +136,31 @@ declare module 'react-sweet-state' {
 
   function batch(callback: () => any): void;
 
-  type ContainerComponent<TProps> = ComponentType<
-    PropsWithChildren<{
-      scope?: string;
-      isGlobal?: boolean;
-    }> &
-      TProps
-  >;
+  type ContainerComponent<TProps> =
+    | GenericContainerComponent<TProps>
+    | OverrideContainerComponent<TProps>;
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  interface SharedContainerComponent<P = {}>
+  interface GenericContainerComponent<TProps>
     extends FunctionComponent<
-      {
+      PropsWithChildren<{
         scope?: string;
         isGlobal?: boolean;
-      } & P
-    > {}
+      }> &
+        TProps
+    > {
+    override?: false;
+  }
+
+  interface OverrideContainerComponent<TProps>
+    extends FunctionComponent<
+      PropsWithChildren<{
+        scope?: string;
+        isGlobal?: boolean;
+      }> &
+        TProps
+    > {
+    override: true;
+  }
 
   type SubscriberComponent<
     TState,
@@ -198,7 +207,7 @@ declare module 'react-sweet-state' {
           initialState: TState;
           actions: TActions;
           name?: string;
-          containedBy: SharedContainerComponent<TContainerProps>;
+          containedBy: GenericContainerComponent<TContainerProps>;
           handlers?: {
             onInit?: () => Action<TState, TContainerProps, any>;
             onUpdate?: () => Action<TState, TContainerProps, any>;
@@ -214,7 +223,7 @@ declare module 'react-sweet-state' {
 
   function createContainer<TContainerProps = unknown>(options?: {
     displayName?: string;
-  }): SharedContainerComponent<TContainerProps>;
+  }): GenericContainerComponent<TContainerProps>;
   function createContainer<
     TState,
     TActions extends Record<string, ActionThunk<TState, TActions>>,
@@ -227,7 +236,7 @@ declare module 'react-sweet-state' {
       onCleanup?: () => Action<TState, TContainerProps>;
       displayName?: string;
     }
-  ): ContainerComponent<TContainerProps>;
+  ): OverrideContainerComponent<TContainerProps>;
 
   /**
    * createSubscriber
