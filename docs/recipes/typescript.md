@@ -28,14 +28,17 @@ const actions = {
     },
 };
 
+const CounterContainer = createContainer();
+
+// Note: most times TS will be able to infer the generics
 const Store = createStore<State, Actions>({
   initialState,
   actions,
+  containedBy: CounterContainer,
 });
 
 const CounterSubscriber = createSubscriber(Store);
 const useCounter = createHook(Store);
-const CounterContainer = createContainer(Store);
 ```
 
 You don't have to manually type all the `create*` methods, as they can be inferred for most use cases.
@@ -101,5 +104,5 @@ If your container requires additional props:
 type ContainerProps = { multiplier: number };
 
 // this component requires props
-const CounterContainer = createContainer<State, Actions, ContainerProps>(Store);
+const CounterContainer = createContainer<ContainerProps>();
 ```

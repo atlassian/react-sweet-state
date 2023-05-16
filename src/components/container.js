@@ -1,4 +1,11 @@
-import React, { Component } from 'react';
+import React, {
+  Component,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useEffect,
+} from 'react';
 import PropTypes from 'prop-types';
 
 import { Context } from '../context';
@@ -179,13 +186,169 @@ export default class Container extends Component {
 }
 
 export function createContainer(
-  Store,
+  StoreOrOptions = {},
   { onInit = noop, onUpdate = noop, onCleanup = noop, displayName = '' } = {}
 ) {
-  return class extends Container {
-    static storeType = Store;
-    static displayName =
-      displayName || `Container(${Store.key.split('__')[0]})`;
-    static hooks = { onInit, onUpdate, onCleanup };
+  if ('key' in StoreOrOptions) {
+    const Store = StoreOrOptions;
+    const dn = displayName || `Container(${Store.key.split('__')[0]})`;
+
+    return class extends Container {
+      static storeType = Store;
+      static displayName = dn;
+      static hooks = { onInit, onUpdate, onCleanup };
+    };
+
+    // eslint-disable-next-line no-unreachable
+    return createFunctionContainer({
+      displayName: dn,
+      // compat fields
+      override: {
+        Store,
+        handlers: {
+          ...(onInit !== noop && { onInit: () => onInit() }),
+          ...(onCleanup !== noop && { onDestroy: () => onCleanup() }),
+          ...(onUpdate !== noop && { onContainerUpdate: () => onUpdate() }),
+        },
+      },
+    });
+  }
+
+  return createFunctionContainer(StoreOrOptions);
+}
+
+function useRegistry(scope, isGlobal, { globalRegistry }) {
+  return useMemo(() => {
+    const isLocal = !scope && !isGlobal;
+    return isLocal ? new StoreRegistry('__local__') : globalRegistry;
+  }, [scope, isGlobal, globalRegistry]);
+}
+
+function useContainedStore(scope, registry, props, override) {
+  // Store contained scopes in a map, but throwing it away on scope change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const containedStores = useMemo(() => new Map(), [scope]);
+
+  // Store props in a ref to avoid re-binding actions when they change and re-rendering all
+  // consumers unnecessarily. The update is handled by an effect on the component instead
+  const containerProps = useRef();
+  containerProps.current = props;
+
+  const getContainedStore = useCallback(
+    (Store) => {
+      let containedStore = containedStores.get(Store);
+      // first time it gets called we add store to contained map bound
+      // so we can provide props to actions (only triggered by children)
+      if (!containedStore) {
+        const isExisting = registry.hasStore(Store, scope);
+        const { storeState } = registry.getStore(Store, scope);
+        const getProps = () => containerProps.current;
+        const actions = bindActions(Store.actions, storeState, getProps);
+        const handlers = bindActions(
+          { ...Store.handlers, ...override?.handlers },
+          storeState,
+          getProps,
+          actions
+        );
+        containedStore = {
+          storeState,
+          actions,
+          handlers,
+          unsubscribe: storeState.subscribe(() => handlers.onUpdate?.()),
+        };
+        containedStores.set(Store, containedStore);
+        // signal store is contained and ready now, so by the time
+        // consumers subscribe we already have updated the store (if needed)
+        if (!isExisting) handlers.onInit?.();
+      }
+      return containedStore;
+    },
+    [containedStores, registry, scope, override]
+  );
+  return [containedStores, getContainedStore];
+}
+
+function useApi(check, getContainedStore, { globalRegistry, getStore }) {
+  const getStoreRef = useRef();
+  getStoreRef.current = (Store) =>
+    check(Store) ? getContainedStore(Store) : getStore(Store);
+
+  // This api is "frozen", as changing it will trigger re-render across all consumers
+  // so we link getStore dynamically and manually call notify() on scope change
+  return useMemo(
+    () => ({ globalRegistry, getStore: (s) => getStoreRef.current(s) }),
+    [globalRegistry]
+  );
+}
+
+function createFunctionContainer({ displayName, override } = {}) {
+  const check = (store) =>
+    override
+      ? store === override.Store
+      : store.containedBy === FunctionContainer;
+
+  function FunctionContainer({ children, scope, isGlobal, ...restProps }) {
+    const ctx = useContext(Context);
+    const registry = useRegistry(scope, isGlobal, ctx);
+    const [containedStores, getContainedStore] = useContainedStore(
+      scope,
+      registry,
+      restProps,
+      override
+    );
+    const api = useApi(check, getContainedStore, ctx);
+
+    // This listens for custom props change, and so we trigger container update actions
+    // before the re-render gets to consumers, hence why memo and not effect
+    useMemo(() => {
+      containedStores.forEach(({ handlers }) => {
+        handlers.onContainerUpdate?.();
+      });
+      // Deps are dynamic because we want to notify on any custom prop change
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, Object.values(restProps).concat(containedStores));
+
+    // This listens for scope change or component unmount, to notify all consumers
+    // so all work is done on cleanup
+    useEffect(() => {
+      const cachedScope = scope;
+      return () => {
+        containedStores.forEach(
+          ({ storeState, handlers, unsubscribe }, Store) => {
+            // Detatch container from subscription
+            unsubscribe();
+            // Trigger a forced update on all subscribers as we opted out from context
+            // Some might have already re-rendered naturally, but we "force update" all anyway.
+            // This is sub-optimal as if there are other containers with the same
+            // old scope id we will re-render those too, but still better than context
+            storeState.notify();
+            // Given unsubscription is handled by useSyncExternalStore, we have no control on when
+            // React decides to do it. So we schedule on next tick to run last
+            Promise.resolve().then(() => {
+              if (
+                !storeState.listeners().length &&
+                // ensure registry has not already created a new store with same scope
+                storeState === registry.getStore(Store, cachedScope).storeState
+              ) {
+                handlers.onDestroy?.();
+                registry.deleteStore(Store, cachedScope);
+              }
+            });
+          }
+        );
+        // no need to reset containedStores as the map is already bound to scope
+      };
+    }, [registry, scope, containedStores]);
+
+    return <Context.Provider value={api}>{children}</Context.Provider>;
+  }
+
+  FunctionContainer.displayName = displayName || `Container`;
+  FunctionContainer.propTypes = {
+    children: PropTypes.node,
+    scope: PropTypes.string,
+    isGlobal: PropTypes.bool,
   };
+
+  return FunctionContainer;
 }

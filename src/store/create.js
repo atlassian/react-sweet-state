@@ -9,7 +9,13 @@ function createKey(initialState, actions, name) {
     .join('__');
 }
 
-export function createStore({ name = '', initialState, actions }) {
+export function createStore({
+  name = '',
+  initialState,
+  actions,
+  containedBy,
+  handlers = {},
+}) {
   let key;
   return {
     get key() {
@@ -18,5 +24,7 @@ export function createStore({ name = '', initialState, actions }) {
     },
     initialState,
     actions,
+    containedBy,
+    handlers,
   };
 }

@@ -20,6 +20,13 @@ describe('StoreRegistry', () => {
     expect(instance.storeState.getState()).toEqual({ count: 0 });
   });
 
+  it('should say if store exists already', () => {
+    const registry = new StoreRegistry();
+    expect(registry.hasStore(StoreMock, 's1')).toBe(false);
+    registry.getStore(StoreMock, 's1');
+    expect(registry.hasStore(StoreMock, 's1')).toBe(true);
+  });
+
   it('should get an existing store if no scopeId provided', () => {
     const registry = new StoreRegistry();
     const instance1 = registry.getStore(StoreMock);

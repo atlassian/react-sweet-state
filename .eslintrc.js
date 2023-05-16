@@ -26,7 +26,7 @@ module.exports = {
     // fix for eslint-plugin-flowtype/384 not supporting wildcard
     _: 'readonly',
   },
-  plugins: ['react', 'react-hooks', 'import', 'flowtype'],
+  plugins: ['react', 'react-hooks', 'import'],
   rules: {
     'no-shadow': ['error'],
     indent: ['off'],

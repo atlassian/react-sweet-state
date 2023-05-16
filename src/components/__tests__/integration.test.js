@@ -32,6 +32,7 @@ const actions = {
     },
 };
 const Store = createStore({
+  name: 'store',
   initialState: { todos: [], loading: false },
   actions,
 });
@@ -180,8 +181,8 @@ describe('Integration', () => {
 
     const state3 = { loading: false, todos: ['todoB'] };
     const call3 = 3;
-    // its 3+1 because on scope change we force notify to make sure memo components update too,
-    // causing ones that have naturally re-rendered already to re-render once more :(
+    // its 3+1 because on scope change we do NOT use context and force notify
+    // causing ones that have naturally re-rendered already to re-render once more.
     expect(children1.mock.calls[call3 + 1]).toEqual([state3, expectActions]);
     expect(children2.mock.calls[call3]).toEqual([state3, expectActions]);
   });
@@ -404,5 +405,69 @@ describe('Integration', () => {
     render(<HookWrapper />);
 
     expect(selector).toHaveBeenCalledTimes(2);
+  });
+
+  it('should capture all contained stores', async () => {
+    const SharedContainer = createContainer();
+    const handlers1 = {
+      onInit: jest.fn().mockReturnValue(() => {}),
+      onUpdate: jest.fn().mockReturnValue(() => {}),
+      onDestroy: jest.fn().mockReturnValue(() => {}),
+      onContainerUpdate: jest.fn().mockReturnValue(() => {}),
+    };
+    const Store1 = createStore({
+      name: 'store',
+      initialState: { todos: [], loading: false },
+      actions,
+      containedBy: SharedContainer,
+      handlers: handlers1,
+    });
+
+    const handlers2 = {
+      onInit: jest.fn().mockReturnValue(() => {}),
+      onUpdate: jest.fn().mockReturnValue(() => {}),
+      onDestroy: jest.fn().mockReturnValue(() => {}),
+      onContainerUpdate: jest.fn().mockReturnValue(() => {}),
+    };
+    const Store2 = createStore({
+      name: 'two',
+      initialState: {},
+      actions,
+      containedBy: SharedContainer,
+      handlers: handlers2,
+    });
+    const Subscriber = createSubscriber(Store1);
+    const Subscriber2 = createSubscriber(Store2);
+
+    let acts;
+
+    const App = ({ value }) => (
+      <SharedContainer value={value}>
+        <Subscriber>{(_, a) => ((acts = a), null)}</Subscriber>
+        <Subscriber2>{() => null}</Subscriber2>
+      </SharedContainer>
+    );
+
+    const { rerender, unmount } = render(<App value="1" />);
+
+    expect(handlers1.onInit).toHaveBeenCalledTimes(1);
+    expect(handlers2.onInit).toHaveBeenCalledTimes(1);
+    expect(defaultRegistry.stores.size).toEqual(0);
+
+    act(() => acts.add('todo2'));
+
+    expect(handlers1.onUpdate).toHaveBeenCalledTimes(1);
+    expect(handlers2.onUpdate).toHaveBeenCalledTimes(0);
+
+    rerender(<App value="2" />);
+
+    expect(handlers1.onContainerUpdate).toHaveBeenCalledTimes(1);
+    expect(handlers2.onContainerUpdate).toHaveBeenCalledTimes(1);
+
+    unmount();
+    await actTick();
+
+    expect(handlers1.onDestroy).toHaveBeenCalledTimes(1);
+    expect(handlers2.onDestroy).toHaveBeenCalledTimes(1);
   });
 });

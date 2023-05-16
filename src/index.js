@@ -1,5 +1,3 @@
-// @flow
-
 export { createContainer } from './components/container';
 export { createSubscriber } from './components/subscriber';
 export {

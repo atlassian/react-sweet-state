@@ -31,7 +31,10 @@ const actions = {
     },
 };
 
+const CounterContainer: ContainerComponent<{}> = createContainer();
+
 const Store = createStore<State, Actions>({
+  containedBy: CounterContainer,
   initialState,
   actions,
 });
@@ -39,7 +42,6 @@ const Store = createStore<State, Actions>({
 const CounterSubscriber: SubscriberComponent<State, Actions> =
   createSubscriber(Store);
 const useCounter: HookFunction<State, Actions> = createHook(Store);
-const CounterContainer: ContainerComponent<{}> = createContainer(Store);
 ```
 
 #### Actions pattern
@@ -117,6 +119,5 @@ If your container requires additional props:
 type ContainerProps = { multiplier: number };
 
 // this component requires props
-const CounterContainer: ContainerComponent<ContainerProps> =
-  createContainer(Store);
+const CounterContainer: ContainerComponent<ContainerProps> = createContainer();
 ```

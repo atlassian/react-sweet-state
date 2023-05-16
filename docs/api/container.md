@@ -3,22 +3,16 @@
 ### createContainer
 
 ```js
-createContainer(Store, [options]);
+createContainer([options]);
 ```
+
+This is the recommended way of creating containers, passing them as `containedBy` attribute on store creation.
 
 ##### Arguments
 
-1. `Store` _(Object)_: The store type returned from a call to `createStore`
-
-2. [`options`] _(Object)_: containing one or more of the following keys:
+1. [`options`] _(Object)_: containing one or more of the following keys:
 
    - `displayName` _(string)_: Used by React to better identify a component. Defaults to `Container(${storeName})`
-
-   - `onInit` _(Function)_: an action that will be triggered on container initialisation. If you define multiple containers this action will be run each time one of the container components is initialised by React.
-
-   - `onUpdate` _(Function)_: an action that will be triggered when props on a container change.
-
-   - `onCleanup` _(Function)_: an action that will be triggered after the container has been unmounted. Useful in case you want to clean up side effects like event listeners or timers, or restore the store state to its initial state. As with `onInit`, if you define multiple containers this action will trigger after unmount of each one.
 
 ##### Returns
 
@@ -32,23 +26,74 @@ _(Component)_: this React component allows you to change the behaviour of child 
 
 ##### Example
 
-Let's create a Container that automatically populates the todos' Store instance with some todos coming from SSR, for instance.
+Let's create a Container that initializes all theme-related stores:
+
+```js
+// theming.js
+import { createContainer } from 'react-sweet-state';
+export const ThemeContainer = createContainer();
+
+// colors.js
+import { ThemeContainer } from './theming';
+const ColorsStore = createStore({
+  // ...
+  containedBy: ThemeContainer,
+});
+// We can also have a FontSizesStore that has the same `containedBy` value
+
+// app.js
+const UserTheme = ({ colors, sizes }) => (
+  <ThemeContainer initialTheme={{ colors, sizes }}>
+    <TodosList />
+  </ThemeContainer>
+);
+```
+
+### createContainer as override
+
+> _Note: this API configuration provides less flexibility and safety nets than using Store's `containedBy` and `handlers`, so we recommend using this style mostly for testing/storybook purposes._
+
+```js
+createContainer(Store, [options]);
+```
+
+##### Arguments
+
+1. `Store` _(Object)_: The store type returned from a call to `createStore`
+
+2. [`options`] _(Object)_: containing one or more of the following keys:
+
+   - `displayName` _(string)_: Used by React to better identify a component. Defaults to `Container(${storeName})`.
+
+   - `onInit` _(Function)_: an action that will be triggered on store initialisation. It overrides store's `handlers.onInit`.
+
+   - `onUpdate` _(Function)_: an action that will be triggered when props on a container change. It is different from store's `onUpdate` API. It overrides store's `handlers.onContainerUpdate`.
+
+   - `onCleanup` _(Function)_: an action that will be triggered after the container has been unmounted and no more consumers of the store instance are present. Useful in case you want to clean up side effects like event listeners or timers. It overrides store's `handlers.onDestroy`.
+
+##### Example
+
+Let's create a container that provides an initial state on tests:
 
 ```js
 import { createContainer } from 'react-sweet-state';
-import Store from './store';
+import { ColorsStore } from './colors';
 
-const TodosContainer = createContainer(Store, {
+const ColorsContainer = createContainer(ColorsStore, {
   onInit:
     () =>
-    ({ setState }, { initialTodos }) => {
-      setState({ todos: initialTodos });
+    ({ setState }, { initialColor }) => {
+      setState({ color: initialColor });
     },
 });
 
-const UserTodos = ({ initialTodos }) => (
-  <TodosContainer initialTodos={initialTodos}>
-    <TodosList />
-  </TodosContainer>
-);
+it('should render with right color', () => {
+  const mockColor = 'white';
+  const { asFragment } = render(
+    <ColorsContainer initialColor={mockColor}>
+      <TodosList />
+    </ColorsContainer>
+  );
+  expect(asFragment()).toMatchSnapshot();
+});
 ```
