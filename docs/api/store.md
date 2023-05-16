@@ -16,27 +16,46 @@ createStore(config);
 
    - `name` _(string)_: optional, useful for debugging and to generate more meaningful store keys.
 
+   - `containedBy` _(Container)_: optional, specifies the Container component that should handle the store boundary
+
+   - `handlers` _(object)_: optional, defines callbacks on specific events
+
+     - `onInit` _(Function)_: action triggered on store initialisation
+     - `onUpdate` _(Function)_: action triggered on store update
+     - `onDestroy` _(Function)_: action triggered on store destroy
+     - `onContainerUpdate` _(Function)_: action triggered when `containedBy` container props change
+
 ##### Returns
 
-_(Object)_: used to create Containers, hooks and Subscribers related to the same store type
+_(Object)_: used to create hooks, Subscribers and override Containers, related to the same store type
 
 ##### Example
 
-Let's create a Container that automatically populates the todos' Store instance with some todos coming from SSR, for instance.
+Let's create a Store with an action that loads the todos' and triggers it on store initialisation
 
 ```js
-import { createContainer } from 'react-sweet-state';
-import Store from './store';
+import { createStore } from 'react-sweet-state';
+import { TodosContainer } from './container';
+
+const actions = {
+  load:
+    () =>
+    async ({ setState }) => {
+      const todos = await fetch('/todos');
+      setState({ todos });
+    },
+};
 
 const Store = createStore({
   name: 'todos',
   initialState: { todos: [] },
-  actions: {
-    load:
+  actions,
+  containedBy: TodosContainer,
+  handlers: {
+    onInit:
       () =>
-      async ({ setState }) => {
-        const todos = await fetch('/todos');
-        setState({ todos });
+      async ({ dispatch }) => {
+        await dispatch(actions.load());
       },
   },
 });

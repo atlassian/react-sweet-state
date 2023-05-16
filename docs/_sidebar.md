@@ -16,7 +16,6 @@
   - [Selectors](/advanced/selector.md)
   - [Containers](/advanced/container.md)
   - [Devtools](/advanced/devtools.md)
-  - [State rehydration](/advanced/rehydration.md)
   - [Middlewares](/advanced/middlewares.md)
   - [Custom mutator](/advanced/mutator.md)
 
@@ -34,6 +33,7 @@
 
 * **Recipes**
 
+  - [State rehydration](/recipes/rehydration.md)
   - [Flow types](/recipes/flow.md)
   - [Typescript types](/recipes/typescript.md)
   - [Composition](/recipes/composition.md)

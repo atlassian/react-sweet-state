@@ -1,12 +1,17 @@
 ## Containers
 
-While sweet-state promotes independent, globally accessible micro-Stores, such behaviour only allows one instance for each Store type. Sometimes though you might want to have multiple instances of the same Store, and that's where `Container` components come into play. They allow you to create independent Store instances of the same type, making them either globally available (app-wide) or just locally (so only accessible to children hooks/subscribers).
+> _Note: we recently improved Containers API to be more flexibile and safe. These docs now use the new Store's `containedBy` and `handlers` attributes. You still can find the old one documented [here](../api/container.md)._
+
+While sweet-state promotes independent, globally accessible micro-Stores, such behaviour only allows one instance for each Store type and might become problematic as your app grows. As an example, you might want to have multiple instances of the same Store, or some store data to be cleaned up once a component unmounts. That's where `Container` components come into play. They allow you to create independent Store instances of the same type, making them either globally available (app-wide) or just locally (so only accessible to children hooks/subscribers).
 
 ```js
 // components/counter.js
 import { createStore, createContainer, createHook } from 'react-sweet-state';
 
+export const CounterContainer = createContainer();
+
 const Store = createStore({
+  containedBy: CounterContainer,
   initialState: { count: 0 },
   actions: {
     increment:
@@ -18,7 +23,6 @@ const Store = createStore({
   },
 });
 
-export const CounterContainer = createContainer(Store);
 const useCounter = createHook(Store);
 
 export const CounterButton = () => {
@@ -54,7 +58,7 @@ const App = () => (
 );
 ```
 
-The power of `Container` is that you can expand or reduce the scope at will, without requiring any change on the children. That means you can start local and later, if you need to access the same state elsewhere, you can either move the `Container` up in the tree, add the `scope` prop to "link" two separate trees or remove the container altogether.
+The power of `Container` is that you can expand or reduce the scope at will, without requiring any change on the children. That means you can start local and later, if you need to access the same state elsewhere, you can either move the `Container` up in the tree or add the `scope` prop to "link" two separate trees or add `isGlobal` and make it singleton once again.
 
 ### Additional features
 
@@ -80,10 +84,11 @@ const App = () => (
 
 #### Container props are available in actions
 
-Props provided to containers are passed to Store actions as a second parameter [see actions API](../api/actions.md). This makes it extremely easy to pass dynamic configuration options to actions.
+Props provided to containers are passed to Store `actions` and `handlers` as a second parameter [see actions API](../api/actions.md). This makes it extremely easy to pass dynamic configuration options to actions.
 
 ```js
 const Store = createStore({
+  containedBy: CounterContainer,
   initialState: { count: 0 },
   actions: {
     increment:
@@ -105,23 +110,35 @@ const App = () => (
 );
 ```
 
-_NOTE: Remember though that those props will **only** be available to hooks/subscribers that are children of the `Container` that receives them, regardless of the Container being global/scoped._
+> _NOTE: Remember though that those props will **only** be available to hooks/subscribers that are children of the `Container` that receives them, regardless of the Container being global/scoped._
 
-#### Container can trigger actions
+#### Container enables additional Store handlers
 
-`Container` options have `onInit` and `onUpdate` keys, to trigger actions and update the state on its props change. The methods' shape is the same as all other actions.
+By providing `containedBy` to a store you can enable additional `handlers` that trigger functions when specific events occur. Current supported handlers are: `onInit`, `onUpdate`, `onDestroy` and `onContainerUpdate`, and these methods' shape is the same as all other actions.
 
 ```js
-const CounterContainer = createContainer(Store, {
-  onInit:
-    () =>
-    ({ setState }, { initialCount }) => {
-      setState({ count: initialCount });
-    },
+const Store = createStore({
+  containedBy: CounterContainer,
+  initialState: { count: 0 },
+  actions: {
+    increment:
+      () =>
+      ({ setState }, { multiplier }) => {
+        const currentCount = getState().count * multiplier;
+        setState({ count: currentCount + 1 });
+      },
+  },
+  handlers: {
+    onContainerUpdate:
+      () =>
+      ({ setState }, { multiplier }) => {
+        setState({ count: 0 }); // reset state on multiplier change
+      },
+  },
 });
 
-const App = () => (
-  <CounterContainer scope={'counter-1'} initialCount={10}>
+const App = ({ n }) => (
+  <CounterContainer scope={'counter-1'} multiplier={n}>
     {/* this starts from 10 */}
     <CounterButton />
   </CounterContainer>
@@ -130,7 +147,7 @@ const App = () => (
 
 #### Scoped data cleanup
 
-Store instances created by `Container`s without `isGlobal` are automatically cleared once the last Container accessing that Store is unmounted.
+Store instances created by `Container`s without `isGlobal` are automatically cleared once the last Container accessing that Store is unmounted. At that point `handlers.onDestroy` will also be called.
 
 ---
 
