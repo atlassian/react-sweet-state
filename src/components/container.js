@@ -241,7 +241,7 @@ function useContainedStore(scope, registry, props, override) {
       // so we can provide props to actions (only triggered by children)
       if (!containedStore) {
         const isExisting = registry.hasStore(Store, scope);
-        const { storeState } = registry.getStore(Store, scope);
+        const { storeState } = registry.getStore(Store, scope, true);
         const getProps = () => containerProps.current;
         const actions = bindActions(Store.actions, storeState, getProps);
         const handlers = bindActions(
@@ -328,7 +328,8 @@ function createFunctionContainer({ displayName, override } = {}) {
               if (
                 !storeState.listeners().length &&
                 // ensure registry has not already created a new store with same scope
-                storeState === registry.getStore(Store, cachedScope).storeState
+                storeState ===
+                  registry.getStore(Store, cachedScope, true).storeState
               ) {
                 handlers.onDestroy?.();
                 registry.deleteStore(Store, cachedScope);

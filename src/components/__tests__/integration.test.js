@@ -470,4 +470,25 @@ describe('Integration', () => {
     expect(handlers1.onDestroy).toHaveBeenCalledTimes(1);
     expect(handlers2.onDestroy).toHaveBeenCalledTimes(1);
   });
+
+  it('should throw an error if contained store is used without container', async () => {
+    const rejectSpy = jest
+      .spyOn(Promise, 'reject')
+      .mockImplementation(() => {});
+    const Store1 = createStore({
+      name: 'one',
+      initialState: { todos: [], loading: false },
+      actions,
+      containedBy: createContainer(),
+    });
+
+    const Subscriber = createSubscriber(Store1);
+    render(<Subscriber>{() => null}</Subscriber>);
+    await actTick();
+
+    expect(rejectSpy).toHaveBeenCalled();
+    const [error] = rejectSpy.mock.calls[0];
+    expect(error).toEqual(expect.any(Error));
+    expect(error.message).toContain('should be contained');
+  });
 });
