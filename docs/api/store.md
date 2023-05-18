@@ -16,7 +16,8 @@ createStore(config);
 
    - `name` _(string)_: optional, useful for debugging and to generate more meaningful store keys.
 
-   - `containedBy` _(Container)_: optional, specifies the Container component that should handle the store boundary
+   - `containedBy` _(Container)_: optional, specifies the Container component that should handle the store boundary.  
+     If set, RSS will throw an async uncaught error whenever the store is used without a container, given it might still work but it will likely cause unexpected behaviours.
 
    - `handlers` _(object)_: optional, defines callbacks on specific events
 

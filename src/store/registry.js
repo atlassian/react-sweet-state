@@ -10,8 +10,18 @@ export class StoreRegistry {
     this.defaultScope = defaultScope;
   }
 
-  initStore = (key, Store) => {
+  initStore = (key, Store, fromContainer) => {
     const { initialState, actions } = Store;
+
+    if (Store.containedBy && !fromContainer) {
+      Promise.reject(
+        new Error(
+          `Store ${Store.key} should be contained by a container but it is used globally. ` +
+            `While it might still work, it will likely cause unexpected behaviours.`
+        )
+      );
+    }
+
     const storeState = createStoreState(key, initialState);
     const boundActions = bindActions(actions, storeState);
     const store = { storeState, actions: boundActions };
@@ -25,9 +35,9 @@ export class StoreRegistry {
     return this.stores.has(key);
   };
 
-  getStore = (Store, scopeId = this.defaultScope) => {
+  getStore = (Store, scopeId = this.defaultScope, fromContainer = false) => {
     const key = this.generateKey(Store, scopeId);
-    return this.stores.get(key) || this.initStore(key, Store);
+    return this.stores.get(key) || this.initStore(key, Store, fromContainer);
   };
 
   deleteStore = (Store, scopeId = this.defaultScope) => {
