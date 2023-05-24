@@ -168,7 +168,7 @@ export default class Container extends Component {
     const { storeState } = this.getScopedStore(scopeId);
     if (
       scopeId != null &&
-      !prevStoreState.listeners().length &&
+      !prevStoreState.listeners().size &&
       // ensure registry has not already created a new store w/ same scope
       prevStoreState === storeState
     ) {
@@ -326,7 +326,7 @@ function createFunctionContainer({ displayName, override } = {}) {
             // React decides to do it. So we schedule on next tick to run last
             Promise.resolve().then(() => {
               if (
-                !storeState.listeners().length &&
+                !storeState.listeners().size &&
                 // ensure registry has not already created a new store with same scope
                 storeState ===
                   registry.getStore(Store, cachedScope, true).storeState

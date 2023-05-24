@@ -132,10 +132,10 @@ describe('Container', () => {
     });
 
     it('should cleanup from global on unmount if no more listeners', async () => {
-      const listeners = [];
+      const listeners = new Set();
       const subscribe = (fn) => {
-        listeners.push(fn);
-        return () => (listeners.length = 0);
+        listeners.add(fn);
+        return () => listeners.clear();
       };
       jest.spyOn(storeStateMock, 'subscribe').mockImplementation(subscribe);
       jest.spyOn(storeStateMock, 'listeners').mockReturnValue(listeners);
@@ -145,15 +145,15 @@ describe('Container', () => {
       unmount();
       await Promise.resolve();
 
-      expect(listeners).toHaveLength(0);
+      expect(listeners.size).toBe(0);
       expect(defaultRegistry.deleteStore).toHaveBeenCalledWith(Store, 's1');
     });
 
     it('should call Container onCleanup on unmount', async () => {
-      const listeners = [];
+      const listeners = new Set();
       const subscribe = (fn) => {
-        listeners.push(fn);
-        return () => (listeners.length = 0);
+        listeners.add(fn);
+        return () => listeners.clear();
       };
       jest.spyOn(storeStateMock, 'subscribe').mockImplementation(subscribe);
       jest.spyOn(storeStateMock, 'listeners').mockReturnValue(listeners);
@@ -163,12 +163,14 @@ describe('Container', () => {
       unmount();
       await Promise.resolve();
 
-      expect(listeners).toHaveLength(0);
+      expect(listeners.size).toBe(0);
       expect(mockOnContainerCleanupInner).toHaveBeenCalledTimes(1);
     });
 
     it('should not cleanup from global on unmount if still listeners', async () => {
-      jest.spyOn(storeStateMock, 'listeners').mockReturnValue([jest.fn()]);
+      jest
+        .spyOn(storeStateMock, 'listeners')
+        .mockReturnValue(new Set([jest.fn()]));
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
       const { unmount } = render(<Container scope="s1">{children}</Container>);
@@ -189,7 +191,7 @@ describe('Container', () => {
     });
 
     it('should not cleanup from global on unmount if not scoped', async () => {
-      jest.spyOn(storeStateMock, 'listeners').mockReturnValue([]);
+      jest.spyOn(storeStateMock, 'listeners').mockReturnValue(new Set());
       const { unmount } = render(<Container isGlobal>Content</Container>);
       unmount();
       await Promise.resolve();
