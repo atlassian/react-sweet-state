@@ -1,3 +1,4 @@
+import supports from '../utils/supported-features';
 import { bindActions } from './bind-actions';
 import createStoreState from './create-state';
 
@@ -10,20 +11,20 @@ export class StoreRegistry {
     this.defaultScope = defaultScope;
   }
 
-  initStore = (key, Store, fromContainer) => {
+  initStore = (key, Store, config) => {
     const { initialState, actions } = Store;
 
-    if (Store.containedBy && !fromContainer) {
-      Promise.reject(
-        new Error(
-          `Store ${Store.key} should be contained by a container but it is used globally. ` +
-            `While it might still work, it will likely cause unexpected behaviours.`
-        )
+    if (Store.containedBy && !config.contained(Store)) {
+      const err = new Error(
+        `Store ${Store.key} should be contained by a container but it is used globally. ` +
+          `While it might still work, it will likely cause unexpected behaviours.`
       );
+      if (supports.scheduling()) Promise.reject(err);
+      else throw err;
     }
 
     const storeState = createStoreState(key, initialState);
-    const boundActions = bindActions(actions, storeState);
+    const boundActions = bindActions(actions, storeState, config);
     const store = { storeState, actions: boundActions };
 
     this.stores.set(key, store);
@@ -35,9 +36,15 @@ export class StoreRegistry {
     return this.stores.has(key);
   };
 
-  getStore = (Store, scopeId = this.defaultScope, fromContainer = false) => {
+  getStore = (
+    Store,
+    scopeId = this.defaultScope,
+    config = { props: () => ({}), contained: () => false }
+  ) => {
     const key = this.generateKey(Store, scopeId);
-    return this.stores.get(key) || this.initStore(key, Store, fromContainer);
+    return (
+      this.stores.get(key) || (config && this.initStore(key, Store, config))
+    );
   };
 
   deleteStore = (Store, scopeId = this.defaultScope) => {

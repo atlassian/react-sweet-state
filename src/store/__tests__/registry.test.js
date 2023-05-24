@@ -20,6 +20,20 @@ describe('StoreRegistry', () => {
     expect(instance.storeState.getState()).toEqual({ count: 0 });
   });
 
+  it('should only return store if no config', () => {
+    const registry = new StoreRegistry();
+    const instance = registry.getStore(StoreMock, 's1', null);
+    expect(instance).toEqual(null);
+  });
+
+  it('should error if not contained', () => {
+    const registry = new StoreRegistry();
+    const ContainedStore = { ...StoreMock, containedBy: jest.fn() };
+    expect(() => {
+      registry.getStore(ContainedStore, 's1');
+    }).toThrow(/should be contained/);
+  });
+
   it('should say if store exists already', () => {
     const registry = new StoreRegistry();
     expect(registry.hasStore(StoreMock, 's1')).toBe(false);

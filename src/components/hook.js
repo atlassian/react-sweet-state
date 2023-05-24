@@ -9,8 +9,8 @@ const DEFAULT_SELECTOR = (state) => state;
 
 export function createHook(Store, { selector } = {}) {
   return function useSweetState(propsArg) {
-    const { getStore } = useContext(Context);
-    const { storeState, actions } = getStore(Store);
+    const { retrieveStore } = useContext(Context);
+    const { storeState, actions } = retrieveStore(Store);
 
     const hasPropsArg = propsArg !== undefined;
     const propsArgRef = useRef(propsArg);
@@ -27,9 +27,9 @@ export function createHook(Store, { selector } = {}) {
     );
 
     const getSnapshot = useCallback(() => {
-      const state = getStore(Store).storeState.getState();
+      const state = retrieveStore(Store).storeState.getState();
       return stateSelector(state, propsArgRef.current);
-    }, [getStore, stateSelector]);
+    }, [retrieveStore, stateSelector]);
 
     const currentState = useSyncExternalStore(
       storeState.subscribe,

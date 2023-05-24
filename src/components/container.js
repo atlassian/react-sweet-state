@@ -49,16 +49,16 @@ export default class Container extends Component {
       // These fallbacks are needed only to make enzyme shallow work
       // as it does not fully support provider-less Context enzyme#1553
       globalRegistry = defaultRegistry,
-      getStore = defaultRegistry.getStore,
+      retrieveStore = defaultRegistry.getStore,
     } = this.context;
 
     this.state = {
       api: {
         globalRegistry,
-        getStore: (Store, scope) =>
+        retrieveStore: (Store, scope) =>
           this.constructor.storeType === Store
             ? this.getScopedStore(scope)
-            : getStore(Store),
+            : retrieveStore(Store),
       },
       // stored to make them available in getDerivedStateFromProps
       // as js context there is null https://github.com/facebook/react/issues/12612
@@ -103,20 +103,15 @@ export default class Container extends Component {
     const { storeType, hooks } = this.constructor;
     const { api } = this.state;
     // we explicitly pass scope as it might be changed
-    const { storeState } = api.getStore(storeType, scope);
+    const { storeState } = api.retrieveStore(storeType, scope);
 
-    const actions = bindActions(
-      storeType.actions,
-      storeState,
-      this.getContainerProps
-    );
+    const config = {
+      props: () => this.actionProps,
+      contained: (s) => storeType === s,
+    };
 
-    this.scopedHooks = bindActions(
-      hooks,
-      storeState,
-      this.getContainerProps,
-      actions
-    );
+    const actions = bindActions(storeType.actions, storeState, config);
+    this.scopedHooks = bindActions(hooks, storeState, config, actions);
 
     // make sure we also reset actionProps
     this.actionProps = null;
@@ -145,8 +140,6 @@ export default class Container extends Component {
     const { children, scope, isGlobal, ...restProps } = props;
     return restProps;
   };
-
-  getContainerProps = () => this.actionProps;
 
   getRegistry() {
     const isLocal = !this.props.scope && !this.props.isGlobal;
@@ -224,15 +217,15 @@ function useRegistry(scope, isGlobal, { globalRegistry }) {
   }, [scope, isGlobal, globalRegistry]);
 }
 
-function useContainedStore(scope, registry, props, override) {
+function useContainedStore(scope, registry, props, check, override) {
   // Store contained scopes in a map, but throwing it away on scope change
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const containedStores = useMemo(() => new Map(), [scope]);
 
   // Store props in a ref to avoid re-binding actions when they change and re-rendering all
   // consumers unnecessarily. The update is handled by an effect on the component instead
-  const containerProps = useRef();
-  containerProps.current = props;
+  const propsRef = useRef();
+  propsRef.current = props;
 
   const getContainedStore = useCallback(
     (Store) => {
@@ -241,13 +234,12 @@ function useContainedStore(scope, registry, props, override) {
       // so we can provide props to actions (only triggered by children)
       if (!containedStore) {
         const isExisting = registry.hasStore(Store, scope);
-        const { storeState } = registry.getStore(Store, scope, true);
-        const getProps = () => containerProps.current;
-        const actions = bindActions(Store.actions, storeState, getProps);
+        const config = { props: () => propsRef.current, contained: check };
+        const { storeState, actions } = registry.getStore(Store, scope, config);
         const handlers = bindActions(
           { ...Store.handlers, ...override?.handlers },
           storeState,
-          getProps,
+          config,
           actions
         );
         containedStore = {
@@ -263,20 +255,20 @@ function useContainedStore(scope, registry, props, override) {
       }
       return containedStore;
     },
-    [containedStores, registry, scope, override]
+    [containedStores, registry, scope, check, override]
   );
   return [containedStores, getContainedStore];
 }
 
-function useApi(check, getContainedStore, { globalRegistry, getStore }) {
-  const getStoreRef = useRef();
-  getStoreRef.current = (Store) =>
-    check(Store) ? getContainedStore(Store) : getStore(Store);
+function useApi(check, getContainedStore, { globalRegistry, retrieveStore }) {
+  const retrieveRef = useRef();
+  retrieveRef.current = (Store) =>
+    check(Store) ? getContainedStore(Store) : retrieveStore(Store);
 
   // This api is "frozen", as changing it will trigger re-render across all consumers
-  // so we link getStore dynamically and manually call notify() on scope change
+  // so we link retrieveStore dynamically and manually call notify() on scope change
   return useMemo(
-    () => ({ globalRegistry, getStore: (s) => getStoreRef.current(s) }),
+    () => ({ globalRegistry, retrieveStore: (s) => retrieveRef.current(s) }),
     [globalRegistry]
   );
 }
@@ -294,6 +286,7 @@ function createFunctionContainer({ displayName, override } = {}) {
       scope,
       registry,
       restProps,
+      check,
       override
     );
     const api = useApi(check, getContainedStore, ctx);
@@ -329,7 +322,7 @@ function createFunctionContainer({ displayName, override } = {}) {
                 !storeState.listeners().size &&
                 // ensure registry has not already created a new store with same scope
                 storeState ===
-                  registry.getStore(Store, cachedScope, true).storeState
+                  registry.getStore(Store, cachedScope, null)?.storeState
               ) {
                 handlers.onDestroy?.();
                 registry.deleteStore(Store, cachedScope);

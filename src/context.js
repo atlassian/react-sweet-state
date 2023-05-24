@@ -7,7 +7,7 @@ import { defaultRegistry } from './store';
 export const Context = React.createContext(
   {
     globalRegistry: defaultRegistry,
-    getStore: defaultRegistry.getStore,
+    retrieveStore: (Store) => defaultRegistry.getStore(Store),
   },
   () => 0
 );

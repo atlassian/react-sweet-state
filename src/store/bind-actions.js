@@ -13,50 +13,39 @@ export const bindAction = (
   storeState,
   actionFn,
   actionKey,
-  getContainerProps = () => {},
-  boundActions = {}
+  config,
+  actions
 ) => {
-  // Setting mutator name so we can log action name for better debuggability
-  const dispatch = (thunkFn, actionName = `${actionKey}.dispatch`) =>
+  const callThunk = (instance, thunkFn, actionName) =>
     thunkFn(
       {
         setState: defaults.devtools
-          ? namedMutator(storeState, actionName)
-          : storeState.mutator,
-        getState: storeState.getState,
+          ? namedMutator(instance.storeState, actionName)
+          : instance.storeState.mutator,
+        getState: instance.storeState.getState,
         get actions() {
           if (!warnings.has(actionFn)) {
             warnings.set(
               actionFn,
               console.warn(
                 `react-sweet-state 'actions' property has been deprecated and will be removed in the next mayor. ` +
-                  `Please check action '${actionName}' of Store '${storeState.key}' and use 'dispatch' instead`
+                  `Please check action '${actionName}' of Store '${instance.storeState.key}' and use 'dispatch' instead`
               )
             );
           }
 
-          return boundActions;
+          return actions;
         },
-        dispatch,
+        dispatch: (tFn) => callThunk(instance, tFn, `${actionName}.dispatch`),
       },
-      getContainerProps()
+      config.props()
     );
-  return (...args) => dispatch(actionFn(...args), actionKey);
+  return (...args) =>
+    callThunk({ storeState, actions }, actionFn(...args), actionKey);
 };
 
-export const bindActions = (
-  actions,
-  storeState,
-  getContainerProps = () => ({}),
-  boundActions = null
-) =>
+export const bindActions = (actions, storeState, config, boundActions = null) =>
   Object.keys(actions).reduce((acc, k) => {
-    acc[k] = bindAction(
-      storeState,
-      actions[k],
-      k,
-      getContainerProps,
-      boundActions || acc
-    );
+    acc[k] = bindAction(storeState, actions[k], k, config, boundActions || acc);
     return acc;
   }, {});
