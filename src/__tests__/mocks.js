@@ -18,6 +18,6 @@ export const storeStateMock = {
   resetState: () => {},
   notify: () => {},
   subscribe: () => () => {},
-  listeners: () => [],
+  listeners: () => new Set(),
   mutator: () => {},
 };

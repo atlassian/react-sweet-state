@@ -4,7 +4,7 @@ import defaults from '../defaults';
 import schedule from '../utils/schedule';
 
 function createStoreState(key, initialState) {
-  let listeners = [];
+  let listeners = new Set();
   let currentState = initialState;
   const storeState = {
     key,
@@ -21,14 +21,14 @@ function createStoreState(key, initialState) {
       storeState.setState(initialState);
     },
     notify() {
-      for (let i = 0; i < listeners.length; i++) {
-        listeners[i](storeState.getState());
+      for (const listener of listeners) {
+        listener(storeState.getState());
       }
     },
     subscribe(listener) {
-      listeners = listeners.concat(listener);
+      listeners.add(listener);
       return function unsubscribe() {
-        listeners = listeners.filter((fn) => fn !== listener);
+        listeners.delete(listener);
       };
     },
     listeners() {
