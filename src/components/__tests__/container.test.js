@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 
 import { StoreMock, storeStateMock } from '../../__tests__/mocks';
 import { defaultRegistry, StoreRegistry } from '../../store/registry';
@@ -267,7 +267,7 @@ describe('Container', () => {
       const children = <Subscriber>{renderPropChildren}</Subscriber>;
       render(<Container defaultCount={5}>{children}</Container>);
       const [, { increase }] = renderPropChildren.mock.calls[0];
-      increase();
+      act(() => increase());
 
       expect(actionInner).toHaveBeenCalledWith(expect.any(Object), {
         defaultCount: 5,
@@ -285,7 +285,7 @@ describe('Container', () => {
       );
       const [, { increase }] = renderPropChildren.mock.calls[0];
       rerender(<Container defaultCount={6}>{children}</Container>);
-      increase();
+      act(() => increase());
 
       expect(actionInner).toHaveBeenCalledWith(expect.any(Object), {
         defaultCount: 6,

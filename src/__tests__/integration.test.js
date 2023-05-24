@@ -5,10 +5,10 @@ import React, { Fragment, memo, useEffect } from 'react';
 import { render } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 
-import { createStore, defaultRegistry } from '../../store';
-import { createContainer } from '../container';
-import { createSubscriber } from '../subscriber';
-import { createHook } from '../hook';
+import { createStore, defaultRegistry } from '../store';
+import { createContainer } from '../components/container';
+import { createSubscriber } from '../components/subscriber';
+import { createHook } from '../components/hook';
 
 const actTick = () => act(async () => await Promise.resolve());
 
@@ -471,10 +471,8 @@ describe('Integration', () => {
     expect(handlers2.onDestroy).toHaveBeenCalledTimes(1);
   });
 
-  it('should throw an error if contained store is used without container', async () => {
-    const rejectSpy = jest
-      .spyOn(Promise, 'reject')
-      .mockImplementation(() => {});
+  it('should throw an error if contained store is used without container', () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const Store1 = createStore({
       name: 'one',
       initialState: { todos: [], loading: false },
@@ -483,12 +481,10 @@ describe('Integration', () => {
     });
 
     const Subscriber = createSubscriber(Store1);
-    render(<Subscriber>{() => null}</Subscriber>);
-    await actTick();
 
-    expect(rejectSpy).toHaveBeenCalled();
-    const [error] = rejectSpy.mock.calls[0];
-    expect(error).toEqual(expect.any(Error));
-    expect(error.message).toContain('should be contained');
+    expect(() => {
+      render(<Subscriber>{() => null}</Subscriber>);
+    }).toThrow(/should be contained/);
+    errorSpy.mockRestore();
   });
 });
