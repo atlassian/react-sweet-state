@@ -65,9 +65,9 @@ createContainer(Store, [options]);
 
    - `displayName` _(string)_: Used by React to better identify a component. Defaults to `Container(${storeName})`.
 
-   - `onInit` _(Function)_: an action that will be triggered on store initialisation. It overrides store's `handlers.onInit`.
+   - `onInit` _(Function)_: an action that will be triggered on container initialisation. It overrides store's `handlers.onInit` and will be triggered every time the container is mounted.
 
-   - `onUpdate` _(Function)_: an action that will be triggered when props on a container change. It is different from store's `onUpdate` API. It overrides store's `handlers.onContainerUpdate`.
+   - `onUpdate` _(Function)_: an action that will be triggered when props on a container change. It is different from store's `onUpdate` API. It overrides store's `handlers.onContainerUpdate` and it does not receive current/prev props as arguments.
 
    - `onCleanup` _(Function)_: an action that will be triggered after the container has been unmounted and no more consumers of the store instance are present. Useful in case you want to clean up side effects like event listeners or timers. It overrides store's `handlers.onDestroy`.
 

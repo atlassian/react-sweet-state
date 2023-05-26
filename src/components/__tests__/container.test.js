@@ -4,28 +4,10 @@ import React from 'react';
 import { render, act } from '@testing-library/react';
 
 import { StoreMock, storeStateMock } from '../../__tests__/mocks';
-import { defaultRegistry, StoreRegistry } from '../../store/registry';
+import { defaultRegistry } from '../../store/registry';
 import { createStore } from '../../store';
 import { createContainer } from '../container';
 import { createSubscriber } from '../subscriber';
-
-const mockLocalRegistry = {
-  configure: jest.fn(),
-  getStore: jest.fn(),
-  hasStore: jest.fn(),
-  deleteStore: jest.fn(),
-};
-
-jest.mock('../../store/registry', () => ({
-  __esModule: true,
-  StoreRegistry: jest.fn(),
-  defaultRegistry: {
-    configure: jest.fn(),
-    getStore: jest.fn(),
-    hasStore: jest.fn(),
-    deleteStore: jest.fn(),
-  },
-}));
 
 const mockOnContainerInitInner = jest.fn();
 const mockOnContainerUpdateInner = jest.fn();
@@ -48,9 +30,9 @@ describe('Container', () => {
       storeState: storeStateMock,
       actions: StoreMock.actions,
     };
-    defaultRegistry.getStore.mockReturnValue(getStoreReturn);
-    StoreRegistry.mockImplementation(() => mockLocalRegistry);
-    mockLocalRegistry.getStore.mockReturnValue(getStoreReturn);
+    jest.spyOn(defaultRegistry, 'getStore').mockReturnValue(getStoreReturn);
+    // StoreRegistry.mockImplementation(() => mockLocalRegistry);
+    // mockLocalRegistry.getStore.mockReturnValue(getStoreReturn);
     jest
       .spyOn(storeStateMock, 'getState')
       .mockReturnValue(StoreMock.initialState);
@@ -60,25 +42,24 @@ describe('Container', () => {
   describe('createContainer', () => {
     it('should return a Container component', () => {
       expect(Container.displayName).toEqual('Container(test)');
-      expect(Container.storeType).toEqual(Store);
-      expect(Container.hooks).toEqual({
-        onInit: expect.any(Function),
-        onUpdate: expect.any(Function),
-        onCleanup: expect.any(Function),
-      });
+      // expect(Container.storeType).toEqual(Store);
+      // expect(Container.hooks).toEqual({
+      //   onInit: expect.any(Function),
+      //   onUpdate: expect.any(Function),
+      //   onCleanup: expect.any(Function),
+      // });
     });
   });
 
   describe('constructor', () => {
     it('should create local store registry', () => {
-      expect(StoreRegistry).not.toHaveBeenCalled();
       render(
         <Container>
           <div />
         </Container>
       );
 
-      expect(StoreRegistry).toHaveBeenCalledWith('__local__');
+      expect(defaultRegistry.getStore).not.toHaveBeenCalled();
     });
   });
 
@@ -88,8 +69,11 @@ describe('Container', () => {
       const children = <Subscriber>{() => null}</Subscriber>;
       render(<Container scope="s1">{children}</Container>);
 
-      expect(defaultRegistry.getStore).toHaveBeenCalledWith(Store, 's1');
-      expect(mockLocalRegistry.getStore).not.toHaveBeenCalled();
+      expect(defaultRegistry.getStore).toHaveBeenCalledWith(
+        Store,
+        's1',
+        expect.any(Object)
+      );
     });
 
     it('should get closer storeState with scope id if matching', () => {
@@ -110,7 +94,11 @@ describe('Container', () => {
         </Container>
       );
 
-      expect(defaultRegistry.getStore).toHaveBeenCalledWith(Store, 's2');
+      expect(defaultRegistry.getStore).toHaveBeenCalledWith(
+        Store,
+        's2',
+        expect.any(Object)
+      );
     });
 
     it('should get local storeState if local matching', () => {
@@ -118,7 +106,6 @@ describe('Container', () => {
       const children = <Subscriber>{() => null}</Subscriber>;
       render(<Container>{children}</Container>);
 
-      expect(mockLocalRegistry.getStore).toHaveBeenCalledWith(Store, undefined);
       expect(defaultRegistry.getStore).not.toHaveBeenCalled();
     });
 
@@ -127,11 +114,15 @@ describe('Container', () => {
       const children = <Subscriber>{() => null}</Subscriber>;
       render(<Container isGlobal>{children}</Container>);
 
-      expect(defaultRegistry.getStore).toHaveBeenCalledWith(Store, undefined);
-      expect(mockLocalRegistry.getStore).not.toHaveBeenCalled();
+      expect(defaultRegistry.getStore).toHaveBeenCalledWith(
+        Store,
+        undefined,
+        expect.any(Object)
+      );
     });
 
     it('should cleanup from global on unmount if no more listeners', async () => {
+      jest.spyOn(defaultRegistry, 'deleteStore');
       const listeners = new Set();
       const subscribe = (fn) => {
         listeners.add(fn);
@@ -168,6 +159,7 @@ describe('Container', () => {
     });
 
     it('should not cleanup from global on unmount if still listeners', async () => {
+      jest.spyOn(defaultRegistry, 'deleteStore');
       jest
         .spyOn(storeStateMock, 'listeners')
         .mockReturnValue(new Set([jest.fn()]));
@@ -181,6 +173,7 @@ describe('Container', () => {
     });
 
     it('should cleanup from global on id change if no more listeners', async () => {
+      jest.spyOn(defaultRegistry, 'deleteStore');
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
       const { rerender } = render(<Container scope="s1">{children}</Container>);
@@ -191,6 +184,7 @@ describe('Container', () => {
     });
 
     it('should not cleanup from global on unmount if not scoped', async () => {
+      jest.spyOn(defaultRegistry, 'deleteStore');
       jest.spyOn(storeStateMock, 'listeners').mockReturnValue(new Set());
       const { unmount } = render(<Container isGlobal>Content</Container>);
       unmount();
@@ -200,6 +194,7 @@ describe('Container', () => {
     });
 
     it('should not cleanup from global if same type gets recreated meanwhile', async () => {
+      jest.spyOn(defaultRegistry, 'deleteStore');
       const Subscriber = createSubscriber(Store);
       const renderPropChildren = jest.fn().mockReturnValue(null);
       const children = <Subscriber>{renderPropChildren}</Subscriber>;

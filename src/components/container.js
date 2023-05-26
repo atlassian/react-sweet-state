@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 
 import { Context } from '../context';
 import { StoreRegistry, bindActions, defaultRegistry } from '../store';
+import memoize from '../utils/memoize';
 import shallowEqual from '../utils/shallow-equal';
 
 const noop = () => () => {};
@@ -198,11 +199,13 @@ export function createContainer(
       // compat fields
       override: {
         Store,
-        handlers: {
-          ...(onInit !== noop && { onInit: () => onInit() }),
-          ...(onCleanup !== noop && { onDestroy: () => onCleanup() }),
-          ...(onUpdate !== noop && { onContainerUpdate: () => onUpdate() }),
-        },
+        handlers: Object.assign(
+          {},
+          onInit !== noop && { onInit: () => onInit() },
+          onCleanup !== noop && { onDestroy: () => onCleanup() },
+          // TODO: on next major pass through next/prev props args
+          onUpdate !== noop && { onContainerUpdate: () => onUpdate() }
+        ),
       },
     });
   }
@@ -217,15 +220,10 @@ function useRegistry(scope, isGlobal, { globalRegistry }) {
   }, [scope, isGlobal, globalRegistry]);
 }
 
-function useContainedStore(scope, registry, props, check, override) {
+function useContainedStore(scope, registry, propsRef, check, override) {
   // Store contained scopes in a map, but throwing it away on scope change
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const containedStores = useMemo(() => new Map(), [scope]);
-
-  // Store props in a ref to avoid re-binding actions when they change and re-rendering all
-  // consumers unnecessarily. The update is handled by an effect on the component instead
-  const propsRef = useRef();
-  propsRef.current = props;
 
   const getContainedStore = useCallback(
     (Store) => {
@@ -234,10 +232,10 @@ function useContainedStore(scope, registry, props, check, override) {
       // so we can provide props to actions (only triggered by children)
       if (!containedStore) {
         const isExisting = registry.hasStore(Store, scope);
-        const config = { props: () => propsRef.current, contained: check };
+        const config = { props: () => propsRef.current.next, contained: check };
         const { storeState, actions } = registry.getStore(Store, scope, config);
         const handlers = bindActions(
-          { ...Store.handlers, ...override?.handlers },
+          Object.assign({}, Store.handlers, override?.handlers),
           storeState,
           config,
           actions
@@ -249,13 +247,14 @@ function useContainedStore(scope, registry, props, check, override) {
           unsubscribe: storeState.subscribe(() => handlers.onUpdate?.()),
         };
         containedStores.set(Store, containedStore);
-        // signal store is contained and ready now, so by the time
-        // consumers subscribe we already have updated the store (if needed)
-        if (!isExisting) handlers.onInit?.();
+        // Signal store is contained and ready now, so by the time
+        // consumers subscribe we already have updated the store (if needed).
+        // Also if override maintain legacy behaviour, triggered on every mount
+        if (!isExisting || override) handlers.onInit?.();
       }
       return containedStore;
     },
-    [containedStores, registry, scope, check, override]
+    [containedStores, scope, registry, propsRef, check, override]
   );
   return [containedStores, getContainedStore];
 }
@@ -282,24 +281,37 @@ function createFunctionContainer({ displayName, override } = {}) {
   function FunctionContainer({ children, scope, isGlobal, ...restProps }) {
     const ctx = useContext(Context);
     const registry = useRegistry(scope, isGlobal, ctx);
+
+    // Store props in a ref to avoid re-binding actions when they change and re-rendering all
+    // consumers unnecessarily. The update is handled by an effect on the component instead
+    const propsRef = useRef({ prev: null, next: restProps });
+    propsRef.current = { prev: propsRef.current.next, next: restProps };
+
     const [containedStores, getContainedStore] = useContainedStore(
       scope,
       registry,
-      restProps,
+      propsRef,
       check,
       override
     );
+
+    // Use a stable object as is passed as value to context Provider
     const api = useApi(check, getContainedStore, ctx);
 
     // This listens for custom props change, and so we trigger container update actions
-    // before the re-render gets to consumers, hence why memo and not effect
-    useMemo(() => {
-      containedStores.forEach(({ handlers }) => {
-        handlers.onContainerUpdate?.();
-      });
-      // Deps are dynamic because we want to notify on any custom prop change
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, Object.values(restProps).concat(containedStores));
+    // before the re-render gets to consumers (hence why memo call on render).
+    // Also we use our own memoize instead of relying on memo itself because number of restProps
+    // might change and react throws if deps array length changes :/
+    useMemo(
+      () =>
+        memoize((stores, nextProps) => {
+          // no need to check if first render as stores will be empty anyway
+          stores.forEach(({ handlers }) => {
+            handlers.onContainerUpdate?.(nextProps, propsRef.current.prev);
+          });
+        }, true),
+      []
+    )(containedStores, restProps);
 
     // This listens for scope change or component unmount, to notify all consumers
     // so all work is done on cleanup
