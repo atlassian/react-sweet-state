@@ -136,12 +136,8 @@ describe('Container', () => {
 
     it('should cleanup from global on scope change if no more listeners', async () => {
       jest.spyOn(defaultRegistry, 'deleteStore');
-      StoreMock.actions.increase.mockReturnValue(({ setState }) => {
-        setState({ count: 2 });
-      });
       const Subscriber = createSubscriber(Store, { selector: (s) => s.count });
-      const renderPropChildren = jest.fn().mockReturnValue(null);
-      const children = <Subscriber>{renderPropChildren}</Subscriber>;
+      const children = <Subscriber>{() => null}</Subscriber>;
       const { rerender } = render(<Container scope="s1">{children}</Container>);
       rerender(<Container scope="s2">{children}</Container>);
       await actTick();
