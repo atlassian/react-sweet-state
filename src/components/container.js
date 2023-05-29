@@ -232,7 +232,7 @@ function useContainedStore(scope, registry, propsRef, check, override) {
       // so we can provide props to actions (only triggered by children)
       if (!containedStore) {
         const isExisting = registry.hasStore(Store, scope);
-        const config = { props: () => propsRef.current.next, contained: check };
+        const config = { props: () => propsRef.current.sub, contained: check };
         const { storeState, actions } = registry.getStore(Store, scope, config);
         const handlers = bindActions(
           Object.assign({}, Store.handlers, override?.handlers),
