@@ -308,6 +308,11 @@ describe('Integration', () => {
       'HookWrapper[inner]',
       'SubWrapper',
       'HookWrapper[in-inner]',
+      // this is doubled because legacy container notifies on didUpdate
+      // new implementation will batch and so avoid double render
+      'HookWrapper[inner]',
+      'SubWrapper',
+      'HookWrapper[in-inner]',
     ]);
     calls.splice(0);
 

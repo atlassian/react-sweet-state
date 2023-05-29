@@ -59,11 +59,7 @@ describe('Container', () => {
       const children = <Subscriber>{() => null}</Subscriber>;
       render(<Container scope="s1">{children}</Container>);
 
-      expect(defaultRegistry.getStore).toHaveBeenCalledWith(
-        Store,
-        's1',
-        expect.any(Object)
-      );
+      expect(defaultRegistry.getStore).toHaveBeenCalledWith(Store, 's1');
     });
 
     it('should get closer storeState with scope id if matching', () => {
@@ -84,11 +80,7 @@ describe('Container', () => {
         </Container>
       );
 
-      expect(defaultRegistry.getStore).toHaveBeenCalledWith(
-        Store,
-        's2',
-        expect.any(Object)
-      );
+      expect(defaultRegistry.getStore).toHaveBeenCalledWith(Store, 's2');
     });
 
     it('should get local storeState if local matching', () => {
@@ -104,11 +96,7 @@ describe('Container', () => {
       const children = <Subscriber>{() => null}</Subscriber>;
       render(<Container isGlobal>{children}</Container>);
 
-      expect(defaultRegistry.getStore).toHaveBeenCalledWith(
-        Store,
-        undefined,
-        expect.any(Object)
-      );
+      expect(defaultRegistry.getStore).toHaveBeenCalledWith(Store, undefined);
     });
 
     it('should cleanup from global on unmount if no more listeners', async () => {
