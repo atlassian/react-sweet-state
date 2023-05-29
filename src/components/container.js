@@ -278,14 +278,20 @@ function createFunctionContainer({ displayName, override } = {}) {
       ? store === override.Store
       : store.containedBy === FunctionContainer;
 
-  function FunctionContainer({ children, scope, isGlobal, ...restProps }) {
+  function FunctionContainer(props) {
+    const { children, ...restProps } = props;
+    const { scope, isGlobal, ...subProps } = restProps;
     const ctx = useContext(Context);
     const registry = useRegistry(scope, isGlobal, ctx);
 
     // Store props in a ref to avoid re-binding actions when they change and re-rendering all
     // consumers unnecessarily. The update is handled by an effect on the component instead
-    const propsRef = useRef({ prev: null, next: restProps });
-    propsRef.current = { prev: propsRef.current.next, next: restProps };
+    const propsRef = useRef({ prev: null, next: restProps, sub: subProps });
+    propsRef.current = {
+      prev: propsRef.current.next,
+      next: restProps,
+      sub: subProps, // TODO remove on next major
+    };
 
     const [containedStores, getContainedStore] = useContainedStore(
       scope,
