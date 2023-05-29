@@ -9,7 +9,6 @@ const DEFAULT_SELECTOR = (state) => state;
 
 export function createHook(Store, { selector } = {}) {
   return function useSweetState(propsArg) {
-    const [, forceUpdate] = useState({});
     const { retrieveStore } = useContext(Context);
     const { storeState, actions } = retrieveStore(Store);
 
@@ -27,6 +26,7 @@ export function createHook(Store, { selector } = {}) {
       [hasPropsArg, storeState]
     );
 
+    const forceUpdate = useState({})[1];
     const getSnapshot = useCallback(() => {
       // parent scope has changed and notify was explicitly triggered by the container
       // we need to force the hook to re-render to listen new storeState
@@ -34,7 +34,7 @@ export function createHook(Store, { selector } = {}) {
 
       const state = storeState.getState();
       return stateSelector(state, propsArgRef.current);
-    }, [retrieveStore, storeState, stateSelector]);
+    }, [retrieveStore, storeState, stateSelector, forceUpdate]);
 
     const currentState = useSyncExternalStore(
       storeState.subscribe,
