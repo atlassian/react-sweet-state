@@ -1,8 +1,7 @@
 /* eslint-env jest */
 
 import React from 'react';
-import { render } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import { render, act } from '@testing-library/react';
 
 import { StoreMock, storeStateMock } from '../../__tests__/mocks';
 import { createHook, createActionsHook, createStateHook } from '../hook';

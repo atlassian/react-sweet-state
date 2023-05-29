@@ -3,11 +3,13 @@
 import React from 'react';
 import { render, act } from '@testing-library/react';
 
-import { StoreMock, storeStateMock } from '../../__tests__/mocks';
+import { StoreMock } from '../../__tests__/mocks';
 import { defaultRegistry } from '../../store/registry';
 import { createStore } from '../../store';
 import { createContainer } from '../container';
 import { createSubscriber } from '../subscriber';
+
+const actTick = () => act(() => Promise.resolve());
 
 const mockOnContainerInitInner = jest.fn();
 const mockOnContainerUpdateInner = jest.fn();
@@ -26,28 +28,16 @@ const Container = createContainer(Store, {
 
 describe('Container', () => {
   beforeEach(() => {
-    const getStoreReturn = {
-      storeState: storeStateMock,
-      actions: StoreMock.actions,
-    };
-    jest.spyOn(defaultRegistry, 'getStore').mockReturnValue(getStoreReturn);
-    // StoreRegistry.mockImplementation(() => mockLocalRegistry);
-    // mockLocalRegistry.getStore.mockReturnValue(getStoreReturn);
-    jest
-      .spyOn(storeStateMock, 'getState')
-      .mockReturnValue(StoreMock.initialState);
+    defaultRegistry.stores.clear();
+
+    jest.spyOn(defaultRegistry, 'getStore');
+    jest.spyOn(defaultRegistry, 'initStore');
     mockOnContainerUpdate.mockReturnValue(mockOnContainerUpdateInner);
   });
 
   describe('createContainer', () => {
     it('should return a Container component', () => {
       expect(Container.displayName).toEqual('Container(test)');
-      // expect(Container.storeType).toEqual(Store);
-      // expect(Container.hooks).toEqual({
-      //   onInit: expect.any(Function),
-      //   onUpdate: expect.any(Function),
-      //   onCleanup: expect.any(Function),
-      // });
     });
   });
 
@@ -123,72 +113,59 @@ describe('Container', () => {
 
     it('should cleanup from global on unmount if no more listeners', async () => {
       jest.spyOn(defaultRegistry, 'deleteStore');
-      const listeners = new Set();
-      const subscribe = (fn) => {
-        listeners.add(fn);
-        return () => listeners.clear();
-      };
-      jest.spyOn(storeStateMock, 'subscribe').mockImplementation(subscribe);
-      jest.spyOn(storeStateMock, 'listeners').mockReturnValue(listeners);
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
       const { unmount } = render(<Container scope="s1">{children}</Container>);
       unmount();
-      await Promise.resolve();
+      await actTick();
 
-      expect(listeners.size).toBe(0);
       expect(defaultRegistry.deleteStore).toHaveBeenCalledWith(Store, 's1');
     });
 
     it('should call Container onCleanup on unmount', async () => {
-      const listeners = new Set();
-      const subscribe = (fn) => {
-        listeners.add(fn);
-        return () => listeners.clear();
-      };
-      jest.spyOn(storeStateMock, 'subscribe').mockImplementation(subscribe);
-      jest.spyOn(storeStateMock, 'listeners').mockReturnValue(listeners);
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
       const { unmount } = render(<Container>{children}</Container>);
       unmount();
-      await Promise.resolve();
+      await actTick();
 
-      expect(listeners.size).toBe(0);
       expect(mockOnContainerCleanupInner).toHaveBeenCalledTimes(1);
     });
 
     it('should not cleanup from global on unmount if still listeners', async () => {
       jest.spyOn(defaultRegistry, 'deleteStore');
-      jest
-        .spyOn(storeStateMock, 'listeners')
-        .mockReturnValue(new Set([jest.fn()]));
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
+
+      // double render to simulate containers in different parts of the tree
+      render(<Container scope="s1">{children}</Container>);
       const { unmount } = render(<Container scope="s1">{children}</Container>);
       unmount();
-      await Promise.resolve();
+      await actTick();
 
       expect(defaultRegistry.deleteStore).not.toHaveBeenCalled();
     });
 
-    it('should cleanup from global on id change if no more listeners', async () => {
+    it('should cleanup from global on scope change if no more listeners', async () => {
       jest.spyOn(defaultRegistry, 'deleteStore');
-      const Subscriber = createSubscriber(Store);
-      const children = <Subscriber>{() => null}</Subscriber>;
+      StoreMock.actions.increase.mockReturnValue(({ setState }) => {
+        setState({ count: 2 });
+      });
+      const Subscriber = createSubscriber(Store, { selector: (s) => s.count });
+      const renderPropChildren = jest.fn().mockReturnValue(null);
+      const children = <Subscriber>{renderPropChildren}</Subscriber>;
       const { rerender } = render(<Container scope="s1">{children}</Container>);
       rerender(<Container scope="s2">{children}</Container>);
-      await Promise.resolve();
+      await actTick();
 
       expect(defaultRegistry.deleteStore).toHaveBeenCalledWith(Store, 's1');
     });
 
     it('should not cleanup from global on unmount if not scoped', async () => {
       jest.spyOn(defaultRegistry, 'deleteStore');
-      jest.spyOn(storeStateMock, 'listeners').mockReturnValue(new Set());
       const { unmount } = render(<Container isGlobal>Content</Container>);
       unmount();
-      await Promise.resolve();
+      await actTick();
 
       expect(defaultRegistry.deleteStore).not.toHaveBeenCalled();
     });
@@ -201,12 +178,11 @@ describe('Container', () => {
       const { unmount } = render(<Container scope="s1">{children}</Container>);
       unmount();
 
-      // given cleanup is scheduled, we fake the eventuality that the store gets replaced in meantime
-      defaultRegistry.getStore.mockReturnValue({
-        storeState: { ...storeStateMock },
-        actions: StoreMock.actions,
-      });
-      await Promise.resolve();
+      // given cleanup is scheduled, we fake the eventuality that it gets replaced in meantime
+      defaultRegistry.stores.clear();
+      defaultRegistry.getStore(Store, 's1');
+
+      await actTick();
 
       expect(defaultRegistry.deleteStore).not.toHaveBeenCalled();
     });
@@ -230,6 +206,43 @@ describe('Container', () => {
 
       expect(mockOnContainerInitInner).toHaveBeenCalledTimes(1);
       expect(mockOnContainerUpdateInner).not.toHaveBeenCalled();
+    });
+
+    it('should call Container onInit for every first render if override', () => {
+      const Subscriber = createSubscriber(Store);
+      const renderPropChildren = jest.fn().mockReturnValue(null);
+      const children = <Subscriber>{renderPropChildren}</Subscriber>;
+      render(
+        <>
+          <Container isGlobal>{children}</Container>
+          <Container isGlobal>{children}</Container>
+        </>
+      );
+
+      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(2);
+    });
+
+    it('should call Container onInit only on first render if global and containedBy', () => {
+      const onInit = jest.fn().mockReturnValue(() => {});
+      const OtherContainer = createContainer();
+      const OtherStore = createStore({
+        name: 'other',
+        initialState: StoreMock.initialState,
+        actions: StoreMock.actions,
+        handlers: { onInit },
+        containedBy: OtherContainer,
+      });
+      const Subscriber = createSubscriber(OtherStore);
+      const renderPropChildren = jest.fn().mockReturnValue(null);
+      const children = <Subscriber>{renderPropChildren}</Subscriber>;
+      render(
+        <>
+          <OtherContainer isGlobal>{children}</OtherContainer>
+          <OtherContainer isGlobal>{children}</OtherContainer>
+        </>
+      );
+
+      expect(onInit).toHaveBeenCalledTimes(1);
     });
 
     it('should call Container onUpdate on re-render if props changed', () => {

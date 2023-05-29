@@ -2,15 +2,14 @@
 /* eslint-env jest */
 
 import React, { Fragment, memo, useEffect } from 'react';
-import { render } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import { render, act } from '@testing-library/react';
 
 import { createStore, defaultRegistry } from '../store';
 import { createContainer } from '../components/container';
 import { createSubscriber } from '../components/subscriber';
 import { createHook } from '../components/hook';
 
-const actTick = () => act(async () => await Promise.resolve());
+const actTick = () => act(() => Promise.resolve());
 
 const actions = {
   add:
