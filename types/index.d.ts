@@ -37,7 +37,10 @@ declare module 'react-sweet-state' {
       onInit?: () => Action<TState, any, any>;
       onUpdate?: () => Action<TState, any, any>;
       onDestroy?: () => Action<TState, any, any>;
-      onContainerUpdate?: () => Action<TState, any, any>;
+      onContainerUpdate?: (
+        nextProps: any,
+        prevProps: any
+      ) => Action<TState, any, any>;
     };
   };
 
@@ -140,25 +143,17 @@ declare module 'react-sweet-state' {
     | GenericContainerComponent<TProps>
     | OverrideContainerComponent<TProps>;
 
+  type BaseContainerProps =
+    | { scope?: string; isGlobal?: never }
+    | { scope?: never; isGlobal?: boolean };
+
   interface GenericContainerComponent<TProps>
-    extends FunctionComponent<
-      PropsWithChildren<{
-        scope?: string;
-        isGlobal?: boolean;
-      }> &
-        TProps
-    > {
+    extends FunctionComponent<PropsWithChildren<BaseContainerProps> & TProps> {
     override?: false;
   }
 
   interface OverrideContainerComponent<TProps>
-    extends FunctionComponent<
-      PropsWithChildren<{
-        scope?: string;
-        isGlobal?: boolean;
-      }> &
-        TProps
-    > {
+    extends FunctionComponent<PropsWithChildren<BaseContainerProps> & TProps> {
     override: true;
   }
 
@@ -212,7 +207,10 @@ declare module 'react-sweet-state' {
             onInit?: () => Action<TState, TContainerProps, any>;
             onUpdate?: () => Action<TState, TContainerProps, any>;
             onDestroy?: () => Action<TState, TContainerProps, any>;
-            onContainerUpdate?: () => Action<TState, TContainerProps, any>;
+            onContainerUpdate?: (
+              nextProps: BaseContainerProps & TContainerProps,
+              prevProps: BaseContainerProps & TContainerProps
+            ) => Action<TState, TContainerProps, any>;
           };
         }
   ): Store<TState, TActions>;
