@@ -4,6 +4,7 @@ import {
   type StoreActionApi,
 } from 'react-sweet-state';
 import { ThemingContainer } from './theming';
+import { Store as ColorStore, actions as colorActions } from './color';
 
 type State = {
   width: number;
@@ -18,6 +19,18 @@ const actions = {
     (width: number) =>
     ({ setState }: StoreActionApi<State>) => {
       setState({ width });
+    },
+  reset:
+    () =>
+    ({ setState }: StoreActionApi<State>) => {
+      setState(initialState);
+    },
+
+  resetAll:
+    () =>
+    ({ dispatch, dispatchTo }: StoreActionApi<State>) => {
+      dispatch(actions.reset());
+      dispatchTo(ColorStore, colorActions.reset());
     },
 };
 

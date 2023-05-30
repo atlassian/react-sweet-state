@@ -10,7 +10,7 @@ const DEFAULT_SELECTOR = (state) => state;
 export function createHook(Store, { selector } = {}) {
   return function useSweetState(propsArg) {
     const { retrieveStore } = useContext(Context);
-    const { storeState, actions } = retrieveStore(Store);
+    const { storeState, actions } = retrieveStore(Store, retrieveStore);
 
     const hasPropsArg = propsArg !== undefined;
     const propsArgRef = useRef(propsArg);

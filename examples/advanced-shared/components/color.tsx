@@ -13,15 +13,20 @@ const initialState: State = {
   color: 'white',
 };
 
-const actions = {
+export const actions = {
   set:
     (color: string) =>
     ({ setState }: StoreActionApi<State>) => {
       setState({ color });
     },
+  reset:
+    () =>
+    ({ setState }: StoreActionApi<State>) => {
+      setState(initialState);
+    },
 };
 
-const Store = createStore({
+export const Store = createStore({
   initialState,
   actions,
   containedBy: ThemingContainer,

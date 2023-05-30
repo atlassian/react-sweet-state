@@ -57,6 +57,13 @@ declare module 'react-sweet-state' {
     dispatch: <T extends Action<TState, any, any>>(
       actionThunk: T
     ) => ReturnType<T>;
+    unstable_dispatchTo: <
+      S extends Store<any, any>,
+      T extends Action<S['initialState'], any, any>
+    >(
+      store: S,
+      actionThunk: T
+    ) => ReturnType<T>;
   };
 
   type Action<

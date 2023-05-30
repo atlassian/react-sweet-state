@@ -7,7 +7,18 @@ import { defaultRegistry } from './store';
 export const Context = React.createContext(
   {
     globalRegistry: defaultRegistry,
-    retrieveStore: (Store) => defaultRegistry.getStore(Store),
+    retrieveStore: (Store, callsiteRetrieve) => {
+      const context = {
+        props: () => ({}),
+        retrieveStore: callsiteRetrieve,
+        isContained: () => false,
+      };
+      return defaultRegistry.getStore(
+        Store,
+        defaultRegistry.defaultScope,
+        context
+      );
+    },
   },
   () => 0
 );

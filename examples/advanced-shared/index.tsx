@@ -4,18 +4,21 @@ import ReactDOM from 'react-dom/client';
 import { useColor } from './components/color';
 import { useWidth } from './components/width';
 import { ThemingContainer } from './components/theming';
+import { defaults } from 'react-sweet-state';
 
-const colors = ['white', 'aliceblue', 'beige', 'gainsboro', 'honeydew'];
-const widths = [200, 220, 240, 260, 280];
+defaults.devtools = true;
+
+const colors = ['aliceblue', 'beige', 'gainsboro', 'honeydew'];
+const widths = [220, 240, 260, 280];
 const rand = () => Math.floor(Math.random() * colors.length);
-const initialData = { color: colors[rand()], width: widths[rand()] };
+const initialData = { color: 'white', width: 200 };
 
 /**
  * Components
  */
 const ThemeHook = ({ title }: { title: string }) => {
   const [{ color }, { set: setColor }] = useColor();
-  const [{ width }, { set: setWidth }] = useWidth();
+  const [{ width }, { set: setWidth, resetAll }] = useWidth();
 
   return (
     <div style={{ background: color, width }}>
@@ -24,6 +27,7 @@ const ThemeHook = ({ title }: { title: string }) => {
       <p>Width: {width}</p>
       <button onClick={() => setColor(colors[rand()])}>Change color</button>
       <button onClick={() => setWidth(widths[rand()])}>Change width</button>
+      <button onClick={() => resetAll()}>Reset all</button>
     </div>
   );
 };
