@@ -39,7 +39,11 @@ export class StoreRegistry {
   getStore = (
     Store,
     scopeId = this.defaultScope,
-    config = { props: () => ({}), contained: () => false }
+    config = {
+      props: () => ({}),
+      contained: () => false,
+      retrieveStore: () => null,
+    }
   ) => {
     const key = this.generateKey(Store, scopeId);
     return (

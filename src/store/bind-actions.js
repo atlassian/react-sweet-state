@@ -37,6 +37,10 @@ export const bindAction = (
           return actions;
         },
         dispatch: (tFn) => callThunk(instance, tFn, `${actionName}.dispatch`),
+        unstable_dispatchTo: (Store, tFn) => {
+          const toInstance = config.retrieveStore(Store);
+          return callThunk(toInstance, tFn, `${actionName}.dispatchTo`);
+        },
       },
       config.props()
     );

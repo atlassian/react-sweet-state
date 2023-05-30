@@ -60,12 +60,6 @@ describe('Container', () => {
   describe('createContainer', () => {
     it('should return a Container component', () => {
       expect(Container.displayName).toEqual('Container(test)');
-      expect(Container.storeType).toEqual(Store);
-      expect(Container.hooks).toEqual({
-        onInit: expect.any(Function),
-        onUpdate: expect.any(Function),
-        onCleanup: expect.any(Function),
-      });
     });
   });
 
@@ -88,7 +82,11 @@ describe('Container', () => {
       const children = <Subscriber>{() => null}</Subscriber>;
       render(<Container scope="s1">{children}</Container>);
 
-      expect(defaultRegistry.getStore).toHaveBeenCalledWith(Store, 's1');
+      expect(defaultRegistry.getStore).toHaveBeenCalledWith(
+        Store,
+        's1',
+        expect.any(Function)
+      );
       expect(mockLocalRegistry.getStore).not.toHaveBeenCalled();
     });
 
@@ -110,7 +108,11 @@ describe('Container', () => {
         </Container>
       );
 
-      expect(defaultRegistry.getStore).toHaveBeenCalledWith(Store, 's2');
+      expect(defaultRegistry.getStore).toHaveBeenCalledWith(
+        Store,
+        's2',
+        expect.any(Function)
+      );
     });
 
     it('should get local storeState if local matching', () => {
@@ -118,7 +120,11 @@ describe('Container', () => {
       const children = <Subscriber>{() => null}</Subscriber>;
       render(<Container>{children}</Container>);
 
-      expect(mockLocalRegistry.getStore).toHaveBeenCalledWith(Store, undefined);
+      expect(mockLocalRegistry.getStore).toHaveBeenCalledWith(
+        Store,
+        undefined,
+        expect.any(Function)
+      );
       expect(defaultRegistry.getStore).not.toHaveBeenCalled();
     });
 
@@ -127,7 +133,11 @@ describe('Container', () => {
       const children = <Subscriber>{() => null}</Subscriber>;
       render(<Container isGlobal>{children}</Container>);
 
-      expect(defaultRegistry.getStore).toHaveBeenCalledWith(Store, undefined);
+      expect(defaultRegistry.getStore).toHaveBeenCalledWith(
+        Store,
+        undefined,
+        expect.any(Function)
+      );
       expect(mockLocalRegistry.getStore).not.toHaveBeenCalled();
     });
 
@@ -229,6 +239,7 @@ describe('Container', () => {
           setState: expect.any(Function),
           actions: expect.any(Object),
           dispatch: expect.any(Function),
+          dispatchTo: expect.any(Function),
         },
         { defaultCount: 5 }
       );
@@ -256,6 +267,7 @@ describe('Container', () => {
           setState: expect.any(Function),
           actions: expect.any(Object),
           dispatch: expect.any(Function),
+          dispatchTo: expect.any(Function),
         },
         { defaultCount: 6 }
       );

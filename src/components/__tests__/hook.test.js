@@ -61,7 +61,11 @@ describe('Hook', () => {
     it('should get the storeState from registry', () => {
       const { getRender } = setup();
       getRender();
-      expect(defaultRegistry.getStore).toHaveBeenCalledWith(StoreMock);
+      expect(defaultRegistry.getStore).toHaveBeenCalledWith(
+        StoreMock,
+        undefined,
+        expect.any(Function)
+      );
     });
 
     it('should render children with store data and actions', () => {

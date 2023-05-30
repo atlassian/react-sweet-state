@@ -181,9 +181,7 @@ describe('Integration', () => {
 
     const state3 = { loading: false, todos: ['todoB'] };
     const call3 = 3;
-    // its 3+1 because on scope change we do NOT use context and force notify
-    // causing ones that have naturally re-rendered already to re-render once more.
-    expect(children1.mock.calls[call3 + 1]).toEqual([state3, expectActions]);
+    expect(children1.mock.calls[call3]).toEqual([state3, expectActions]);
     expect(children2.mock.calls[call3]).toEqual([state3, expectActions]);
   });
 
@@ -486,5 +484,157 @@ describe('Integration', () => {
       render(<Subscriber>{() => null}</Subscriber>);
     }).toThrow(/should be contained/);
     errorSpy.mockRestore();
+  });
+
+  describe('dispatchTo', () => {
+    const createTestElements = ({ mainContainer, otherContainer }) => {
+      const actionOther =
+        (n) =>
+        ({ setState }, { plus }) =>
+          setState({ count: n, plus });
+      const StoreOther = createStore({
+        name: 'store-other',
+        containedBy: otherContainer,
+        initialState: {},
+        actions: { set: actionOther },
+      });
+      const StoreMain = createStore({
+        name: 'store-main',
+        containedBy: mainContainer,
+        initialState: {},
+        actions: {
+          setOther:
+            (n) =>
+            ({ dispatchTo }) =>
+              dispatchTo(StoreOther, actionOther(n)),
+        },
+      });
+
+      const MainSubscriber = createSubscriber(StoreMain);
+      const OtherSubscriber = createSubscriber(StoreOther);
+      const mainSpy = jest.fn().mockReturnValue(null);
+      const otherSpy = jest.fn().mockReturnValue(null);
+
+      const Content = () => (
+        <>
+          <MainSubscriber>{mainSpy}</MainSubscriber>
+          <OtherSubscriber>{otherSpy}</OtherSubscriber>
+        </>
+      );
+      return {
+        Content,
+        StoreMain,
+        mainReturn: (n = 0) => mainSpy.mock.calls[n],
+        otherReturn: (n = 0) => otherSpy.mock.calls[n],
+      };
+    };
+
+    it('should allow dispatchTo global -> global', () => {
+      const { Content, mainReturn, otherReturn } = createTestElements({
+        mainContainer: null,
+        otherContainer: null,
+      });
+
+      render(<Content />);
+      const [, mainActions] = mainReturn(0);
+      act(() => mainActions.setOther(1));
+
+      expect(otherReturn(1)).toEqual([{ count: 1 }, expect.any(Object)]);
+    });
+
+    it('should allow dispatchTo contained -> contained', () => {
+      const SharedContainer = createContainer();
+      const { Content, mainReturn, otherReturn } = createTestElements({
+        mainContainer: SharedContainer,
+        otherContainer: SharedContainer,
+      });
+
+      render(
+        <SharedContainer>
+          <Content />
+        </SharedContainer>
+      );
+      const [, mainActions] = mainReturn(0);
+      act(() => mainActions.setOther(1));
+
+      expect(otherReturn(1)).toEqual([{ count: 1 }, expect.any(Object)]);
+    });
+
+    it('should allow dispatchTo contained -> global', () => {
+      const MainContainer = createContainer();
+      const { Content, mainReturn, otherReturn } = createTestElements({
+        mainContainer: MainContainer,
+        otherContainer: null,
+      });
+
+      render(
+        <MainContainer>
+          <Content />
+        </MainContainer>
+      );
+      const [, mainActions] = mainReturn(0);
+      act(() => mainActions.setOther(1));
+
+      expect(otherReturn(1)).toEqual([{ count: 1 }, expect.any(Object)]);
+    });
+
+    it('should allow dispatchTo global -> contained if properly contained', () => {
+      const OtherContainer = createContainer({ displayName: 'OtherContainer' });
+      const { Content, mainReturn, otherReturn } = createTestElements({
+        mainContainer: null,
+        otherContainer: OtherContainer,
+      });
+
+      render(
+        <OtherContainer>
+          <Content />
+        </OtherContainer>
+      );
+      const [, mainActions] = mainReturn(0);
+      act(() => mainActions.setOther(1));
+
+      expect(otherReturn(1)).toEqual([{ count: 1 }, expect.any(Object)]);
+    });
+
+    it('should allow dispatchTo contained -> other contained', async () => {
+      const MainContainer = createContainer();
+      const OtherContainer = createContainer();
+
+      const { Content, mainReturn, otherReturn } = createTestElements({
+        mainContainer: MainContainer,
+        otherContainer: OtherContainer,
+      });
+
+      render(
+        <OtherContainer>
+          <MainContainer>
+            <Content />
+          </MainContainer>
+        </OtherContainer>
+      );
+      const [, mainActions] = mainReturn(0);
+      act(() => mainActions.setOther(1));
+
+      expect(otherReturn(1)).toEqual([{ count: 1 }, expect.any(Object)]);
+    });
+
+    it('should allow dispatchTo override -> contained', async () => {
+      const { Content, StoreMain, mainReturn, otherReturn } =
+        createTestElements({
+          mainContainer: null,
+          otherContainer: null,
+        });
+      const OverrideContainer = createContainer(StoreMain);
+
+      render(
+        <OverrideContainer>
+          <Content />
+        </OverrideContainer>
+      );
+      const [, mainActions] = mainReturn(0);
+      act(() => mainActions.setOther(1));
+
+      expect(otherReturn(1)).toEqual([{ count: 1 }, expect.any(Object)]);
+    });
   });
 });

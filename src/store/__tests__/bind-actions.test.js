@@ -1,14 +1,15 @@
 /* eslint-env jest */
 
-import { actionsMock, storeStateMock } from '../../__tests__/mocks';
+import { actionsMock, storeStateMock, StoreMock } from '../../__tests__/mocks';
 import { bindAction, bindActions } from '../bind-actions';
 import defaults from '../../defaults';
 
 jest.mock('../../defaults');
 
-const createConfigArg = ({ props = {} } = {}) => ({
+const createConfigArg = ({ props = {}, retrieveStore = () => null } = {}) => ({
   props: () => props,
   contained: () => false,
+  retrieveStore,
 });
 
 describe('bindAction', () => {
@@ -38,6 +39,7 @@ describe('bindAction', () => {
           decrease: expect.any(Function),
         }),
         dispatch: expect.any(Function),
+        dispatchTo: expect.any(Function),
       },
       containerProps
     );
@@ -79,6 +81,69 @@ describe('bindAction', () => {
     result();
 
     expect(storeStateMock.mutator.actionName).toEqual('myAction2.dispatch');
+  });
+
+  it('should expose action name to devtools on dispatchTo call', () => {
+    defaults.devtools = true;
+    const Store2 = { ...StoreMock, key: 'store2-key' };
+    const action2 =
+      () =>
+      ({ setState }) =>
+        setState();
+    const action =
+      () =>
+      ({ dispatchTo }) =>
+        dispatchTo(Store2, action2());
+
+    const retrieveStore = () => ({
+      storeState: { ...storeStateMock, key: 'store2-key' },
+      actions: { ...Store2.actions },
+    });
+
+    const result = bindAction(
+      storeStateMock,
+      action,
+      'myAction2',
+      createConfigArg({ retrieveStore }),
+      actionsMock
+    );
+    result();
+
+    expect(storeStateMock.mutator.actionName).toEqual('myAction2.dispatchTo');
+  });
+
+  it('should work recursively', () => {
+    defaults.devtools = true;
+    const Store2 = { ...StoreMock, key: 'store2-key' };
+    const action3 =
+      () =>
+      ({ setState }) =>
+        setState({});
+    const action2 =
+      () =>
+      ({ dispatch }) =>
+        dispatch(action3());
+    const action =
+      () =>
+      ({ dispatchTo }) =>
+        dispatchTo(Store2, action2());
+    const retrieveStore = () => ({
+      storeState: { ...storeStateMock, key: 'store2-key' },
+      actions: { ...Store2.actions },
+    });
+
+    const result = bindAction(
+      storeStateMock,
+      action,
+      'myAction2',
+      createConfigArg({ retrieveStore }),
+      actionsMock
+    );
+    result();
+
+    expect(storeStateMock.mutator.actionName).toEqual(
+      'myAction2.dispatchTo.dispatch'
+    );
   });
 });
 
