@@ -285,5 +285,36 @@ describe('Container', () => {
         defaultCount: 6,
       });
     });
+
+    it('should pass specific props to subscriber actions', () => {
+      const actionInner = jest.fn();
+      StoreMock.actions.increase.mockReturnValue(actionInner);
+      const Subscriber = createSubscriber(Store);
+      const renderPropChildren = jest.fn().mockReturnValue(null);
+      const children = <Subscriber>{renderPropChildren}</Subscriber>;
+      render(
+        <>
+          {children}
+          <Container defaultCount={5}>{children}</Container>
+          <Container defaultCount={6}>{children}</Container>
+        </>
+      );
+      act(() => {
+        // trigger actions in all 3 rendered children
+        renderPropChildren.mock.calls[0][1].increase();
+        renderPropChildren.mock.calls[1][1].increase();
+        renderPropChildren.mock.calls[2][1].increase();
+      });
+
+      expect(actionInner).toHaveBeenCalledWith(expect.any(Object), {
+        defaultCount: undefined,
+      });
+      expect(actionInner).toHaveBeenCalledWith(expect.any(Object), {
+        defaultCount: 5,
+      });
+      expect(actionInner).toHaveBeenCalledWith(expect.any(Object), {
+        defaultCount: 6,
+      });
+    });
   });
 });

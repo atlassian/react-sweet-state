@@ -233,7 +233,8 @@ function useContainedStore(scope, registry, propsRef, check, override) {
       if (!containedStore) {
         const isExisting = registry.hasStore(Store, scope);
         const config = { props: () => propsRef.current.sub, contained: check };
-        const { storeState, actions } = registry.getStore(Store, scope, config);
+        const { storeState } = registry.getStore(Store, scope, config);
+        const actions = bindActions(Store.actions, storeState, config);
         const handlers = bindActions(
           Object.assign({}, Store.handlers, override?.handlers),
           storeState,
