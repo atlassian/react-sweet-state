@@ -10,7 +10,6 @@ import PropTypes from 'prop-types';
 
 import { Context } from '../context';
 import { StoreRegistry, bindActions, defaultRegistry } from '../store';
-import memoize from '../utils/memoize';
 import shallowEqual from '../utils/shallow-equal';
 
 const noop = () => () => {};
@@ -306,19 +305,16 @@ function createFunctionContainer({ displayName, override } = {}) {
     const api = useApi(check, getContainedStore, ctx);
 
     // This listens for custom props change, and so we trigger container update actions
-    // before the re-render gets to consumers (hence why memo call on render).
-    // Also we use our own memoize instead of relying on memo itself because number of restProps
-    // might change and react throws if deps array length changes :/
-    useMemo(
-      () =>
-        memoize((stores, nextProps) => {
-          // no need to check if first render as stores will be empty anyway
-          stores.forEach(({ handlers }) => {
-            handlers.onContainerUpdate?.(nextProps, propsRef.current.prev);
-          });
-        }, true),
-      []
-    )(containedStores, restProps);
+    // before the re-render gets to consumers (hence why side effect on render).
+    // We do not use React hooks because num of restProps might change and react will throws
+    if (!shallowEqual(propsRef.current.next, propsRef.current.prev)) {
+      containedStores.forEach(({ handlers }) => {
+        handlers.onContainerUpdate?.(
+          propsRef.current.next,
+          propsRef.current.prev
+        );
+      });
+    }
 
     // This listens for scope change or component unmount, to notify all consumers
     // so all work is done on cleanup
