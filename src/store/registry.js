@@ -24,8 +24,16 @@ export class StoreRegistry {
     }
 
     const storeState = createStoreState(key, initialState);
-    const boundActions = bindActions(actions, storeState, config);
-    const store = { storeState, actions: boundActions };
+    let boundActions;
+    const store = {
+      storeState,
+      // these are used only when container-less, so we generate them on-demand
+      get actions() {
+        if (!boundActions)
+          boundActions = bindActions(actions, storeState, config);
+        return boundActions;
+      },
+    };
 
     this.stores.set(key, store);
     return store;

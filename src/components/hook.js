@@ -1,4 +1,4 @@
-import { useMemo, useContext, useRef, useCallback } from 'react';
+import { useMemo, useContext, useRef, useCallback, useState } from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 
 import { Context } from '../context';
@@ -26,10 +26,15 @@ export function createHook(Store, { selector } = {}) {
       [hasPropsArg, storeState]
     );
 
+    const forceUpdate = useState({})[1];
     const getSnapshot = useCallback(() => {
-      const state = retrieveStore(Store).storeState.getState();
+      // parent scope has changed and notify was explicitly triggered by the container
+      // we need to force the hook to re-render to listen new storeState
+      if (retrieveStore(Store).storeState !== storeState) forceUpdate({});
+
+      const state = storeState.getState();
       return stateSelector(state, propsArgRef.current);
-    }, [retrieveStore, stateSelector]);
+    }, [retrieveStore, storeState, stateSelector, forceUpdate]);
 
     const currentState = useSyncExternalStore(
       storeState.subscribe,

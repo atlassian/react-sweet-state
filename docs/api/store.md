@@ -24,7 +24,7 @@ createStore(config);
      - `onInit` _(Function)_: action triggered on store initialisation
      - `onUpdate` _(Function)_: action triggered on store update
      - `onDestroy` _(Function)_: action triggered on store destroy
-     - `onContainerUpdate` _(Function)_: action triggered when `containedBy` container props change
+     - `onContainerUpdate` _(Function)_: action triggered when `containedBy` container props change, receives next/prev props as arguments
 
 ##### Returns
 

@@ -435,6 +435,13 @@ Test = (
   <TypeContainer foo="1">bla</TypeContainer>
 );
 
+Test = (
+  // @ts-expect-error cannot use both isGlobal and scope
+  <TypeContainer isGlobal scope="a">
+    bla
+  </TypeContainer>
+);
+
 // Correct
 Test = <TypeContainer>bla</TypeContainer>;
 Test = <TypeContainer scope="a">bla</TypeContainer>;
@@ -475,6 +482,13 @@ Test = (
   <TypeSharedContainer foo="1">bla</TypeSharedContainer>
 );
 
+Test = (
+  // @ts-expect-error cannot use both isGlobal and scope
+  <TypeContainer isGlobal scope="a">
+    bla
+  </TypeContainer>
+);
+
 // Correct
 Test = <TypeSharedContainer>bla</TypeSharedContainer>;
 Test = <TypeSharedContainer scope="a">bla</TypeSharedContainer>;
@@ -497,6 +511,10 @@ createStore({
       },
     onUpdate: () => () => undefined,
     onDestroy: () => () => undefined,
-    onContainerUpdate: () => () => undefined,
+    onContainerUpdate: (nextProps, prevProps) => () => {
+      const isSameScope = nextProps.scope === prevProps.scope;
+      const isSameGlobal = nextProps.isGlobal === prevProps.isGlobal;
+      const isSameValue = nextProps.initValue === prevProps.initValue;
+    },
   },
 });
