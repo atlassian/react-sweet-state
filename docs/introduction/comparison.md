@@ -8,7 +8,7 @@ There are lots of things that sweet-state and Redux share:
 
 - debuggability: they both use the excellent Redux Devtools
 - support for state selectors
-- testability: both actions and selectors testing stratigies are the same
+- testability: both actions and selectors testing strategies are the same
 
 Some of the differences are:
 
