@@ -34,7 +34,7 @@
     "prepack": "npm run preversion -s && npm run build -s",
     "docs": "npx docsify-cli serve docs",
     "start": "webpack-dev-server",
-    "perf:start": "webpack-dev-server --config ./webpack.config.perf.js"
+    "start:perf": "webpack-dev-server --config ./webpack.config.perf.js"
   },
   "dependencies": {
     "use-sync-external-store": "^1.0.0"
