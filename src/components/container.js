@@ -316,10 +316,15 @@ function createFunctionContainer({ displayName, override } = {}) {
       });
     }
 
+    // We support renderding "bootstrap" containers without children with override API
+    // so in this case we call getCS to initialize the store globally asap
+    if (override && !containedStores.size && (scope || isGlobal)) {
+      getContainedStore(override.Store);
+    }
+
     // This listens for scope change or component unmount, to notify all consumers
     // so all work is done on cleanup
     useEffect(() => {
-      const cachedScope = scope;
       return () => {
         containedStores.forEach(
           ({ storeState, handlers, unsubscribe }, Store) => {
@@ -336,11 +341,11 @@ function createFunctionContainer({ displayName, override } = {}) {
               if (
                 !storeState.listeners().size &&
                 // ensure registry has not already created a new store with same scope
-                storeState ===
-                  registry.getStore(Store, cachedScope, null)?.storeState
+                storeState === registry.getStore(Store, scope, null)?.storeState
               ) {
                 handlers.onDestroy?.();
-                registry.deleteStore(Store, cachedScope);
+                // We only delete scoped stores, as global shall persist and local are auto-deleted
+                if (scope) registry.deleteStore(Store, scope);
               }
             });
           }

@@ -229,6 +229,26 @@ describe('Container', () => {
       expect(onInit).toHaveBeenCalledTimes(1);
     });
 
+    it('should call Container onInit when global and override even with no subscriber children', () => {
+      const Subscriber = createSubscriber(Store);
+      mockOnContainerInitInner.mockImplementationOnce(({ setState }) =>
+        setState({ count: 1 })
+      );
+      const renderPropChildren = jest.fn().mockReturnValue(null);
+      render(
+        <>
+          <Container isGlobal />
+          <Subscriber>{renderPropChildren}</Subscriber>
+        </>
+      );
+
+      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(1);
+      expect(renderPropChildren).toHaveBeenCalledWith(
+        { count: 1 },
+        expect.any(Object)
+      );
+    });
+
     it('should call Container onUpdate on re-render if props changed', () => {
       const Subscriber = createSubscriber(Store);
       const renderPropChildren = jest.fn().mockReturnValue(null);
