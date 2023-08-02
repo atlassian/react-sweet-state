@@ -125,7 +125,7 @@ export const useTodosFiltered = createHook(Store, {
 });
 
 export const TodoList = ({ status }) => {
-  const [todos, actions] = useTodosByStatus(status);
+  const [todos, actions] = useTodosFiltered(status);
   return todos.map(/* render... */);
 };
 ```
