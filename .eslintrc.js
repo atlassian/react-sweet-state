@@ -8,7 +8,6 @@ module.exports = {
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:prettier/recommended',
-    'plugin:flowtype/recommended',
   ],
   parserOptions: {
     ecmaFeatures: {
@@ -45,7 +44,7 @@ module.exports = {
     {
       // Flow specific rules
       files: ['src/index.js.flow', '*/*flow.js', 'examples/*-flow/*/*.js'],
-      // extends: ['plugin:flowtype/recommended'],
+      extends: ['plugin:flowtype/recommended'],
       plugins: ['flowtype'],
       rules: {
         'flowtype/generic-spacing': ['off'],
