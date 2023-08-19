@@ -10,8 +10,7 @@ module.exports = {
           'last 2 firefox versions',
           'last 2 safari versions',
           'last 2 and_chr versions',
-          'last 2 ios_saf versions',
-          'edge >= 18',
+          'last 2 ios_saf versions'
         ],
         modules: false,
         loose: true,
