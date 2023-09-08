@@ -180,9 +180,7 @@ describe('Integration', () => {
 
     const state3 = { loading: false, todos: ['todoB'] };
     const call3 = 3;
-    // its 3+1 because on scope change we do NOT use context and force notify
-    // causing ones that have naturally re-rendered already to re-render once more.
-    expect(children1.mock.calls[call3 + 1]).toEqual([state3, expectActions]);
+    expect(children1.mock.calls[call3]).toEqual([state3, expectActions]);
     expect(children2.mock.calls[call3]).toEqual([state3, expectActions]);
   });
 
@@ -305,11 +303,6 @@ describe('Integration', () => {
 
     expect(calls).toEqual([
       'HookWrapper[outter]',
-      'HookWrapper[inner]',
-      'SubWrapper',
-      'HookWrapper[in-inner]',
-      // this is doubled because legacy container notifies on didUpdate
-      // new implementation will batch and so avoid double render
       'HookWrapper[inner]',
       'SubWrapper',
       'HookWrapper[in-inner]',
