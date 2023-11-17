@@ -8,7 +8,7 @@ import {
 import defaults from '../defaults';
 import supports from './supported-features';
 
-let isInsideBatchedSchedule = false;
+let isInsideBatchedSchedule = 0;
 
 export function batch(fn) {
   // if we are in node/tests or nested schedule
@@ -20,11 +20,12 @@ export function batch(fn) {
     return unstable_batchedUpdates(fn);
   }
 
-  isInsideBatchedSchedule = true;
+  isInsideBatchedSchedule = 0;
   // Use ImmediatePriority as it has -1ms timeout
   // https://github.com/facebook/react/blob/main/packages/scheduler/src/forks/Scheduler.js#L65
   return scheduleCallback(ImmediatePriority, function scheduleBatchedUpdates() {
+    isInsideBatchedSchedule++;
     unstable_batchedUpdates(fn);
-    isInsideBatchedSchedule = false;
+    isInsideBatchedSchedule--;
   });
 }
