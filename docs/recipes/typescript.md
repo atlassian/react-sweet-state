@@ -12,7 +12,6 @@ import {
 } from 'react-sweet-state';
 
 type State = { count: number };
-type Actions = typeof actions;
 
 const initialState: State = {
   count: 0,
@@ -30,18 +29,17 @@ const actions = {
 
 const CounterContainer = createContainer();
 
-// Note: most times TS will be able to infer the generics
-const Store = createStore<State, Actions>({
+const Store = createStore({
   initialState,
   actions,
   containedBy: CounterContainer,
 });
 
-const CounterSubscriber = createSubscriber(Store);
 const useCounter = createHook(Store);
+const CounterSubscriber = createSubscriber(Store);
 ```
 
-You don't have to manually type all the `create*` methods, as they can be inferred for most use cases.
+You should not need to manually type methods, as TS can correctly infer most times.
 
 #### Actions patterns
 
@@ -64,36 +62,26 @@ const actions = {
 If you provide a selector to your components, you need to define two additional TypeScript arguments on `createHook`/`createSubscriber`: the selector output and the selector props.
 
 ```js
-type SelectorState = boolean;
-const selector = (state: State): SelectorState => state.count > 0;
+const selector = (state: State) => state.count > 0;
 
 // this hook does not accept arguments
-const useCounter = createHook<State, Actions, SelectorState, void>(Store, {
-  selector
-});
+const useCounter = createHook(Store, { selector });
 
 // this component does not accept props
-const CounterSubscriber = createSubscriber<State, Actions, SelectorState, void>(Store, {
-  selector
-});
+const CounterSubscriber = createSubscriber(Store, { selector });
 ```
 
-In case your component/hook also needs some props, you can define them as the fourth argument:
+In case your component/hook also needs some props:
 
 ```js
 type SelectorProps = { min: number };
-type SelectorState = boolean;
-const selector = (state: State, props: SelectorProps): SelectorState => state.count > props.min;
+const selector = (state: State, props: SelectorProps) => state.count > props.min;
 
 // this hook requires an argument
-const useCounter = createHook<State, Actions, SelectorState, SelectorProps>(Store, {
-  selector
-});
+const useCounter = createHook(Store, { selector });
 
 // this component requires props
-const CounterSubscriber = createSubscriber<State, Actions, SelectorState, SelectorProps>(Store, {
-  selector
-});
+const CounterSubscriber = createSubscriber(Store, { selector });
 ```
 
 #### createContainer patterns
