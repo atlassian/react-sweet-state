@@ -14,6 +14,7 @@ export function batch(fn) {
   // if we are in node/tests or nested schedule
   if (
     !defaults.batchUpdates ||
+    defaults.unstable_concurrent === true ||
     !supports.scheduling() ||
     isInsideBatchedSchedule
   ) {

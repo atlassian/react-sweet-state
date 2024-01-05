@@ -1,4 +1,5 @@
 import React, {
+  Component,
   useCallback,
   useContext,
   useMemo,
@@ -10,6 +11,7 @@ import PropTypes from 'prop-types';
 import { Context } from '../context';
 import { StoreRegistry, bindActions } from '../store';
 import shallowEqual from '../utils/shallow-equal';
+import defaults from '../defaults';
 
 const noop = () => () => {};
 
@@ -104,7 +106,8 @@ function createFunctionContainer({ displayName, override } = {}) {
   const check = (store) =>
     override
       ? store === override.Store
-      : store.containedBy === FunctionContainer;
+      : store.containedBy === FunctionContainer ||
+        store.containedBy === ClassContainer;
 
   function FunctionContainer(props) {
     const { children, ...restProps } = props;
@@ -192,5 +195,162 @@ function createFunctionContainer({ displayName, override } = {}) {
     isGlobal: PropTypes.bool,
   };
 
-  return FunctionContainer;
+  class ClassContainer extends Component {
+    static displayName = displayName || `Container`;
+    static propTypes = {
+      children: PropTypes.node,
+      scope: PropTypes.string,
+      isGlobal: PropTypes.bool,
+    };
+    static contextType = Context;
+
+    // This is only used to trigger store side effects on props change.
+    // Doing it here, we can update children straight away, without a double render
+    // Unfortunately, functional components do not have an equivalent API
+    static getDerivedStateFromProps({ children, ...props }, state) {
+      if (state.containedStores && !shallowEqual(props, state.prevProps)) {
+        // mutate props so it is available immediately in actions
+        state.nextProps = props;
+        state.containedStores.forEach(({ handlers }) => {
+          handlers.onContainerUpdate?.(state.nextProps, state.prevProps);
+        });
+      }
+      return null;
+    }
+
+    state = {
+      registry: null,
+      prevProps: null,
+      nextProps: null,
+      containedStores: null,
+      api: null,
+    };
+
+    getContainedStore(Store) {
+      const { scope } = this.state.nextProps;
+
+      let containedStore = this.state.containedStores.get(Store);
+      // first time it gets called we add store to contained map bound
+      // so we can provide props to actions (only triggered by children)
+      if (!containedStore) {
+        const isExisting = this.state.registry.hasStore(Store, scope);
+        const config = { props: this.getSubProps, contained: check };
+        const { storeState } = this.state.registry.getStore(
+          Store,
+          scope,
+          config
+        );
+        const actions = bindActions(Store.actions, storeState, config);
+        const handlers = bindActions(
+          Object.assign({}, Store.handlers, override?.handlers),
+          storeState,
+          config,
+          actions
+        );
+        containedStore = {
+          storeState,
+          actions,
+          handlers,
+          unsubscribe: storeState.subscribe(() => handlers.onUpdate?.()),
+        };
+        this.state.containedStores.set(Store, containedStore);
+        // Signal store is contained and ready now, so by the time
+        // consumers subscribe we already have updated the store (if needed).
+        // Also if override maintain legacy behaviour, triggered on every mount
+        if (!isExisting || override) handlers.onInit?.();
+      }
+      return containedStore;
+    }
+
+    initState(isLocal) {
+      const { children, ...props } = this.props;
+      // mutate state during render: not recommended but only way to get context
+      this.state = {
+        registry: isLocal
+          ? new StoreRegistry('__local__')
+          : this.context.globalRegistry,
+        prevProps: props,
+        nextProps: props,
+        containedStores: new Map(),
+        api: {
+          globalRegistry: this.context.globalRegistry,
+          retrieveStore: (s) =>
+            check(s)
+              ? this.getContainedStore(s)
+              : this.context.retrieveStore(s),
+        },
+      };
+    }
+
+    getSubProps = () => {
+      // get from nextProps to have them fresh in onContainerUpdate too
+      const { scope, isGlobal, ...subProps } = this.state.nextProps;
+      return subProps;
+    };
+
+    handleCleanup(scope, { containedStores, registry }) {
+      containedStores.forEach(
+        ({ storeState, handlers, unsubscribe }, Store) => {
+          // Detatch container from subscription
+          unsubscribe();
+          // Trigger a forced update on all subscribers as we opted out from context
+          // Some might have already re-rendered naturally, but we "force update" all anyway.
+          // This is sub-optimal as if there are other containers with the same
+          // old scope id we will re-render those too, but still better than context
+          storeState.notify();
+          // Given unsubscription is handled by useSyncExternalStore, we have no control on when
+          // React decides to do it. So we schedule on next tick to run last
+          Promise.resolve().then(() => {
+            if (
+              !storeState.listeners().size &&
+              // ensure registry has not already created a new store with same scope
+              storeState === registry.getStore(Store, scope, null)?.storeState
+            ) {
+              handlers.onDestroy?.();
+              // We only delete scoped stores, as global shall persist and local are auto-deleted
+              if (scope) registry.deleteStore(Store, scope);
+            }
+          });
+        }
+      );
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+      if (prevProps.scope !== this.props.scope) {
+        this.handleCleanup(prevProps.scope, prevState);
+      }
+    }
+
+    componentWillUnmount() {
+      this.handleCleanup(this.props.scope, this.state);
+    }
+
+    render() {
+      // This is not ideal but context is not available on constructor
+      // so we initialize the state on first render (or reset on scope change)
+      if (
+        !this.state.prevProps ||
+        this.state.prevProps.scope !== this.props.scope
+      ) {
+        const isLocal = !this.props.scope && !this.props.isGlobal;
+        this.initState(isLocal);
+
+        // We support renderding "bootstrap" containers without children with override API
+        // so in this case we call getCS to initialize the store globally asap
+        if (override && !isLocal) {
+          this.getContainedStore(override.Store);
+        }
+      }
+
+      return (
+        <Context.Provider value={this.state.api}>
+          {this.props.children}
+        </Context.Provider>
+      );
+    }
+  }
+
+  return defaults.batchUpdates === false || defaults.unstable_concurrent != null
+    ? ClassContainer
+    : FunctionContainer;
 }

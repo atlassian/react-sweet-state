@@ -1,7 +1,17 @@
-import { useMemo, useContext, useRef, useCallback, useState } from 'react';
+/* eslint-disable react-hooks/rules-of-hooks */
+import {
+  useMemo,
+  useContext,
+  useRef,
+  useCallback,
+  useState,
+  useEffect,
+  useDebugValue,
+} from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 
 import { Context } from '../context';
+import defaults from '../defaults';
 import { getSelectorInstance } from '../utils/create-selector';
 
 const EMPTY_SELECTOR = () => undefined;
@@ -36,11 +46,31 @@ export function createHook(Store, { selector } = {}) {
       return stateSelector(state, propsArgRef.current);
     }, [retrieveStore, storeState, stateSelector, forceUpdate]);
 
-    const currentState = useSyncExternalStore(
-      storeState.subscribe,
-      getSnapshot,
-      getSnapshot
-    );
+    let currentState;
+    if (defaults.unstable_concurrent && Store.unstable_concurrent !== false) {
+      currentState = getSnapshot();
+      useDebugValue(currentState);
+
+      useEffect(() => {
+        let prevState;
+        const onUpdate = () => {
+          const nextState = getSnapshot();
+          if (nextState !== prevState) {
+            forceUpdate(() => nextState);
+            prevState = nextState;
+          }
+        };
+        const unsubscribe = storeState.subscribe(onUpdate);
+        onUpdate();
+        return unsubscribe;
+      }, [getSnapshot, storeState, forceUpdate]);
+    } else {
+      currentState = useSyncExternalStore(
+        storeState.subscribe,
+        getSnapshot,
+        getSnapshot
+      );
+    }
 
     return [currentState, actions];
   };

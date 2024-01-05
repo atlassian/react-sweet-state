@@ -135,6 +135,7 @@ declare module 'react-sweet-state' {
     devtools: boolean | ((storeState: StoreState<any>) => Record<string, any>);
     middlewares: Set<Middleware>;
     mutator: (currentState: any, setStateArg: any) => any;
+    unstable_concurrent: boolean;
   };
 
   function batch(callback: () => any): void;
@@ -195,6 +196,7 @@ declare module 'react-sweet-state' {
           initialState: TState;
           actions: TActions;
           name?: string;
+          unstable_concurrent?: boolean;
           containedBy?: never;
           handlers?: never;
         }
@@ -202,6 +204,7 @@ declare module 'react-sweet-state' {
           initialState: TState;
           actions: TActions;
           name?: string;
+          unstable_concurrent?: boolean;
           containedBy: GenericContainerComponent<TContainerProps>;
           handlers?: {
             onInit?: () => Action<TState, TContainerProps, any>;

@@ -1,9 +1,11 @@
+import { startTransition } from 'react';
+
 import applyMiddleware from '../middlewares';
 import withDevtools from '../enhancers/devtools';
 import defaults from '../defaults';
 import schedule from '../utils/schedule';
 
-function createStoreState(key, initialState) {
+function createStoreState(key, initialState, unstable_concurrent) {
   let listeners = new Set();
   let currentState = initialState;
   const storeState = {
@@ -13,9 +15,13 @@ function createStoreState(key, initialState) {
     },
     setState(nextState) {
       currentState = nextState;
-      // Instead of notifying all handlers immediately, we wait next tick
-      // so multiple actions affecting the same store gets combined
-      schedule(storeState.notify);
+      if (defaults.unstable_concurrent && unstable_concurrent !== false) {
+        startTransition(storeState.notify);
+      } else {
+        // Instead of notifying all handlers immediately, we wait next tick
+        // so multiple actions affecting the same store gets combined
+        schedule(storeState.notify);
+      }
     },
     resetState() {
       storeState.setState(initialState);
