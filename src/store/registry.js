@@ -23,7 +23,11 @@ export class StoreRegistry {
       else throw err;
     }
 
-    const storeState = createStoreState(key, initialState);
+    const storeState = createStoreState(
+      key,
+      initialState,
+      Store.unstable_concurrent
+    );
     let boundActions;
     const store = {
       storeState,

@@ -13,6 +13,7 @@ export function createStore({
   name = '',
   initialState,
   actions,
+  unstable_concurrent,
   containedBy,
   handlers = {},
 }) {
@@ -26,5 +27,6 @@ export function createStore({
     actions,
     containedBy,
     handlers,
+    unstable_concurrent,
   };
 }

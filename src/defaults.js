@@ -10,6 +10,7 @@ const defaults = {
   devtools: false,
   middlewares: new Set(),
   mutator: defaultMutator,
+  unstable_concurrent: undefined,
 };
 
 export default defaults;
