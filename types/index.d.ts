@@ -135,9 +135,14 @@ declare module 'react-sweet-state' {
     devtools: boolean | ((storeState: StoreState<any>) => Record<string, any>);
     middlewares: Set<Middleware>;
     mutator: (currentState: any, setStateArg: any) => any;
-    unstable_concurrent: boolean;
+    unstable_concurrent:
+      | boolean
+      | ((notify: StoreState<any>['notify']) => void);
   };
 
+  /**
+   * @deprecated Batching is enabled by default in React 18+ and this API will be removed in next major
+   */
   function batch(callback: () => any): void;
 
   type ContainerComponent<TProps> =

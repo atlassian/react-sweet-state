@@ -1,5 +1,3 @@
-import { startTransition } from 'react';
-
 import applyMiddleware from '../middlewares';
 import withDevtools from '../enhancers/devtools';
 import defaults from '../defaults';
@@ -16,7 +14,11 @@ function createStoreState(key, initialState, unstable_concurrent) {
     setState(nextState) {
       currentState = nextState;
       if (defaults.unstable_concurrent && unstable_concurrent !== false) {
-        startTransition(storeState.notify);
+        if (typeof defaults.unstable_concurrent === 'function') {
+          defaults.unstable_concurrent(storeState.notify);
+        } else {
+          storeState.notify();
+        }
       } else {
         // Instead of notifying all handlers immediately, we wait next tick
         // so multiple actions affecting the same store gets combined
