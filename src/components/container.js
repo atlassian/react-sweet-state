@@ -121,6 +121,8 @@ function createFunctionContainer({ displayName, override } = {}) {
       sub: subProps, // TODO remove on next major
     };
 
+    const overrideRef = useRef(override);
+
     const [containedStores, getContainedStore] = useContainedStore(
       scope,
       registry,
@@ -147,8 +149,12 @@ function createFunctionContainer({ displayName, override } = {}) {
     // We support renderding "bootstrap" containers without children with override API
     // so in this case we call getCS to initialize the store globally asap
     if (override && !containedStores.size && (scope || isGlobal)) {
-      getContainedStore(override.Store);
+      if (override.Store !== overrideRef.current?.Store) {
+        getContainedStore(override.Store);
+      }
     }
+
+    overrideRef.current = override;
 
     // This listens for scope change or component unmount, to notify all consumers
     // so all work is done on cleanup
