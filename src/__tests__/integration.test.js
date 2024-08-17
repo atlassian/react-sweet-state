@@ -1,7 +1,7 @@
 /* @jest-environment jsdom */
 /* eslint-env jest */
 
-import React, { Fragment, memo, useEffect } from 'react';
+import React, { Fragment, StrictMode, memo, useEffect } from 'react';
 import { render, act } from '@testing-library/react';
 
 import { createStore, defaultRegistry } from '../store';
@@ -445,7 +445,11 @@ describe('Integration', () => {
       </SharedContainer>
     );
 
-    const { rerender, unmount } = render(<App value="1" />);
+    const { rerender, unmount } = render(
+      <StrictMode>
+        <App value="1" />
+      </StrictMode>
+    );
 
     expect(handlers1.onInit).toHaveBeenCalledTimes(1);
     expect(handlers2.onInit).toHaveBeenCalledTimes(1);
@@ -456,7 +460,11 @@ describe('Integration', () => {
     expect(handlers1.onUpdate).toHaveBeenCalledTimes(1);
     expect(handlers2.onUpdate).toHaveBeenCalledTimes(0);
 
-    rerender(<App value="2" />);
+    rerender(
+      <StrictMode>
+        <App value="2" />
+      </StrictMode>
+    );
 
     expect(handlers1.onContainerUpdate).toHaveBeenCalledTimes(1);
     expect(handlers2.onContainerUpdate).toHaveBeenCalledTimes(1);

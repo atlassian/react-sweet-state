@@ -1,6 +1,6 @@
 /* eslint-env jest */
 
-import React from 'react';
+import React, { StrictMode } from 'react';
 import { render, act } from '@testing-library/react';
 
 import { StoreMock } from '../../__tests__/mocks';
@@ -119,7 +119,11 @@ describe('Container', () => {
       jest.spyOn(defaultRegistry, 'deleteStore');
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
-      const { unmount } = render(<Container scope="s1">{children}</Container>);
+      const { unmount } = render(
+        <StrictMode>
+          <Container scope="s1">{children}</Container>
+        </StrictMode>
+      );
       unmount();
       await actTick();
 
@@ -129,7 +133,11 @@ describe('Container', () => {
     it('should call Container onCleanup on unmount', async () => {
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
-      const { unmount } = render(<Container>{children}</Container>);
+      const { unmount } = render(
+        <StrictMode>
+          <Container>{children}</Container>
+        </StrictMode>
+      );
       unmount();
       await actTick();
 
