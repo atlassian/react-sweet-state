@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 import React from 'react';
-import { render, act } from '@testing-library/react';
+import { render, act, configure } from '@testing-library/react';
 
 import { StoreMock, storeStateMock } from '../../__tests__/mocks';
 import { createHook, createActionsHook, createStateHook } from '../hook';
@@ -54,6 +54,7 @@ describe('Hook', () => {
       .spyOn(storeStateMock, 'getState')
       .mockReturnValue(StoreMock.initialState);
     jest.spyOn(storeStateMock, 'subscribe');
+    configure({ reactStrictMode: true });
   });
 
   describe('createHook', () => {
@@ -64,6 +65,8 @@ describe('Hook', () => {
     });
 
     it('should render children with store data and actions', () => {
+      configure({ reactStrictMode: false });
+
       const { getRender, children } = setup();
       getRender();
       expect(children).toHaveBeenCalledTimes(1);
@@ -71,6 +74,8 @@ describe('Hook', () => {
     });
 
     it('should update when store calls update listener', () => {
+      configure({ reactStrictMode: false });
+
       const { getRender, children } = setup();
       storeStateMock.getState.mockReturnValue({ count: 1 });
       getRender();
@@ -87,6 +92,8 @@ describe('Hook', () => {
     });
 
     it('should avoid re-render children when just rendered from parent update', () => {
+      configure({ reactStrictMode: false });
+
       const { getElement, children } = setup();
       const App = () => getElement();
 
@@ -150,6 +157,8 @@ describe('Hook', () => {
     });
 
     it('should re-render children with same value if selector output is shallow equal', () => {
+      configure({ reactStrictMode: false });
+
       const selector = () => ({ foo: 1 });
       const { getRender, getElement, children } = setup({
         props: { bar: 1 },
@@ -168,6 +177,8 @@ describe('Hook', () => {
     });
 
     it('should update on state change if selector output is not shallow equal', () => {
+      configure({ reactStrictMode: false });
+
       const selector = jest.fn().mockImplementation(() => ({ foo: [1] }));
       const { getRender, children } = setup({ selector });
       getRender();
@@ -180,6 +191,8 @@ describe('Hook', () => {
     });
 
     it('should not update on state change if selector output is shallow equal', () => {
+      configure({ reactStrictMode: false });
+
       const selector = jest.fn().mockImplementation(() => ({ foo: 1 }));
       const { getRender, children } = setup({ selector });
       getRender();
@@ -194,6 +207,8 @@ describe('Hook', () => {
     });
 
     it('should not recompute selector if state & props are equal', () => {
+      configure({ reactStrictMode: false });
+
       const selector = jest.fn().mockReturnValue({ foo: 1 });
       const { getRender, getElement } = setup({ props: { bar: 1 }, selector });
       const { rerender } = getRender();
@@ -204,6 +219,8 @@ describe('Hook', () => {
     });
 
     it('should not update on state change if selector is null', () => {
+      configure({ reactStrictMode: false });
+
       const selector = null;
       const { getRender, children } = setup({ selector });
       getRender();
@@ -236,6 +253,8 @@ describe('Hook', () => {
 
   describe('createActionsHook', () => {
     it('should render children with just actions', () => {
+      configure({ reactStrictMode: false });
+
       const { getRender, children } = setup({ creator: createActionsHook });
       getRender();
       expect(children).toHaveBeenCalledTimes(1);
@@ -245,6 +264,8 @@ describe('Hook', () => {
 
   describe('createStateHook', () => {
     it('should render children with just store data', () => {
+      configure({ reactStrictMode: false });
+
       const { getRender, children } = setup({ creator: createStateHook });
       getRender();
       expect(children).toHaveBeenCalledTimes(1);

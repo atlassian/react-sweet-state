@@ -1,8 +1,8 @@
 /* @jest-environment jsdom */
 /* eslint-env jest */
 
-import React, { Fragment, StrictMode, memo, useEffect } from 'react';
-import { render, act } from '@testing-library/react';
+import React, { Fragment, memo, useEffect } from 'react';
+import { render, act, configure } from '@testing-library/react';
 
 import { createStore, defaultRegistry } from '../store';
 import { createContainer } from '../components/container';
@@ -45,9 +45,11 @@ const expectActions = {
 describe('Integration', () => {
   beforeEach(() => {
     defaultRegistry.stores.clear();
+    configure({ reactStrictMode: true });
   });
 
   it('should get closer storeState with scope id if matching', () => {
+    configure({ reactStrictMode: false });
     const Container = createContainer(Store);
     const Subscriber = createSubscriber(Store);
     const children1 = jest.fn((s, a) => {
@@ -87,6 +89,7 @@ describe('Integration', () => {
   });
 
   it('should share scoped state across multiple subscribers', async () => {
+    configure({ reactStrictMode: false });
     const Container = createContainer(Store, {
       onInit:
         () =>
@@ -131,6 +134,7 @@ describe('Integration', () => {
   });
 
   it('should update all subscribers on scope change', async () => {
+    configure({ reactStrictMode: false });
     const Container = createContainer(Store, {
       onInit:
         () =>
@@ -185,6 +189,7 @@ describe('Integration', () => {
   });
 
   it('should call the listeners in the correct register order', async () => {
+    configure({ reactStrictMode: false });
     const Container = createContainer(Store, {});
     const Subscriber = createSubscriber(Store);
     const useHook = createHook(Store);
@@ -247,6 +252,7 @@ describe('Integration', () => {
   });
 
   it('should call the listeners in the correct register order after scope change', async () => {
+    configure({ reactStrictMode: false });
     const Container = createContainer(Store, {});
     const Subscriber = createSubscriber(Store);
     const useHook = createHook(Store);
@@ -319,6 +325,7 @@ describe('Integration', () => {
   });
 
   it('should not re-render components if selector returns same value', async () => {
+    configure({ reactStrictMode: false });
     const opts = { selector: (s) => ({ l: s.loading }) };
     const Subscriber = createSubscriber(Store, opts);
     const useHook = createHook(Store, opts);
@@ -359,6 +366,7 @@ describe('Integration', () => {
   });
 
   it('should not render-loop if state/action returns shallow equal value', async () => {
+    configure({ reactStrictMode: false });
     const useHook = createHook(Store);
     const calls = [];
 
@@ -377,6 +385,7 @@ describe('Integration', () => {
   });
 
   it('should not re-compute selector if no arguments are passed', async () => {
+    configure({ reactStrictMode: false });
     const selector = jest.fn((s) => s);
     const useHook = createHook(Store, { selector });
 
@@ -391,6 +400,7 @@ describe('Integration', () => {
   });
 
   it('should re-compute selector if arguments are passed', async () => {
+    configure({ reactStrictMode: false });
     const selector = jest.fn((s) => s);
     const useHook = createHook(Store, { selector });
 
@@ -445,11 +455,7 @@ describe('Integration', () => {
       </SharedContainer>
     );
 
-    const { rerender, unmount } = render(
-      <StrictMode>
-        <App value="1" />
-      </StrictMode>
-    );
+    const { rerender, unmount } = render(<App value="1" />);
 
     expect(handlers1.onInit).toHaveBeenCalledTimes(1);
     expect(handlers2.onInit).toHaveBeenCalledTimes(1);
@@ -460,11 +466,7 @@ describe('Integration', () => {
     expect(handlers1.onUpdate).toHaveBeenCalledTimes(1);
     expect(handlers2.onUpdate).toHaveBeenCalledTimes(0);
 
-    rerender(
-      <StrictMode>
-        <App value="2" />
-      </StrictMode>
-    );
+    rerender(<App value="2" />);
 
     expect(handlers1.onContainerUpdate).toHaveBeenCalledTimes(1);
     expect(handlers2.onContainerUpdate).toHaveBeenCalledTimes(1);

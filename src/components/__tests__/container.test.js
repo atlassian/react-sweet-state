@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
-import React, { StrictMode } from 'react';
-import { render, act } from '@testing-library/react';
+import React from 'react';
+import { render, act, configure } from '@testing-library/react';
 
 import { StoreMock } from '../../__tests__/mocks';
 import { defaultRegistry } from '../../store/registry';
@@ -58,6 +58,10 @@ describe('Container', () => {
   });
 
   describe('integration', () => {
+    beforeEach(() => {
+      configure({ reactStrictMode: true });
+    });
+
     it('should get storeState from global with scope id if matching', () => {
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
@@ -119,11 +123,7 @@ describe('Container', () => {
       jest.spyOn(defaultRegistry, 'deleteStore');
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
-      const { unmount } = render(
-        <StrictMode>
-          <Container scope="s1">{children}</Container>
-        </StrictMode>
-      );
+      const { unmount } = render(<Container scope="s1">{children}</Container>);
       unmount();
       await actTick();
 
@@ -133,11 +133,7 @@ describe('Container', () => {
     it('should call Container onCleanup on unmount', async () => {
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
-      const { unmount } = render(
-        <StrictMode>
-          <Container>{children}</Container>
-        </StrictMode>
-      );
+      const { unmount } = render(<Container>{children}</Container>);
       unmount();
       await actTick();
 
@@ -217,6 +213,8 @@ describe('Container', () => {
     });
 
     it('should call Container onInit for every first render if override', () => {
+      configure({ reactStrictMode: false });
+
       const Subscriber = createSubscriber(Store);
       const renderPropChildren = jest.fn().mockReturnValue(null);
       const children = <Subscriber>{renderPropChildren}</Subscriber>;
@@ -254,6 +252,8 @@ describe('Container', () => {
     });
 
     it('should call Container onInit when global and override even with no subscriber children', () => {
+      configure({ reactStrictMode: false });
+
       const Subscriber = createSubscriber(Store);
       mockOnContainerInitInner.mockImplementationOnce(({ setState }) =>
         setState({ count: 1 })
@@ -331,6 +331,8 @@ describe('Container', () => {
     });
 
     it('should pass specific props to subscriber actions', () => {
+      configure({ reactStrictMode: false });
+
       const actionInner = jest.fn();
       StoreMock.actions.increase.mockReturnValue(actionInner);
       const Subscriber = createSubscriber(Store);
