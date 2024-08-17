@@ -4,6 +4,7 @@ import React from 'react';
 import { render, act, configure } from '@testing-library/react';
 
 import { StoreMock, storeStateMock } from '../../__tests__/mocks';
+import { withStrict } from '../../__tests__/utils';
 import { createHook, createActionsHook, createStateHook } from '../hook';
 import { defaultRegistry } from '../../store/registry';
 
@@ -65,17 +66,13 @@ describe('Hook', () => {
     });
 
     it('should render children with store data and actions', () => {
-      configure({ reactStrictMode: false });
-
       const { getRender, children } = setup();
       getRender();
-      expect(children).toHaveBeenCalledTimes(1);
+      expect(children).toHaveBeenCalledTimes(withStrict(1));
       expect(children).toHaveBeenCalledWith([{ count: 0 }, actions]);
     });
 
     it('should update when store calls update listener', () => {
-      configure({ reactStrictMode: false });
-
       const { getRender, children } = setup();
       storeStateMock.getState.mockReturnValue({ count: 1 });
       getRender();
@@ -86,14 +83,12 @@ describe('Hook', () => {
       const update = storeStateMock.subscribe.mock.calls[0][0];
       act(() => update(newState));
 
-      expect(children).toHaveBeenCalledTimes(2);
+      expect(children).toHaveBeenCalledTimes(withStrict(2));
       expect(children).toHaveBeenCalledWith([{ count: 1 }, actions]);
       expect(children).toHaveBeenLastCalledWith([{ count: 2 }, actions]);
     });
 
     it('should avoid re-render children when just rendered from parent update', () => {
-      configure({ reactStrictMode: false });
-
       const { getElement, children } = setup();
       const App = () => getElement();
 
@@ -106,7 +101,7 @@ describe('Hook', () => {
       act(() => update(newState));
 
       expect(storeStateMock.getState).toHaveBeenCalled();
-      expect(children).toHaveBeenCalledTimes(2);
+      expect(children).toHaveBeenCalledTimes(withStrict(2));
       expect(children).toHaveBeenCalledWith([newState, actions]);
     });
 
@@ -177,8 +172,6 @@ describe('Hook', () => {
     });
 
     it('should update on state change if selector output is not shallow equal', () => {
-      configure({ reactStrictMode: false });
-
       const selector = jest.fn().mockImplementation(() => ({ foo: [1] }));
       const { getRender, children } = setup({ selector });
       getRender();
@@ -187,7 +180,7 @@ describe('Hook', () => {
       const update = storeStateMock.subscribe.mock.calls[0][0];
       act(() => update(newState));
 
-      expect(children).toHaveBeenCalledTimes(2);
+      expect(children).toHaveBeenCalledTimes(withStrict(2));
     });
 
     it('should not update on state change if selector output is shallow equal', () => {
@@ -207,20 +200,16 @@ describe('Hook', () => {
     });
 
     it('should not recompute selector if state & props are equal', () => {
-      configure({ reactStrictMode: false });
-
       const selector = jest.fn().mockReturnValue({ foo: 1 });
       const { getRender, getElement } = setup({ props: { bar: 1 }, selector });
       const { rerender } = getRender();
       rerender(getElement({ bar: 1 }));
 
       // ensure memoisation works
-      expect(selector).toHaveBeenCalledTimes(1);
+      expect(selector).toHaveBeenCalledTimes(withStrict(1));
     });
 
     it('should not update on state change if selector is null', () => {
-      configure({ reactStrictMode: false });
-
       const selector = null;
       const { getRender, children } = setup({ selector });
       getRender();
@@ -230,7 +219,7 @@ describe('Hook', () => {
       const update = storeStateMock.subscribe.mock.calls[0][0];
       act(() => update(storeStateMock.getState(), storeStateMock));
 
-      expect(children).toHaveBeenCalledTimes(1);
+      expect(children).toHaveBeenCalledTimes(withStrict(1));
       expect(children).toHaveBeenCalledWith([undefined, actions]);
     });
 
@@ -253,22 +242,18 @@ describe('Hook', () => {
 
   describe('createActionsHook', () => {
     it('should render children with just actions', () => {
-      configure({ reactStrictMode: false });
-
       const { getRender, children } = setup({ creator: createActionsHook });
       getRender();
-      expect(children).toHaveBeenCalledTimes(1);
+      expect(children).toHaveBeenCalledTimes(withStrict(1));
       expect(children).toHaveBeenCalledWith(actions);
     });
   });
 
   describe('createStateHook', () => {
     it('should render children with just store data', () => {
-      configure({ reactStrictMode: false });
-
       const { getRender, children } = setup({ creator: createStateHook });
       getRender();
-      expect(children).toHaveBeenCalledTimes(1);
+      expect(children).toHaveBeenCalledTimes(withStrict(1));
       expect(children).toHaveBeenCalledWith({ count: 0 });
     });
   });

@@ -4,6 +4,7 @@ import React from 'react';
 import { render, act, configure } from '@testing-library/react';
 
 import { StoreMock } from '../../__tests__/mocks';
+import { withStrict } from '../../__tests__/utils';
 import { defaultRegistry } from '../../store/registry';
 import { createStore } from '../../store';
 import { createContainer } from '../container';
@@ -213,8 +214,6 @@ describe('Container', () => {
     });
 
     it('should call Container onInit for every first render if override', () => {
-      configure({ reactStrictMode: false });
-
       const Subscriber = createSubscriber(Store);
       const renderPropChildren = jest.fn().mockReturnValue(null);
       const children = <Subscriber>{renderPropChildren}</Subscriber>;
@@ -225,7 +224,7 @@ describe('Container', () => {
         </>
       );
 
-      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(2);
+      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(withStrict(2));
     });
 
     it('should call Container onInit only on first render if global and containedBy', () => {
@@ -252,8 +251,6 @@ describe('Container', () => {
     });
 
     it('should call Container onInit when global and override even with no subscriber children', () => {
-      configure({ reactStrictMode: false });
-
       const Subscriber = createSubscriber(Store);
       mockOnContainerInitInner.mockImplementationOnce(({ setState }) =>
         setState({ count: 1 })
@@ -266,7 +263,7 @@ describe('Container', () => {
         </>
       );
 
-      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(1);
+      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(withStrict(1));
       expect(renderPropChildren).toHaveBeenCalledWith(
         { count: 1 },
         expect.any(Object)
