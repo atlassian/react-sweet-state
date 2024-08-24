@@ -72,7 +72,7 @@ function useContainedStore(scope, registry, propsRef, check, override) {
           storeState,
           actions,
           handlers,
-          unsubscribe: storeState.subscribe(() => handlers.onUpdate?.()),
+          unsubscribe: undefined,
         };
         containedStores.set(Store, containedStore);
         // Signal store is contained and ready now, so by the time
@@ -84,6 +84,7 @@ function useContainedStore(scope, registry, propsRef, check, override) {
     },
     [containedStores, scope, registry, propsRef, check, override]
   );
+
   return [containedStores, getContainedStore];
 }
 
@@ -143,6 +144,21 @@ function createFunctionContainer({ displayName, override } = {}) {
         );
       });
     }
+    // Every time we add/remove a contained store, we ensure we are subscribed to the updates
+    // as an effect to properly handle strict mode
+    useEffect(() => {
+      containedStores.forEach((containedStore) => {
+        if (!containedStore.unsubscribe) {
+          const unsub = containedStore.storeState.subscribe(() =>
+            containedStore.handlers.onUpdate?.()
+          );
+          containedStore.unsubscribe = () => {
+            unsub();
+            containedStore.unsubscribe = undefined;
+          };
+        }
+      });
+    }, [containedStores, containedStores.size]);
 
     // We support renderding "bootstrap" containers without children with override API
     // so in this case we call getCS to initialize the store globally asap
@@ -157,7 +173,7 @@ function createFunctionContainer({ displayName, override } = {}) {
         containedStores.forEach(
           ({ storeState, handlers, unsubscribe }, Store) => {
             // Detatch container from subscription
-            unsubscribe();
+            unsubscribe?.();
             // Trigger a forced update on all subscribers as we opted out from context
             // Some might have already re-rendered naturally, but we "force update" all anyway.
             // This is sub-optimal as if there are other containers with the same
@@ -173,14 +189,14 @@ function createFunctionContainer({ displayName, override } = {}) {
               ) {
                 handlers.onDestroy?.();
                 // We only delete scoped stores, as global shall persist and local are auto-deleted
-                if (scope) registry.deleteStore(Store, scope);
+                if (!isGlobal) registry.deleteStore(Store, scope);
               }
             });
           }
         );
         // no need to reset containedStores as the map is already bound to scope
       };
-    }, [registry, scope, containedStores]);
+    }, [registry, scope, isGlobal, containedStores]);
 
     return <Context.Provider value={api}>{children}</Context.Provider>;
   }

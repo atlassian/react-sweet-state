@@ -1,9 +1,10 @@
 /* eslint-env jest */
 
 import React from 'react';
-import { render, act } from '@testing-library/react';
+import { render, act, configure } from '@testing-library/react';
 
 import { StoreMock, storeStateMock } from '../../__tests__/mocks';
+import { withStrict } from '../../__tests__/utils';
 import { createHook, createActionsHook, createStateHook } from '../hook';
 import { defaultRegistry } from '../../store/registry';
 
@@ -54,6 +55,7 @@ describe('Hook', () => {
       .spyOn(storeStateMock, 'getState')
       .mockReturnValue(StoreMock.initialState);
     jest.spyOn(storeStateMock, 'subscribe');
+    configure({ reactStrictMode: true });
   });
 
   describe('createHook', () => {
@@ -66,7 +68,7 @@ describe('Hook', () => {
     it('should render children with store data and actions', () => {
       const { getRender, children } = setup();
       getRender();
-      expect(children).toHaveBeenCalledTimes(1);
+      expect(children).toHaveBeenCalledTimes(withStrict(1));
       expect(children).toHaveBeenCalledWith([{ count: 0 }, actions]);
     });
 
@@ -81,7 +83,7 @@ describe('Hook', () => {
       const update = storeStateMock.subscribe.mock.calls[0][0];
       act(() => update(newState));
 
-      expect(children).toHaveBeenCalledTimes(2);
+      expect(children).toHaveBeenCalledTimes(withStrict(2));
       expect(children).toHaveBeenCalledWith([{ count: 1 }, actions]);
       expect(children).toHaveBeenLastCalledWith([{ count: 2 }, actions]);
     });
@@ -99,7 +101,7 @@ describe('Hook', () => {
       act(() => update(newState));
 
       expect(storeStateMock.getState).toHaveBeenCalled();
-      expect(children).toHaveBeenCalledTimes(2);
+      expect(children).toHaveBeenCalledTimes(withStrict(2));
       expect(children).toHaveBeenCalledWith([newState, actions]);
     });
 
@@ -150,6 +152,8 @@ describe('Hook', () => {
     });
 
     it('should re-render children with same value if selector output is shallow equal', () => {
+      configure({ reactStrictMode: false });
+
       const selector = () => ({ foo: 1 });
       const { getRender, getElement, children } = setup({
         props: { bar: 1 },
@@ -176,10 +180,12 @@ describe('Hook', () => {
       const update = storeStateMock.subscribe.mock.calls[0][0];
       act(() => update(newState));
 
-      expect(children).toHaveBeenCalledTimes(2);
+      expect(children).toHaveBeenCalledTimes(withStrict(2));
     });
 
     it('should not update on state change if selector output is shallow equal', () => {
+      configure({ reactStrictMode: false });
+
       const selector = jest.fn().mockImplementation(() => ({ foo: 1 }));
       const { getRender, children } = setup({ selector });
       getRender();
@@ -200,7 +206,7 @@ describe('Hook', () => {
       rerender(getElement({ bar: 1 }));
 
       // ensure memoisation works
-      expect(selector).toHaveBeenCalledTimes(1);
+      expect(selector).toHaveBeenCalledTimes(withStrict(1));
     });
 
     it('should not update on state change if selector is null', () => {
@@ -213,7 +219,7 @@ describe('Hook', () => {
       const update = storeStateMock.subscribe.mock.calls[0][0];
       act(() => update(storeStateMock.getState(), storeStateMock));
 
-      expect(children).toHaveBeenCalledTimes(1);
+      expect(children).toHaveBeenCalledTimes(withStrict(1));
       expect(children).toHaveBeenCalledWith([undefined, actions]);
     });
 
@@ -238,7 +244,7 @@ describe('Hook', () => {
     it('should render children with just actions', () => {
       const { getRender, children } = setup({ creator: createActionsHook });
       getRender();
-      expect(children).toHaveBeenCalledTimes(1);
+      expect(children).toHaveBeenCalledTimes(withStrict(1));
       expect(children).toHaveBeenCalledWith(actions);
     });
   });
@@ -247,7 +253,7 @@ describe('Hook', () => {
     it('should render children with just store data', () => {
       const { getRender, children } = setup({ creator: createStateHook });
       getRender();
-      expect(children).toHaveBeenCalledTimes(1);
+      expect(children).toHaveBeenCalledTimes(withStrict(1));
       expect(children).toHaveBeenCalledWith({ count: 0 });
     });
   });

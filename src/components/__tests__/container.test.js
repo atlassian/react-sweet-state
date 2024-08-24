@@ -1,9 +1,10 @@
 /* eslint-env jest */
 
 import React from 'react';
-import { render, act } from '@testing-library/react';
+import { render, act, configure } from '@testing-library/react';
 
 import { StoreMock } from '../../__tests__/mocks';
+import { withStrict } from '../../__tests__/utils';
 import { defaultRegistry } from '../../store/registry';
 import { createStore } from '../../store';
 import { createContainer } from '../container';
@@ -58,6 +59,10 @@ describe('Container', () => {
   });
 
   describe('integration', () => {
+    beforeEach(() => {
+      configure({ reactStrictMode: true });
+    });
+
     it('should get storeState from global with scope id if matching', () => {
       const Subscriber = createSubscriber(Store);
       const children = <Subscriber>{() => null}</Subscriber>;
@@ -219,7 +224,7 @@ describe('Container', () => {
         </>
       );
 
-      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(2);
+      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(withStrict(2));
     });
 
     it('should call Container onInit only on first render if global and containedBy', () => {
@@ -258,7 +263,7 @@ describe('Container', () => {
         </>
       );
 
-      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(1);
+      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(withStrict(1));
       expect(renderPropChildren).toHaveBeenCalledWith(
         { count: 1 },
         expect.any(Object)
@@ -323,6 +328,8 @@ describe('Container', () => {
     });
 
     it('should pass specific props to subscriber actions', () => {
+      configure({ reactStrictMode: false });
+
       const actionInner = jest.fn();
       StoreMock.actions.increase.mockReturnValue(actionInner);
       const Subscriber = createSubscriber(Store);
