@@ -56,13 +56,20 @@ describe('batch', () => {
     const child = jest.fn().mockReturnValue(null);
     render(<TestComponent>{child}</TestComponent>);
     const update = child.mock.calls[0][0];
-    act(() => update());
+    act(() => {
+      update();
+      update();
+      update();
+    });
+
+    // nothing should be yet called
+    expect(child.mock.calls[2]).toEqual(undefined);
 
     // scheduler uses timeouts on non-browser envs
     await act(() => new Promise((r) => setTimeout(r, 10)));
 
     // assertion no longer relevant with React 18+
-    expect(child.mock.calls[2]).toEqual([expect.any(Function), 1, 1]);
+    expect(child.mock.calls[2]).toEqual([expect.any(Function), 3, 1]);
 
     supportsMock.mockRestore();
   });
