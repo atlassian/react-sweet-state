@@ -224,7 +224,7 @@ describe('Container', () => {
         </>
       );
 
-      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(withStrict(2));
+      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(2);
     });
 
     it('should call Container onInit only on first render if global and containedBy', () => {
@@ -263,7 +263,7 @@ describe('Container', () => {
         </>
       );
 
-      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(withStrict(1));
+      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(1);
       expect(renderPropChildren).toHaveBeenCalledWith(
         { count: 1 },
         expect.any(Object)
