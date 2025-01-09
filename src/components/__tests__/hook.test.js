@@ -206,7 +206,7 @@ describe('Hook', () => {
       rerender(getElement({ bar: 1 }));
 
       // ensure memoisation works
-      expect(selector).toHaveBeenCalledTimes(withStrict(1));
+      expect(selector).toHaveBeenCalledTimes(1);
     });
 
     it('should not update on state change if selector is null', () => {

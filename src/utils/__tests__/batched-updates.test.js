@@ -45,7 +45,7 @@ describe('batch', () => {
     act(() => update());
 
     // assertion no longer relevant with React 18+
-    expect(child.mock.calls[2]).toEqual([expect.any(Function), 1, 1]);
+    expect(child.mock.calls[1]).toEqual([expect.any(Function), 1, 1]);
   });
 
   it('should batch updates with scheduling enabled', async () => {
@@ -62,7 +62,7 @@ describe('batch', () => {
     await act(() => new Promise((r) => setTimeout(r, 10)));
 
     // assertion no longer relevant with React 18+
-    expect(child.mock.calls[2]).toEqual([expect.any(Function), 1, 1]);
+    expect(child.mock.calls[1]).toEqual([expect.any(Function), 1, 1]);
 
     supportsMock.mockRestore();
   });
