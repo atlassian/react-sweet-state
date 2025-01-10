@@ -4,7 +4,6 @@ import React from 'react';
 import { render, act, configure } from '@testing-library/react';
 
 import { StoreMock } from '../../__tests__/mocks';
-import { withStrict } from '../../__tests__/utils';
 import { defaultRegistry } from '../../store/registry';
 import { createStore } from '../../store';
 import { createContainer } from '../container';
