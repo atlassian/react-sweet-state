@@ -4,7 +4,6 @@ import React from 'react';
 import { render, act, configure } from '@testing-library/react';
 
 import { StoreMock } from '../../__tests__/mocks';
-import { withStrict } from '../../__tests__/utils';
 import { defaultRegistry } from '../../store/registry';
 import { createStore } from '../../store';
 import { createContainer } from '../container';
@@ -224,7 +223,7 @@ describe('Container', () => {
         </>
       );
 
-      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(withStrict(2));
+      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(2);
     });
 
     it('should call Container onInit only on first render if global and containedBy', () => {
@@ -263,7 +262,7 @@ describe('Container', () => {
         </>
       );
 
-      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(withStrict(1));
+      expect(mockOnContainerInitInner).toHaveBeenCalledTimes(1);
       expect(renderPropChildren).toHaveBeenCalledWith(
         { count: 1 },
         expect.any(Object)

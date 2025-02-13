@@ -409,7 +409,7 @@ describe('Integration', () => {
     };
     render(<HookWrapper />);
 
-    expect(selector).toHaveBeenCalledTimes(withStrict(2));
+    expect(selector).toHaveBeenCalledTimes(2);
   });
 
   it('should capture all contained stores', async () => {
