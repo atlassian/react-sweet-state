@@ -40,7 +40,7 @@ export const UserSubscriber: SubscriberComponent<State, Actions> =
 
 export const UserSelectedSubscriber: SubscriberComponent<
   UserSelectedState,
-  Actions
+  Actions,
 > = createSubscriber(Store, {
   selector: selectors.getSelected,
 });

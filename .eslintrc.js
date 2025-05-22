@@ -7,7 +7,6 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:react/recommended',
-    'plugin:prettier/recommended',
     'plugin:flowtype/recommended',
   ],
   parserOptions: {
@@ -33,7 +32,6 @@ module.exports = {
     'linebreak-style': ['off'],
     quotes: ['off'],
     semi: ['off'],
-    'prettier/prettier': ['warn'],
     'react/no-direct-mutation-state': ['off'],
     'react/display-name': ['off'],
     'react/prop-types': ['off'],
