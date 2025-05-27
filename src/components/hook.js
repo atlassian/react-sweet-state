@@ -21,8 +21,8 @@ export function createHook(Store, { selector } = {}) {
         selector
           ? getSelectorInstance(selector, storeState, hasPropsArg)
           : selector === null
-          ? EMPTY_SELECTOR
-          : DEFAULT_SELECTOR,
+            ? EMPTY_SELECTOR
+            : DEFAULT_SELECTOR,
       [hasPropsArg, storeState]
     );
 
