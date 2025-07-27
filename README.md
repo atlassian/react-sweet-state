@@ -20,14 +20,29 @@ Each `Hook`, or `Subscriber`, is responsible to get the instantiated Store (crea
 
 Similar to Redux thunks, actions receive a set of arguments to get and mutate the state. The default `setState` implementation is similar to React `setState`, accepting an object that will be shallow merged with the current state. However, you are free to replace the built-in `setState` logic with a custom mutator implementation, like `immer` for instance.
 
-## Basic usage
+## Setup
 
 ```sh
 npm i react-sweet-state
 # or
 yarn add react-sweet-state
 ```
+now you have to run 2 terminals to run 
+1. package code
+  to we add logic for this package
+2. example code
+  to preview the changes 
 
+### Terminal 1
+```
+  npm start
+```
+### Terminal 1
+```
+  cd example
+  npm start
+```
+This will run code on `http://localhost:8080/`
 #### Creating and consuming stores
 
 ```js
