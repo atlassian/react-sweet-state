@@ -172,7 +172,7 @@ function createFunctionContainer({ displayName, override } = {}) {
       return () => {
         containedStores.forEach(
           ({ storeState, handlers, unsubscribe }, Store) => {
-            // Detatch container from subscription
+            // Detach container from subscription
             unsubscribe?.();
             // Trigger a forced update on all subscribers as we opted out from context
             // Some might have already re-rendered naturally, but we "force update" all anyway.

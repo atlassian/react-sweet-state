@@ -185,7 +185,7 @@ const clickAnalytics =
   ({ setState, getState }) => {
     const currentTime = Date.now();
 
-    // Store last anaytics sent and execute
+    // Store last analytics sent and execute
     setState({ lastAnalytics: currentTime });
     sendClickAnalytics(getState());
   };
