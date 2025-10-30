@@ -1,3 +1,9 @@
+```js
+  ⚠️ Warning ⚠️
+  This package is deprecated and the last version has been tested only up to React 18.
+```
+
+
 <p align="center">
   <img src="https://user-images.githubusercontent.com/84136/59560300-2fca8e80-9053-11e9-8f90-76d9ef281ca6.png" alt="react-sweet-state logo" height="150" />
 </p>
