@@ -184,9 +184,9 @@ declare module 'react-sweet-state' {
   /**
    * createStore
    */
-
+  
   function createStore<
-    TState extends object,
+    TState extends Record<string, unknown>,
     TActions extends Record<string, ActionThunk<TState, TActions>>,
     TContainerProps = unknown
   >(
