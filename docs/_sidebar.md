@@ -23,6 +23,10 @@
 
   - [Actions](/testing/actions.md)
 
+- **Resources**
+
+  - [External Tutorials](/resources/tutorials.md)
+
 - **APIs**
 
   - [Actions](/api/actions.md)
