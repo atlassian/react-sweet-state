@@ -282,7 +282,7 @@ describe('Integration', () => {
 
     const App = ({ scopeId }) => (
       <>
-        <HookWrapper name="outter" />
+        <HookWrapper name="outer" />
         <Container scope={scopeId} v={scopeId}>
           <HookWrapper name="inner">
             <SubWrapper />
@@ -296,7 +296,7 @@ describe('Integration', () => {
     await actTick();
 
     expect(calls).toEqual([
-      'HookWrapper[outter]',
+      'HookWrapper[outer]',
       'HookWrapper[inner]',
       'SubWrapper',
       'HookWrapper[in-inner]',
@@ -308,7 +308,7 @@ describe('Integration', () => {
     await actTick();
 
     expect(calls).toEqual([
-      'HookWrapper[outter]',
+      'HookWrapper[outer]',
       'HookWrapper[inner]',
       'SubWrapper',
       'HookWrapper[in-inner]',
