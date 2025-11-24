@@ -8,23 +8,33 @@ import {
 import defaults from '../defaults';
 import supports from './supported-features';
 
-let isInsideBatchedSchedule = false;
+let batchedScheduled = false;
+
+let batched = [];
+
+const executeBatched = () => {
+  unstable_batchedUpdates(() => {
+    while (batched.length) {
+      const currentBatched = batched;
+      batched = [];
+      currentBatched.forEach((fn) => fn());
+    }
+    // important to reset it before exiting this function
+    // as React will dump everything right after
+    batchedScheduled = false;
+  });
+};
 
 export function batch(fn) {
   // if we are in node/tests or nested schedule
-  if (
-    !defaults.batchUpdates ||
-    !supports.scheduling() ||
-    isInsideBatchedSchedule
-  ) {
+  if (!defaults.batchUpdates || !supports.scheduling()) {
     return unstable_batchedUpdates(fn);
   }
 
-  isInsideBatchedSchedule = true;
-  // Use ImmediatePriority as it has -1ms timeout
-  // https://github.com/facebook/react/blob/main/packages/scheduler/src/forks/Scheduler.js#L65
-  return scheduleCallback(ImmediatePriority, function scheduleBatchedUpdates() {
-    unstable_batchedUpdates(fn);
-    isInsideBatchedSchedule = false;
-  });
+  batched.push(fn);
+
+  if (!batchedScheduled) {
+    batchedScheduled = true;
+    return scheduleCallback(ImmediatePriority, executeBatched);
+  }
 }
